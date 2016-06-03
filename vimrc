@@ -71,6 +71,18 @@ Plugin 'majutsushi/tagbar'
 
 Plugin 'altercation/vim-colors-solarized'
 
+Plugin 'morhetz/gruvbox'
+
+Plugin 'tpope/vim-obsession'
+
+Plugin 'tpope/vim-fugitive'
+
+Plugin 'lrvick/Conque-Shell'
+
+Plugin 'christoomey/vim-tmux-runner'
+
+Plugin 'rking/ag.vim'
+
 call vundle#end()            " required
 filetype plugin indent on    " required
 
@@ -141,6 +153,14 @@ nnoremap <leader>jr :JavaRename<space>
 nnoremap <leader>jt :JavaRename <c-r>=expand("<cword>")<cr>
 nnoremap <leader>jc :JavaCorrect<cr>
 
+" CtrlP remaps
+nnoremap <c-l> :CtrlPBuffer<cr>
+let g:ctrlp_max_files = 1000000
+let g:ctrlp_max_depth = 100000
+
+" ag remaps 
+nnoremap <leader>aa :Ag <c-r>=expand("<cword>")<cr><cr>
+
 " remap ultisnips
 let g:UltiSnipsExpandTrigger = "<c-j>"
 let g:UltiSnipsJumpForwardTrigger = "<c-j>"
@@ -148,31 +168,14 @@ let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
 
 imap jk <Esc>
 
-fu! CustomFoldText()
-    "get first non-blank line
-    let fs = v:foldstart
-    while getline(fs) =~ '^\s*$' | let fs = nextnonblank(fs + 1)
-    endwhile
-    if fs > v:foldend
-        let line = getline(v:foldstart)
-    else
-        let line = substitute(getline(fs), '\t', repeat(' ', &tabstop), 'g')
-    endif
-
-    let w = winwidth(0) - &foldcolumn - (&number ? 8 : 0)
-    let foldSize = 1 + v:foldend - v:foldstart
-    let foldSizeStr = " " . foldSize . " lines "
-    let foldLevelStr = repeat("+--", v:foldlevel)
-    let lineCount = line("$")
-    let foldPercentage = printf("[%.1f", (foldSize*1.0)/lineCount*100) . "%] "
-    let expansionString = repeat(".", w - strwidth(foldSizeStr.line.foldLevelStr.foldPercentage))
-    return line . expansionString . foldSizeStr . foldPercentage . foldLevelStr
-endf
-
-set foldtext=CustomFoldText()
+"Conque settings
+let g:ConqueTerm_ReadUnfocused = 1
 
 syntax enable
 set term=screen-256color
 set t_Co=256
 set background=dark
-colorscheme solarized
+"let g:gruvbox_italic=1
+let g:gruvbox_contrast_dark='hard'
+colorscheme gruvbox
+"colorscheme solarized

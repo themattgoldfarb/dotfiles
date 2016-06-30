@@ -43,7 +43,6 @@ set so=5  " scroll offset
 set ignorecase  " make search case insensitive
 filetype off                  " required
 
-
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
@@ -80,6 +79,8 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'lrvick/Conque-Shell'
 
 Plugin 'christoomey/vim-tmux-runner'
+
+Plugin 'christoomey/vim-tmux-navigator'
 
 Plugin 'rking/ag.vim'
 
@@ -155,10 +156,20 @@ nnoremap <leader>jc :JavaCorrect<cr>
 
 " CtrlP remaps
 nnoremap <c-l> :CtrlPBuffer<cr>
-let g:ctrlp_max_files = 1000000
-let g:ctrlp_max_depth = 100000
+let g:ctrlp_max_files = 10000
+let g:ctrlp_max_depth = 100
+let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
+      \ --ignore .git
+      \ --ignore .svn
+      \ --ignore .hg
+      \ --ignore .DS_Store
+      \ --ignore "**/*.pyc"
+      \ --ignore .git5_specs
+      \ --ignore review
+      \ -g ""'
+let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
 
-" ag remaps 
+" ag remaps
 nnoremap <leader>aa :Ag <c-r>=expand("<cword>")<cr><cr>
 
 " remap ultisnips

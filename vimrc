@@ -30,6 +30,9 @@ set nocompatible              " be iMproved, required
 let mapleader = ','
 filetype plugin indent on
 
+func! VimrcCallback()
+endfunc
+
 if filereadable(expand('~/.at_work'))
   source ~/.vimrc_work
 else
@@ -38,53 +41,56 @@ endif
 
 "colorscheme elflord
 
+set clipboard=unnamedplus
 set nu  " show line numbers
 set so=5  " scroll offset
 set ignorecase  " make search case insensitive
 filetype off                  " required
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+call plug#begin('~/vim.plugged')
 
-Plugin 'gmarik/Vundle.vim'
+Plug 'gmarik/Vundle.vim'
 
-Plugin 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree'
 
-Plugin 'scrooloose/nerdcommenter'
+Plug 'scrooloose/nerdcommenter'
 
-Plugin 'scrooloose/syntastic'
+Plug 'scrooloose/syntastic'
 
-Plugin 'kien/ctrlp.vim'
+Plug 'kien/ctrlp.vim'
 
-Plugin 'bling/vim-airline'
+Plug 'bling/vim-airline'
 
-Plugin 'gcmt/taboo.vim'
+Plug 'gcmt/taboo.vim'
 
-Plugin 'SirVer/ultisnips'
+Plug 'SirVer/ultisnips'
 
-Plugin 'honza/vim-snippets'
+Plug 'honza/vim-snippets'
 
-Plugin 'tpope/vim-dispatch'
+Plug 'tpope/vim-dispatch'
 
-Plugin 'majutsushi/tagbar'
+Plug 'majutsushi/tagbar'
 
-Plugin 'altercation/vim-colors-solarized'
+Plug 'altercation/vim-colors-solarized'
 
-Plugin 'morhetz/gruvbox'
+Plug 'morhetz/gruvbox'
 
-Plugin 'tpope/vim-obsession'
+Plug 'tpope/vim-obsession'
 
-Plugin 'tpope/vim-fugitive'
+Plug 'tpope/vim-fugitive'
 
-Plugin 'lrvick/Conque-Shell'
+Plug 'lrvick/Conque-Shell'
 
-Plugin 'christoomey/vim-tmux-runner'
+Plug 'christoomey/vim-tmux-runner'
 
-Plugin 'christoomey/vim-tmux-navigator'
+Plug 'christoomey/vim-tmux-navigator'
 
-Plugin 'rking/ag.vim'
+Plug 'rking/ag.vim'
 
-call vundle#end()            " required
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+
+call plug#end()            " required
 filetype plugin indent on    " required
 
 syntax on
@@ -158,16 +164,16 @@ nnoremap <leader>jc :JavaCorrect<cr>
 nnoremap <c-l> :CtrlPBuffer<cr>
 let g:ctrlp_max_files = 10000
 let g:ctrlp_max_depth = 100
-let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
-      \ --ignore .git
-      \ --ignore .svn
-      \ --ignore .hg
-      \ --ignore .DS_Store
-      \ --ignore "**/*.pyc"
-      \ --ignore .git5_specs
-      \ --ignore review
-      \ -g ""'
-let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
+"let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
+      "\ --ignore .git
+      "\ --ignore .svn
+      "\ --ignore .hg
+      "\ --ignore .DS_Store
+      "\ --ignore "**/*.pyc"
+      "\ --ignore .git5_specs
+      "\ --ignore review
+      "\ -g ""'
+"let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
 
 " ag remaps
 nnoremap <leader>aa :Ag <c-r>=expand("<cword>")<cr><cr>
@@ -182,6 +188,10 @@ imap jk <Esc>
 "Conque settings
 let g:ConqueTerm_ReadUnfocused = 1
 
+nnoremap <leader><leader>o :Files<cr>
+nnoremap <leader><leader>t :BTags<cr>
+nnoremap <leader><leader>l :Lines<cr>
+
 syntax enable
 set term=screen-256color
 set t_Co=256
@@ -190,3 +200,5 @@ set background=dark
 let g:gruvbox_contrast_dark='hard'
 colorscheme gruvbox
 "colorscheme solarized
+
+call VimrcCallback()

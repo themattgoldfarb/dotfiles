@@ -2,7 +2,7 @@
 
 dir=~/dotfiles                    # dotfiles directory
 olddir=~/dotfiles_old             # old dotfiles backup directory
-files="vimrc ideavimrc tmux.conf tmux.reset.conf"    # list of files/folders to symlink in homedir
+files="vimrc ideavimrc tmux.conf tmux.reset.conf xmobarrc xmobarrc2"    # list of files/folders to symlink in homedir
 
 ##########
 

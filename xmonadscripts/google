@@ -1,0 +1,49 @@
+#!/bin/bash
+
+GOOGLE_UTILITIES_PATH=/usr/share/goobuntu-indicator/plugins
+TERMINAL_CMD="/usr/local/bin/urxvtc -e "
+
+if [[ $1 = "--report" ]]; then
+
+    REPORT_TEXT="`date -R`\n\n"
+    REPORT_ICON="emblem-default"
+    REPORT_STATUS=0
+    notify-send -u low -t 1000 -i emblem-synchronizing "Google Status" "Updating in the background..."
+
+    # 'diagnose_me' disabled on purpose
+    PLUGINS=(certificates corp_notifier goobuntu_backups goobuntu_check goobuntu_updater prodcertstatus);
+    for p in "${PLUGINS[@]}"; do
+      MSG=`$GOOGLE_UTILITIES_PATH/check_${p}.py 2>&1`
+      if [[ $? -ne 0 ]]; then
+        REPORT_TEXT+="[FAIL] ${p}: $MSG\n"
+        REPORT_STATUS=-13  # EACCES
+        REPORT_ICON="emblem-important"
+      else
+        REPORT_TEXT+="[OK] ${p}: $MSG\n"
+      fi
+    done;
+    notify-send -u normal -t 4000 -i $REPORT_ICON "Google Status" "$REPORT_TEXT"
+    echo -e $REPORT_TEXT;
+    exit $REPORT_STATUS;
+
+else # Individual metric
+
+    [[ $1 =~ ^[a-zA-Z0-9_-]+$ ]] || exit -22; # EINVAL
+
+    CHECK=$GOOGLE_UTILITIES_PATH/check_${1}.py
+    ACTION=$GOOGLE_UTILITIES_PATH/action_${1}.py
+
+    ([[ -f $CHECK  ]] && [[ -x $CHECK  ]]) || exit -2; # ENOENT
+    ([[ -f $ACTION ]] && [[ -x $ACTION ]]) || exit -2; # ENOENT
+
+    MSG=`$CHECK 2>&1`
+    if [[ $? -ne 0 ]]; then
+      echo -n "<fc=#f00><action=\`$ACTION\`>";
+      echo $MSG | cut -c1-40 | tr -d '\n';
+      echo '</action></fc>';
+    else
+      echo ''
+    fi
+    exit 0;
+
+fi

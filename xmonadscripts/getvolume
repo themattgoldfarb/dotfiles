@@ -1,0 +1,10 @@
+#!/bin/bash
+
+mute=`pactl list sinks | grep "Mute:" | awk '{print $2}' | sed -n 2p`
+
+if [ $mute = "yes" ]
+then 
+  echo 'Muted'
+else
+  pactl list sinks | grep "Volume: 0:" | awk '{print $3}' | sed -n 2p
+fi

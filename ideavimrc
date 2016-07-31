@@ -1,0 +1,12 @@
+
+set nocompatible              " be iMproved, required
+let mapleader = ','
+set clipboard=unnamedplus
+set nu  " show line numbers
+set so=5  " scroll offset
+set ignorecase  " make search case insensitive
+set noruler
+set laststatus=2
+" paste remapping
+nnoremap <leader>p "*p
+noremap <leader>so :so ~/.ideavimrc<CR>

@@ -1,33 +1,38 @@
 import XMonad
+import XMonad.Actions.WorkspaceNames
 import XMonad.Config.Gnome
+import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.FadeInactive
+import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.SetWMName
+import XMonad.Hooks.UrgencyHook
+import XMonad.Layout.Combo
+import XMonad.Layout.Grid
+import XMonad.Layout.IM
+import XMonad.Layout.LayoutCombinators hiding ( (|||) )
+import XMonad.Layout.Master
+import XMonad.Layout.MessageControl
+import XMonad.Layout.Mosaic
+import XMonad.Layout.NoBorders
+import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
 import XMonad.Layout.Tabbed
-import XMonad.Layout.Grid
-import XMonad.Hooks.ManageDocks
---import XMonad.Layout.GridVariants
-import XMonad.Layout.IM
-import Data.Ratio ((%))
-import XMonad.Util.Run(spawnPipe)
-import XMonad.Hooks.DynamicLog
-import System.IO
-import XMonad.Hooks.EwmhDesktops
-import XMonad.Layout.NoBorders
-import XMonad.Hooks.FadeInactive
-import XMonad.Hooks.UrgencyHook
-import XMonad.Actions.WorkspaceNames
+import XMonad.Layout.TwoPane
+import XMonad.Layout.WindowNavigation
 import XMonad.Prompt
 import XMonad.Util.NamedWindows
 import XMonad.Util.Paste
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
-import XMonad.Layout.Combo
-import XMonad.Layout.TwoPane
-import XMonad.Layout.WindowNavigation
-import XMonad.Layout.PerWorkspace
-import qualified XMonad.Actions.FlexibleResize as Flex
+import XMonad.Util.Run(spawnPipe)
+
 import qualified Data.Map as M
+import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.StackSet as W
-import XMonad.Hooks.SetWMName
+
+import Data.Ratio ((%))
+import System.IO
 
 myExtraModMask = mod4Mask
 myModMask = mod1Mask
@@ -35,32 +40,21 @@ myModMask = mod1Mask
 myWorkspaces = ["1:main","2:shell","3:eclipse","4:SideBySide","5","6","7:config","8:break","9:bg"]
 
 defaultLayouts = windowNavigation (
-	onWorkspace "1:main"                    ( combine ||| rtiled ) $
+	onWorkspace "1:main"                    ( combine ) $
 	onWorkspaces ["2:shell","3:eclipse"]    ( simpleTabbed ||| Full ||| tiled ||| rtiled ) $
 	onWorkspace "4:SideBySide"              ( TwoPane 0.03 0.5 ) $
 	tiled 		|||  rtiled |||  mtiled        |||
 	simpleTabbed	||| Full    |||  combine |||
 	rcombine)
   where
- --   split   = SplitGrid XMonad.Layout.GridVariants.L 1 1 (1/2) (3/3) (5/100)
-  --  rsplit = reflectHoriz split
     grid = GridRatio (9/10)
     im = withIM (1%7) (Title "Hangouts") grid
     rim = reflectHoriz im
     rtiled = reflectHoriz tiled
     mtiled = Mirror tiled
-    -- default tiling algorithm partitions the screen into two panes
-    tiled   = Tall nmaster delta ratio
-    -- The default number of windows in the master pane
-    nmaster = 1
-    -- Default proportion of screen occupied by master pane
-    ratio   = 1/2
-    -- Percent of screen to increment by when resizing panes
-    delta   = 3/100
-    combine = combineTwo (TwoPane 0.03 0.2) (GridRatio 0.9) (simpleTabbed)
+    tiled   = Tall 1 0.03 0.5
+    combine = (grid ||| (simpleTabbed *//* grid )) *||* (ignore NextLayout $ unEscape (simpleTabbed ||| rtiled))
     rcombine = reflectHoriz combine
-
-
 
 myLayout = smartBorders . avoidStruts $ defaultLayouts
 
@@ -76,6 +70,7 @@ myManageHook = manageHook gnomeConfig
 	<+> composeAll [
 		resource =? "synapse" --> doFloat
 	,	className =? "Eclipse" --> doShift "3:eclipse"
+	,	className =? "jetbrains-idea-ce" --> doShift "5"
 	,	className =? "sun-awt-X11-XFramePeer" --> doShift "5"
         ,	stringProperty "WM_WINDOW_ROLE" =? "pop-up" --> doF W.swapDown
 	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "1:main"
@@ -108,6 +103,18 @@ keysToAdd x = [ ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
 	      , ((myModMask .|. controlMask .|. shiftMask, xK_Up   ), sendMessage $ Move U)
 	      , ((myModMask .|. controlMask .|. shiftMask, xK_Down ), sendMessage $ Move D)
 	      {-, ((myModMask .|. controlMask .|. shiftMask, xK_s    ), sendMessage $ SwapWindow)-}
+
+              , ((myModMask , xK_h ), sendMessage $ escape Expand) -- %! Expand the master area of the sublayout
+              , ((myModMask , xK_l ), sendMessage $ escape Shrink) -- %! Shrink the master area of the sublayout
+              , ((myModMask , xK_space ), sendMessage $ escape NextLayout) -- %! Expand the master area of the sublayout
+
+	      , ((myExtraModMask, xK_a), sendMessage Taller)
+	      , ((myExtraModMask, xK_z), sendMessage Wider)
+	      , ((myExtraModMask, xK_r), sendMessage Reset)
+
+	      {-, ((myExtraModMask, xK_Print), spawn "scrot screen_%Y-%m-%d-%H-%M-%S.png -d 1 -e 'mv $f ~/Screenshots/'")-}
+	      , ((myExtraModMask , xK_Print), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'")
+
 	      ]
 
 myMouse x = [ ((myModMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
@@ -134,12 +141,12 @@ pp = case sBar of
 main = do
     xmproc <- spawnPipe "xmobar ~/.xmobarrc"
     xmobar2 <- spawnPipe "xmobar ~/.xmobarrc2"
-    xmonad 
+    xmonad
     	$ withUrgencyHook LibNotifyUrgencyHook
         $ ewmh defaultConfig {
 		layoutHook = myLayout
 		,modMask = mod4Mask
-		,borderWidth = 0
+		,borderWidth = 1
 		,workspaces=myWorkspaces
 		,mouseBindings = newMouse
 		,keys = myKeys

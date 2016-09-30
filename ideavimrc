@@ -10,3 +10,5 @@ set laststatus=2
 " paste remapping
 nnoremap <leader>p "*p
 noremap <leader>so :so ~/.ideavimrc<CR>
+
+nnoremap <leader>db $V%jd

@@ -85,7 +85,7 @@ Plug 'christoomey/vim-tmux-runner'
 
 Plug 'christoomey/vim-tmux-navigator'
 
-Plug 'rking/ag.vim'
+Plug 'mileszs/ack.vim'
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
@@ -152,6 +152,13 @@ let g:syntastic_check_on_wq = 0
 nnoremap <leader>en :lnext<CR>
 nnoremap <leader>ep :lprevious<CR>
 
+" Fugitive shortcuts
+nnoremap <leader>gs :Gstatus<CR>
+nnoremap <leader>gh :diffget //2<CR>
+nnoremap <leader>gl :diffget //3<CR>
+nnoremap <leader>gg :diffget <CR>
+nnoremap <leader>gc :Gcommit <CR>
+
 " eclim shortcuts
 nnoremap <leader>ji :JavaImport<cr>
 nnoremap <leader>jd :JavaDocSearch -x declarations<cr>
@@ -159,6 +166,9 @@ nnoremap <leader>js :JavaSearchContext<cr>
 nnoremap <leader>jr :JavaRename<space>
 nnoremap <leader>jt :JavaRename <c-r>=expand("<cword>")<cr>
 nnoremap <leader>jc :JavaCorrect<cr>
+
+" Bind ag to ack.vim
+let g:ackprg = 'ag --nogroup --nocolor --column'
 
 " CtrlP remaps
 nnoremap <c-l> :CtrlPBuffer<cr>

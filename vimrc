@@ -172,8 +172,8 @@ let g:ackprg = 'ag --nogroup --nocolor --column'
 
 " CtrlP remaps
 nnoremap <c-l> :CtrlPBuffer<cr>
-let g:ctrlp_max_files = 10000
-let g:ctrlp_max_depth = 100
+let g:ctrlp_max_files = 20000
+let g:ctrlp_max_depth = 10
 "let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
       "\ --ignore .git
       "\ --ignore .svn

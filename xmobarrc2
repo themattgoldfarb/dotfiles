@@ -11,5 +11,5 @@ Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
     ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "%StdinReader% } %pomodoro% { %datetime%"
+    , template = "%StdinReader% } hello %pomodoro% { %datetime%"
 }

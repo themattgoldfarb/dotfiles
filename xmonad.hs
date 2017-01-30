@@ -33,6 +33,7 @@ import qualified XMonad.StackSet as W
 
 import Data.Ratio ((%))
 import System.IO
+import System.Posix.Unistd
 
 myExtraModMask = mod4Mask
 myModMask = mod1Mask
@@ -77,10 +78,26 @@ myManageHook = manageHook gnomeConfig
 	]
 	<+> manageDocks
 
+myXMobarHook xmobar =
+    workspaceNamesPP pp {
+        ppOutput = hPutStrLn xmobar
+        ,ppTitle = xmobarColor "green" "" . shorten 50
+    } >>= dynamicLogWithPP 
 
-myLogHook :: X ()
-myLogHook = fadeInactiveLogHook fadeAmount
-		where fadeAmount = 0.7
+
+{-myDualMonitorLogHook :: MonadIO m0 => m0 [Handle] -> m0 [Handle] -> X ()-}
+myDualMonitorLogHook xmobar xmobar2 = do
+    fadeInactiveLogHook 0.7
+    myXMobarHook xmobar2
+    myXMobarHook xmobar
+    setWMName "LG3D"
+
+mySingleMonitorLogHook xmobar = do
+    fadeInactiveLogHook 0.7
+    myXMobarHook xmobar
+    setWMName "LG3D"
+
+myLogHook = myDualMonitorLogHook
 
 keysToAdd x = [ ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
 	      , ((myExtraModMask, xK_p), spawn "echo '25 5' > ~/.pomodoro_session")
@@ -139,8 +156,10 @@ pp = case sBar of
 	"xmobar" -> xmobarPP
 
 main = do
-    xmproc <- spawnPipe "xmobar ~/.xmobarrc"
+    host <- fmap nodeName getSystemID
+    xmobar <- spawnPipe "xmobar ~/.xmobarrc"
     xmobar2 <- spawnPipe "xmobar ~/.xmobarrc2"
+    xmobar_single <- spawnPipe "xmobar ~/.xmobarrc_single"
     xmonad
     	$ withUrgencyHook LibNotifyUrgencyHook
         $ ewmh defaultConfig {
@@ -150,26 +169,14 @@ main = do
 		,workspaces=myWorkspaces
 		,mouseBindings = newMouse
 		,keys = myKeys
-		,startupHook = setWMName "LG3D"
-	--	,startupHook = do
-	--		spawn "xcompmgr -n"
+		,startupHook = do
+            setWMName "LG3D"
 		,manageHook = myManageHook
-		--,handleEventHook = handleEventHook defaultConfig <+> fullscreenEventHook
-		,logHook =
-		    myLogHook <+>
-		    ( workspaceNamesPP pp
-			{ ppOutput = hPutStrLn xmobar2
-			, ppTitle = xmobarColor "green" "" . shorten 50
-		    } >>= dynamicLogWithPP ) <+>
-		    ( workspaceNamesPP pp
-			{ ppOutput = hPutStrLn xmproc
-			, ppTitle = xmobarColor "green" "" . shorten 50
-		    } >>= dynamicLogWithPP ) <+>
-		    ( setWMName "LG3D" )
-		   -- 	{ ppOutput = hPutStrLn xmobar2
-		   --     , ppTitle = xmobarColor "green" "" .shorten 50
-		   --     } >>= dynamicLogWithPP
-		     -- <+> myLogHook
+        ,logHook = (
+            if host == "mattbook"
+            then mySingleMonitorLogHook xmobar_single
+            else myDualMonitorLogHook xmobar xmobar2
+        )
 	}`additionalKeysP` myEzKeys
 
 

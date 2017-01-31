@@ -87,25 +87,44 @@ Plug 'christoomey/vim-tmux-navigator'
 
 Plug 'mileszs/ack.vim'
 
+Plug 'starcraftman/vim-eclim'
+
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+  Plug 'vhakulinen/neovim-intellij-complete-deoplete'
+endif
+
+
 call plug#end()            " required
 filetype plugin indent on    " required
+
 
 syntax on
 set noruler
 set laststatus=2
 
-" YouCompleteMe remappings
-nnoremap <leader>yg :YcmCompleter GoTo<CR>
-nnoremap <leader>yd :YcmCompleter GoToDeclaration<CR>
-nnoremap <leader>yf :YcmCompleter GoToDefinition<CR>
-nnoremap <leader>yt :YcmCompleter GetType<CR>
-nnoremap <leader>yp :YcmCompleter GetParent<CR>
-let g:EclimCompletionMethod = 'omnifunc'
-let g:ycm_auto_trigger = 1
-let g:ycm_add_preview_to_completeopt = 2
+if has('nvim')
+  let g:deoplete#enable_at_startup = 1
+  let g:deoplete#auto_complete_start_length = 1
+  inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+  "inoremap <silent><expr> <Tab>
+  "\ pumvisible() ? "\<C-n>" :
+  "\ deoplete#mappings#manual_complete()
+else
+  " YouCompleteMe remappings
+  nnoremap <leader>yg :YcmCompleter GoTo<CR>
+  nnoremap <leader>yd :YcmCompleter GoToDeclaration<CR>
+  nnoremap <leader>yf :YcmCompleter GoToDefinition<CR>
+  nnoremap <leader>yt :YcmCompleter GetType<CR>
+  nnoremap <leader>yp :YcmCompleter GetParent<CR>
+  let g:EclimCompletionMethod = 'omnifunc'
+  let g:ycm_auto_trigger = 1
+  let g:ycm_add_preview_to_completeopt = 2
+  "let g:ycm_filetype_whitelist = {'cpp' :1, 'cc' : 1}
+endif
 
 " Taglist remappings
 
@@ -116,6 +135,25 @@ let g:tagbar_left = 1
 let g:tagbar_autofocus = 1
 nnoremap <leader>tt :TagbarOpen j<CR>
 nnoremap <leader>tb :TagbarToggle<CR>
+
+
+let g:tagbar_type_sh = {
+    \ 'kinds' : [
+        \ 'f:functions',
+        \ 'a:aliases',
+        \ 'v:variables:1',
+    \ ],
+\ }
+
+let g:tagbar_type_gcl = {
+    \ 'ctagstype': 'gcl',
+    \ 'kinds' : [
+        \ 'r:rollouts',
+        \ 'p:params',
+        \ 'c:conditions',
+        \ 'l:local condition',
+    \ ],
+\ }
 
 " NERDTree remappings
 nnoremap <leader>tr :NERDTreeFind<CR>
@@ -203,8 +241,10 @@ nnoremap <leader><leader>t :BTags<cr>
 nnoremap <leader><leader>l :Lines<cr>
 
 syntax enable
-set term=screen-256color
-set t_Co=256
+if !has('nvim')
+  set term=screen-256color
+  set t_Co=256
+endif
 set background=dark
 "let g:gruvbox_italic=1
 let g:gruvbox_contrast_dark='hard'

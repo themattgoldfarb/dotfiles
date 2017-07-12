@@ -1,0 +1,37 @@
+Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
+    , bgColor = "black"
+    , fgColor = "grey"
+    , position = Top
+    , lowerOnStart = False
+    , allDesktops = True
+    , commands = [
+
+-- battery monitor
+        Run Battery        [ "--template" , "Batt: <acstatus>"
+                             , "--Low"      , "10"        -- units: %
+                             , "--High"     , "80"        -- units: %
+                             , "--low"      , "darkred"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkgreen"
+
+                             , "--" -- battery specific options
+                                       -- discharging status
+                                       , "-o"	, "<left>% (<timeleft>)"
+                                       -- AC "on" status
+                                       , "-O"	, "<fc=#dAA520>Charging</fc>"
+                                       -- charged status
+                                       , "-i"	, "<fc=#006000>Charged</fc>"
+                             ] 50,
+
+	 Run Cpu           ["-t", "CPU: <total>%",    "-m", "2", "-L", "30",    "-l", "#aaa", "-n", "#eee",   "-H", "90",    "-h", "orange"] 10,
+	 Run CoreTemp      ["-t", "<core0>°C",        "-m", "2", "-L", "55",    "-l", "#aaa", "-n", "orange", "-H", "80",    "-h", "red"   ] 10,
+	 Run Memory        ["-t", "Mem: <used> MiB",             "-L", "32000", "-l", "#aaa", "-n", "orange", "-H", "48000", "-h", "red"   ] 10,
+	 Run Network "em1" ["-t", "Net: <rx>↓ <tx>↑", "-m", "3", "-L", "200",   "-l", "#aaa", "-n", "#eee",   "-H", "15000", "-h", "orange"] 10,
+	 Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
+	 Run Com ".xmonad/scripts/getvolume" [ ] "sound"   5,
+	 Run StdinReader
+    ]
+    , sepChar = "%"
+    , alignSep = "}{"
+    , template = "%StdinReader% } <fc=#777><action='.xmonad/scripts/volumedown'> [-]</action><action='.xmonad/scripts/volumemute'>%sound%</action><action='.xmonad/scripts/volumeup'>[+]</action> | %cpu% %coretemp% | %memory% | %em1% | %battery% </fc>{%datetime%"
+}

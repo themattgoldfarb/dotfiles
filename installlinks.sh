@@ -5,9 +5,9 @@ OLD_DIR=~/dotfiles_old             # old dotfiles backup directory
 XMONAD_SCRIPTS=~/.xmonad/scripts
 
 # list of files/folders to symlink in homedir
-files="vimrc ideavimrc tmux.conf tmux.reset.conf \
+files="vimrc ideavimrc tmux.conf \
        xmobarrc xmobarrc2 xmobarrc_single \
-       arrowkeyremap Xmodmap" 
+       arrowkeyremap Xmodmap"
 
 declare -A SPECIAL
 SPECIAL=(

@@ -13,10 +13,11 @@ import XMonad.Layout.IM
 import XMonad.Layout.LayoutCombinators hiding ( (|||) )
 import XMonad.Layout.Master
 import XMonad.Layout.MessageControl
-import XMonad.Layout.Mosaic
+import XMonad.Layout.MosaicAlt
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
+import XMonad.Layout.Renamed
 import XMonad.Layout.Tabbed
 import XMonad.Layout.TwoPane
 import XMonad.Layout.WindowNavigation
@@ -37,24 +38,24 @@ import System.IO
 myExtraModMask = mod4Mask
 myModMask = mod1Mask
 
-myWorkspaces = ["1:main","2:shell","3:eclipse","4:SideBySide","5","6","7:config","8:break","9:bg"]
+myWorkspaces = ["1","2","3","4","5","6","7","8","9"]
 
 defaultLayouts = windowNavigation (
-	onWorkspace "1:main"                    ( combine ) $
-	onWorkspaces ["2:shell","3:eclipse"]    ( simpleTabbed ||| Full ||| tiled ||| rtiled ) $
-	onWorkspace "4:SideBySide"              ( TwoPane 0.03 0.5 ) $
-	tiled 		|||  rtiled |||  mtiled        |||
-	simpleTabbed	||| Full    |||  combine |||
-	rcombine)
+  onWorkspace "1"   ( combine ||| rcombine ) $
+  onWorkspace "9"   ( combine ||| rcombine ) $
+  onWorkspace "2"   ( tabbed ) $
+  onWorkspace "3"   ( tabbed ) $
+  onWorkspace "5"   ( tabbed ||| mtiled ) $
+	tabbed	||| tiled |||  rtiled ||| mtiled)
   where
-    grid = GridRatio (9/10)
-    im = withIM (1%7) (Title "Hangouts") grid
-    rim = reflectHoriz im
-    rtiled = reflectHoriz tiled
-    mtiled = Mirror tiled
-    tiled   = Tall 1 0.03 0.5
-    combine = (grid ||| (simpleTabbed *//* grid )) *||* (ignore NextLayout $ unEscape (simpleTabbed ||| rtiled))
-    rcombine = reflectHoriz combine
+    tabbed = renamed [Replace "tabbed"] $ simpleTabbed
+    mos = MosaicAlt M.empty
+    rtiled = renamed [Replace "rtiled"] $ reflectHoriz tiled
+    mtiled = renamed [Replace "mtiled"] $ Mirror tiled
+    tiled  = renamed [Replace "tiled"] $ Tall 1 0.03 0.5
+    grid = renamed [Replace "grid"] $ GridRatio (0.5)
+    combine = renamed [Replace "combine"] $ (grid ||| (simpleTabbed *//**** grid )) *||**** (ignore NextLayout $ unEscape (simpleTabbed ||| rtiled))
+    rcombine = renamed [Replace "rcombine"] $ reflectHoriz combine
 
 myLayout = smartBorders . avoidStruts $ defaultLayouts
 
@@ -69,11 +70,11 @@ instance UrgencyHook LibNotifyUrgencyHook where
 myManageHook = manageHook gnomeConfig
 	<+> composeAll [
 		resource =? "synapse" --> doFloat
-	,	className =? "Eclipse" --> doShift "3:eclipse"
+	,	className =? "Eclipse" --> doShift "3"
 	,	className =? "jetbrains-idea-ce" --> doShift "5"
 	,	className =? "sun-awt-X11-XFramePeer" --> doShift "5"
         ,	stringProperty "WM_WINDOW_ROLE" =? "pop-up" --> doF W.swapDown
-	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "1:main"
+	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "1"
 	]
 	<+> manageDocks
 
@@ -102,15 +103,26 @@ keysToAdd x = [ ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
 	      , ((myModMask .|. controlMask .|. shiftMask, xK_Left ), sendMessage $ Move L)
 	      , ((myModMask .|. controlMask .|. shiftMask, xK_Up   ), sendMessage $ Move U)
 	      , ((myModMask .|. controlMask .|. shiftMask, xK_Down ), sendMessage $ Move D)
+
+	      , ((myModMask .|. controlMask .|. shiftMask, xK_l), sendMessage $ Move R)
+	      , ((myModMask .|. controlMask .|. shiftMask, xK_h), sendMessage $ Move L)
+	      , ((myModMask .|. controlMask .|. shiftMask, xK_k), sendMessage $ Move U)
+	      , ((myModMask .|. controlMask .|. shiftMask, xK_j), sendMessage $ Move D)
 	      {-, ((myModMask .|. controlMask .|. shiftMask, xK_s    ), sendMessage $ SwapWindow)-}
 
               , ((myModMask , xK_h ), sendMessage $ escape Expand) -- %! Expand the master area of the sublayout
               , ((myModMask , xK_l ), sendMessage $ escape Shrink) -- %! Shrink the master area of the sublayout
               , ((myModMask , xK_space ), sendMessage $ escape NextLayout) -- %! Expand the master area of the sublayout
 
-	      , ((myExtraModMask, xK_a), sendMessage Taller)
-	      , ((myExtraModMask, xK_z), sendMessage Wider)
-	      , ((myExtraModMask, xK_r), sendMessage Reset)
+				{-, ((myExtraModMask, xK_a), sendMessage Taller)-}
+				{-, ((myExtraModMask, xK_z), sendMessage Wider)-}
+				{-, ((myExtraModMask, xK_r), sendMessage Reset)-}
+
+     , ((myExtraModMask .|. shiftMask  , xK_a    ), withFocused (sendMessage . expandWindowAlt))
+     , ((myExtraModMask .|. shiftMask  , xK_z    ), withFocused (sendMessage . shrinkWindowAlt))
+     , ((myExtraModMask .|. shiftMask  , xK_s    ), withFocused (sendMessage . tallWindowAlt))
+     , ((myExtraModMask .|. shiftMask  , xK_d    ), withFocused (sendMessage . wideWindowAlt))
+     , ((myExtraModMask .|. shiftMask, xK_r), sendMessage resetAlt)
 
 	      {-, ((myExtraModMask, xK_Print), spawn "scrot screen_%Y-%m-%d-%H-%M-%S.png -d 1 -e 'mv $f ~/Screenshots/'")-}
 	      , ((myExtraModMask , xK_Print), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'")
@@ -158,13 +170,15 @@ main = do
 		,logHook =
 		    myLogHook <+>
 		    ( workspaceNamesPP pp
-			{ ppOutput = hPutStrLn xmobar2
-			, ppTitle = xmobarColor "green" "" . shorten 50
-		    } >>= dynamicLogWithPP ) <+>
+          { ppOutput = hPutStrLn xmobar2
+          , ppLayout = shorten 50
+          , ppTitle = xmobarColor "green" "" . shorten 50
+          } >>= dynamicLogWithPP ) <+>
 		    ( workspaceNamesPP pp
-			{ ppOutput = hPutStrLn xmproc
-			, ppTitle = xmobarColor "green" "" . shorten 50
-		    } >>= dynamicLogWithPP ) <+>
+          { ppOutput = hPutStrLn xmproc
+          , ppLayout = shorten 50
+          , ppTitle = xmobarColor "green" "" . shorten 50
+            } >>= dynamicLogWithPP ) <+>
 		    ( setWMName "LG3D" )
 		   -- 	{ ppOutput = hPutStrLn xmobar2
 		   --     , ppTitle = xmobarColor "green" "" .shorten 50

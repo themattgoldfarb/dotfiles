@@ -5,13 +5,6 @@ Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
     , lowerOnStart = False
     , allDesktops = True
     , commands = [
-   Run MultiCpu       [ "--template" , "Cpu: <total0>%|<total1>%|<total2>%|<total3>%|<total4>%|<total5>%|<total6>%|<total7>%|<total8>%|<total9>%|<total10>%|<total11>%"
-                             , "--Low"      , "50"         -- units: %
-                             , "--High"     , "85"         -- units: %
-                             , "--low"      , "darkgreen"
-                             , "--normal"   , "darkorange"
-                             , "--high"     , "darkred"
-                             ] 10,
 	 Run Cpu           ["-t", "CPU: <total>%",    "-m", "2", "-L", "30",    "-l", "#aaa", "-n", "#eee",   "-H", "90",    "-h", "orange"] 10,
 	 Run Memory        ["-t", "Mem: <used> MiB",             "-L", "32000", "-l", "#aaa", "-n", "orange", "-H", "48000", "-h", "red"   ] 10,
 	 Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
@@ -26,5 +19,5 @@ Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
     ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "<action=`.xmonad/scripts/google --report`>[G]</action> %g_crt%%g_crp%%g_bak%%g_chk%%g_upt%%g_prd% } <fc=#777><action='.xmonad/scripts/volumedown'> [-]</action><action='.xmonad/scripts/volumemute'>%sound%</action><action='.xmonad/scripts/volumeup'>[+]</action> | %multicpu% | %memory% </fc>{%datetime%"
+    , template = "<action=`.xmonad/scripts/google --report`>[G]</action> %g_crt%%g_crp%%g_bak%%g_chk%%g_upt%%g_prd% } <fc=#777><action='.xmonad/scripts/volumedown'> [-]</action><action='.xmonad/scripts/volumemute'>%sound%</action><action='.xmonad/scripts/volumeup'>[+]</action> | %cpu% | %memory% </fc>{%datetime%"
 }

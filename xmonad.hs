@@ -171,15 +171,16 @@ main = do
 		    myLogHook <+>
 		    ( workspaceNamesPP pp
           { ppOutput = hPutStrLn xmobar2
-          , ppLayout = shorten 50
+          {-, ppLayout = shorten 50-}
           , ppTitle = xmobarColor "green" "" . shorten 50
-          } >>= dynamicLogWithPP ) <+>
-		    ( workspaceNamesPP pp
-          { ppOutput = hPutStrLn xmproc
-          , ppLayout = shorten 50
-          , ppTitle = xmobarColor "green" "" . shorten 50
-            } >>= dynamicLogWithPP ) <+>
-		    ( setWMName "LG3D" )
+          } >>= dynamicLogWithPP )
+          {-<+>-}
+				{-( workspaceNamesPP pp-}
+          {-{ ppOutput = hPutStrLn xmproc-}
+          {-{-, ppLayout = shorten 50-}-}
+          {-, ppTitle = xmobarColor "green" "" . shorten 50-}
+            {-} >>= dynamicLogWithPP ) <+>-}
+				{-( setWMName "LG3D" )-}
 		   -- 	{ ppOutput = hPutStrLn xmobar2
 		   --     , ppTitle = xmobarColor "green" "" .shorten 50
 		   --     } >>= dynamicLogWithPP

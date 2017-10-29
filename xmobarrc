@@ -1,7 +1,7 @@
 Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
     , bgColor = "black"
     , fgColor = "grey"
-    , position = Static { xpos = 1920, ypos = 0, width=1920, height = 20}
+    , position = Static { xpos = 1920, ypos = 0, width=1820, height = 20}
     , lowerOnStart = False
     , allDesktops = True
     , commands = [
@@ -10,13 +10,13 @@ Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
 	 Run Memory        ["-t", "Mem: <used> MiB",             "-L", "32000", "-l", "#aaa", "-n", "orange", "-H", "48000", "-h", "red"   ] 10,
 	 Run Network "em1" ["-t", "Net: <rx>↓ <tx>↑", "-m", "3", "-L", "200",   "-l", "#aaa", "-n", "#eee",   "-H", "15000", "-h", "orange"] 10,
 	 Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
-	 Run Com ".xmonad/scripts/google" [ "certificates"     ] "g_crt" 2400,
-	 Run Com ".xmonad/scripts/google" [ "corp_notifier"    ] "g_crp"  150,
-	 Run Com ".xmonad/scripts/google" [ "goobuntu_backups" ] "g_bak"  600,
-	 Run Com ".xmonad/scripts/google" [ "goobuntu_check"   ] "g_chk"  600,
-	 Run Com ".xmonad/scripts/google" [ "goobuntu_updater" ] "g_upt"  150,
-	 Run Com ".xmonad/scripts/google" [ "prodcertstatus"   ] "g_prd"   40,
-	 Run Com ".xmonad/scripts/getvolume" [ ] "sound"   5,
+	 Run Com "/home/goldfarb/.xmonad/scripts/google" [ "certificates"     ] "g_crt" 2400,
+	 Run Com "/home/goldfarb/.xmonad/scripts/google" [ "corp_notifier"    ] "g_crp"  150,
+	 Run Com "/home/goldfarb/.xmonad/scripts/google" [ "goobuntu_backups" ] "g_bak"  600,
+	 Run Com "/home/goldfarb/.xmonad/scripts/google" [ "goobuntu_check"   ] "g_chk"  600,
+	 Run Com "/home/goldfarb/.xmonad/scripts/google" [ "goobuntu_updater" ] "g_upt"  150,
+	 Run Com "/home/goldfarb/.xmonad/scripts/google" [ "prodcertstatus"   ] "g_prd"   40,
+	 Run Com "/home/goldfarb/.xmonad/scripts/getvolume" [ ] "sound"   5,
 	 Run StdinReader
     ]
     , sepChar = "%"

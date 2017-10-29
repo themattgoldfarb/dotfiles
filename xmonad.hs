@@ -152,7 +152,7 @@ pp = case sBar of
 
 main = do
     xmproc <- spawnPipe "xmobar ~/.xmobarrc"
-    xmobar2 <- spawnPipe "xmobar ~/.xmobarrc2"
+    term <- spawnPipe "gnome-terminal"
     xmonad
     	$ withUrgencyHook LibNotifyUrgencyHook
         $ ewmh defaultConfig {
@@ -170,11 +170,6 @@ main = do
 		,logHook =
 		    myLogHook <+>
 		    ( workspaceNamesPP pp
-          { ppOutput = hPutStrLn xmobar2
-          {-, ppLayout = shorten 50-}
-          , ppTitle = xmobarColor "green" "" . shorten 50
-          } >>= dynamicLogWithPP )
-          {-<+>-}
 				{-( workspaceNamesPP pp-}
           {-{ ppOutput = hPutStrLn xmproc-}
           {-{-, ppLayout = shorten 50-}-}

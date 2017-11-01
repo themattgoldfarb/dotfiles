@@ -155,7 +155,8 @@ main = do
     xmproc <- spawnPipe "/home/goldfarb/.cabal/bin/xmobar ~/.xmobarrc"
     xmonad
     	$ withUrgencyHook LibNotifyUrgencyHook
-        $ ewmh defaultConfig {
+        $ ewmh 
+          $ docks defaultConfig {
 		layoutHook = myLayout
 		,modMask = mod4Mask
 		,borderWidth = 1

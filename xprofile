@@ -1,0 +1,9 @@
+xcompmgr &
+
+trayer --edge top --align right --SetDockType true --SetPartialStrut true  --expand true --widthtype pixel --width 100 --transparent true --tint 0x000000 --height 20 &
+parcellite &
+synapse &
+swap.sh
+
+feh --bg-scale ~/wallpaper/spider-man.jpg
+

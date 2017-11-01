@@ -7,7 +7,7 @@ XMONAD_SCRIPTS=~/.xmonad/scripts
 # list of files/folders to symlink in homedir
 files="vimrc ideavimrc tmux.conf \
        xmobarrc xmobarrc2 xmobarrc_single \
-       arrowkeyremap Xmodmap"
+       arrowkeyremap Xmodmap xprofile Xresources"
 
 declare -A SPECIAL
 SPECIAL=(

@@ -306,6 +306,11 @@ let g:gruvbox_contrast_dark='hard'
 colorscheme gruvbox
 "colorscheme solarized
 
+nnoremap <leader>gf :call fzf#run({
+      \ 'source': 'source ~/scripts/editedfiles.sh && __editedFiles',
+      \ 'sink': 'e',
+      \ 'down' : '30%'}) <cr>
+
 
 nnoremap <leader>rb :call fzf#run({
       \ 'source': 'source ~/scripts/targets_fast.sh && _get_targets_fast',

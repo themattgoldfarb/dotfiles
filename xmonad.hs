@@ -153,7 +153,6 @@ pp = case sBar of
 
 main = do
     xmproc <- spawnPipe "/home/goldfarb/.cabal/bin/xmobar ~/.xmobarrc"
-    trayer <- spawnPipe "trayer --edge top --align right --SetDockType true --SetPartialStrut true  --expand false --widthtype pixel --width 400 --transparent false --tint 0x000000 --height 40"
     xmonad
     	$ withUrgencyHook LibNotifyUrgencyHook
         $ ewmh defaultConfig {

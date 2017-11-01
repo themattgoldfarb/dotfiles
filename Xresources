@@ -46,8 +46,8 @@ URxvt*scrollBar:  false
 
 !urxvt.font: xft:Ubuntu Mono:size=9
 !urxvt.boldfont: xft:Ubuntu Mono-Bold:size=9
-urxvt.font: xft:Terminus:size=9
-urxvt.boldfont: xft:Terminus-Bold:size=9
+urxvt.font: xft:Terminus:size=10
+urxvt.boldfont: xft:Terminus-Bold:size=10
 URxvt*letterSpace: 0
 
 Urxvt.perl-lib: /usr/lib/urxvt/perl/

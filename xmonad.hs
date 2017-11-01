@@ -152,7 +152,6 @@ pp = case sBar of
 
 main = do
     xmproc <- spawnPipe "xmobar ~/.xmobarrc"
-    term <- spawnPipe "gnome-terminal"
     xmonad
     	$ withUrgencyHook LibNotifyUrgencyHook
         $ ewmh defaultConfig {

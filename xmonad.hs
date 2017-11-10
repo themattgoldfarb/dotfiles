@@ -122,7 +122,6 @@ keysToAdd x = [ ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
      , ((myExtraModMask .|. shiftMask  , xK_d    ), withFocused (sendMessage . wideWindowAlt))
      , ((myExtraModMask .|. shiftMask, xK_r), sendMessage resetAlt)
 
-	      {-, ((myExtraModMask, xK_Print), spawn "scrot screen_%Y-%m-%d-%H-%M-%S.png -d 1 -e 'mv $f ~/Screenshots/'")-}
 	      , ((myExtraModMask , xK_Print), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'")
 
 	      ]
@@ -151,7 +150,7 @@ pp = case sBar of
 	"xmobar" -> xmobarPP
 
 main = do
-    xmproc <- spawnPipe "xmobar ~/.xmobarrc"
+    xmproc <- spawnPipe "/home/goldfarb/.cabal/bin/xmobar ~/.xmobarrc"
     xmonad
     	$ withUrgencyHook LibNotifyUrgencyHook
         $ ewmh 
@@ -163,23 +162,12 @@ main = do
 		,mouseBindings = newMouse
 		,keys = myKeys
 		,startupHook = setWMName "LG3D"
-	--	,startupHook = do
-	--		spawn "xcompmgr -n"
 		,manageHook = myManageHook
-		--,handleEventHook = handleEventHook defaultConfig <+> fullscreenEventHook
-		,logHook =
-		    myLogHook <+>
-		    ( workspaceNamesPP pp
-				{-( workspaceNamesPP pp-}
-          {-{ ppOutput = hPutStrLn xmproc-}
-          {-{-, ppLayout = shorten 50-}-}
-          {-, ppTitle = xmobarColor "green" "" . shorten 50-}
-            {-} >>= dynamicLogWithPP ) <+>-}
-				{-( setWMName "LG3D" )-}
-		   -- 	{ ppOutput = hPutStrLn xmobar2
-		   --     , ppTitle = xmobarColor "green" "" .shorten 50
-		   --     } >>= dynamicLogWithPP
-		     -- <+> myLogHook
+	  ,logHook = myLogHook <+> (
+            workspaceNamesPP pp
+            { ppOutput = hPutStrLn xmproc
+            , ppTitle = xmobarColor "green" "" . shorten 50
+            } >>= dynamicLogWithPP )	
 	}`additionalKeysP` myEzKeys
 
 

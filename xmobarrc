@@ -1,4 +1,4 @@
-Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
+Config {
       font = "xft:Terminus:size=10,dpi=192,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull"
     , bgColor = "black"
     , fgColor = "grey"

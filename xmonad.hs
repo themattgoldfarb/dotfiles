@@ -65,7 +65,7 @@ instance UrgencyHook LibNotifyUrgencyHook where
 		Just idx <- fmap (W.findTag w) $ gets windowset
 		safeSpawn "notify-send" [show name, "workspace " ++ idx]
 
-myManageHook = manageHook gnomeConfig
+myManageHook = manageHook defaultConfig
 	<+> composeAll [
 		resource =? "synapse" --> doFloat
 	,	className =? "Eclipse" --> doShift "3"
@@ -83,6 +83,7 @@ myLogHook = fadeInactiveLogHook fadeAmount
 
 keysToAdd x = [ ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
 	      , ((myExtraModMask, xK_p), spawn "echo '25 5' > ~/.pomodoro_session")
+	      , ((myExtraModMask, xK_b), sendMessage ToggleStruts )
 	      , ((myModMask .|. controlMask, xK_l), spawn "gnome-screensaver-command -l")
 --	      , ((myExtraModMask, xK_h), sendKey noModMask xK_Left)
 	      --, ((myExtraModMask, xK_j), sendKey noModMask xK_Down)
@@ -163,11 +164,14 @@ main = do
 		,keys = myKeys
 		,startupHook = setWMName "LG3D"
 		,manageHook = myManageHook
-	  ,logHook = myLogHook <+> (
-            workspaceNamesPP pp
-            { ppOutput = hPutStrLn xmproc
-            , ppTitle = xmobarColor "green" "" . shorten 50
-            } >>= dynamicLogWithPP )	
+		--,handleEventHook = handleEventHook defaultConfig <+> fullscreenEventHook
+		,logHook =
+		    myLogHook <+>
+        ( workspaceNamesPP pp
+          { ppOutput = hPutStrLn xmproc
+          {-, ppLayout = shorten 50-}
+          , ppTitle = xmobarColor "green" "" . shorten 50
+          } >>= dynamicLogWithPP )
 	}`additionalKeysP` myEzKeys
 
 

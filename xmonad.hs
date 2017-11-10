@@ -7,7 +7,8 @@ import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
-import XMonad.Layout.Combo
+import qualified XMonad.Layout.BinarySpacePartition as BSP
+import XMonad.Layout.ComboP
 import XMonad.Layout.Grid
 import XMonad.Layout.IM
 import XMonad.Layout.LayoutCombinators hiding ( (|||) )
@@ -18,6 +19,7 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
 import XMonad.Layout.Renamed
+import XMonad.Layout.Spacing
 import XMonad.Layout.Tabbed
 import XMonad.Layout.TwoPane
 import XMonad.Layout.WindowNavigation
@@ -27,6 +29,7 @@ import XMonad.Util.Paste
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Util.Run(spawnPipe)
+import XMonad.Util.WindowPropertiesRE
 
 import qualified Data.Map as M
 import qualified XMonad.Actions.FlexibleResize as Flex
@@ -37,27 +40,33 @@ import System.IO
 
 myExtraModMask = mod4Mask
 myModMask = mod1Mask
+hyperMask = mod3Mask
+mehMask = mod2Mask
 
-myWorkspaces = ["1","2","3","4","5","6","7","8","9"]
+myWorkspaces = ["main","term","3","browser","ide","files","7","personal","9"]
 
 defaultLayouts = windowNavigation (
-  onWorkspace "1"   ( combine ||| rcombine ) $
-  onWorkspace "9"   ( combine ||| rcombine ) $
-  onWorkspace "2"   ( tabbed ) $
+  onWorkspace "main"   ( main ||| tabbed ) $
+  onWorkspace "term"   ( tabbed ) $
   onWorkspace "3"   ( tabbed ) $
-  onWorkspace "5"   ( tabbed ||| mtiled ) $
-	tabbed	||| tiled |||  rtiled ||| mtiled)
+  onWorkspace "ide"   ( tabbed ||| mtiled ) $
+	tabbed	||| tiled |||  rtiled ||| mtiled ||| bsp )
   where
     tabbed = renamed [Replace "tabbed"] $ simpleTabbed
+    tabbed2345 = renamed [Replace "tabbed"] $ simpleTabbed
     mos = MosaicAlt M.empty
     rtiled = renamed [Replace "rtiled"] $ reflectHoriz tiled
     mtiled = renamed [Replace "mtiled"] $ Mirror tiled
     tiled  = renamed [Replace "tiled"] $ Tall 1 0.03 0.5
     grid = renamed [Replace "grid"] $ GridRatio (0.5)
-    combine = renamed [Replace "combine"] $ (grid ||| (simpleTabbed *//**** grid )) *||**** (ignore NextLayout $ unEscape (simpleTabbed ||| rtiled))
-    rcombine = renamed [Replace "rcombine"] $ reflectHoriz combine
+    bsp = renamed [Replace "bsp"] $ BSP.emptyBSP
+    main = renamed [Replace "main"] $
+        combineTwoP (TwoPane 0.03 0.2)
+            (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (grid) (ClassName  "Firefox") )
+            (tabbed )
+            (Or (ClassName "Firefox") (Or (Title "Google Hangouts - goldfarb@google.com") (Title "Google Hangouts - themattgoldfarb@gmail.com")))
 
-myLayout = smartBorders . avoidStruts $ defaultLayouts
+myLayout = smartBorders $ avoidStruts $ defaultLayouts
 
 data LibNotifyUrgencyHook = LibNotifyUrgencyHook deriving (Read, Show)
 
@@ -70,79 +79,73 @@ instance UrgencyHook LibNotifyUrgencyHook where
 myManageHook = manageHook gnomeConfig
 	<+> composeAll [
 		resource =? "synapse" --> doFloat
-	,	className =? "Eclipse" --> doShift "3"
-	,	className =? "jetbrains-idea-ce" --> doShift "5"
-	,	className =? "sun-awt-X11-XFramePeer" --> doShift "5"
-        ,	stringProperty "WM_WINDOW_ROLE" =? "pop-up" --> doF W.swapDown
-	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "1"
+	,	className =? "Eclipse" --> doShift "ide" -- move eclipse to ide
+	,	className =? "jetbrains-idea-ce" --> doShift "ide" -- move intellij to ide
+	,	className =? "sun-awt-X11-XFramePeer" --> doShift "ide"
+	,	stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main"
+	,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main"
+	,	stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
+  ,	stringProperty "WM_WINDOW_ROLE" =? "pop-up" --> doF W.swapDown
+	,	resource =? "google-chrome" --> doFloat
+	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "main"
 	]
 	<+> manageDocks
 
 
 myLogHook :: X ()
 myLogHook = fadeInactiveLogHook fadeAmount
-		where fadeAmount = 0.7
+		where fadeAmount = 0.8
 
-keysToAdd x = [ ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
-	      , ((myExtraModMask, xK_p), spawn "echo '25 5' > ~/.pomodoro_session")
-	      , ((myModMask .|. controlMask, xK_l), spawn "gnome-screensaver-command -l")
---	      , ((myExtraModMask, xK_h), sendKey noModMask xK_Left)
-	      --, ((myExtraModMask, xK_j), sendKey noModMask xK_Down)
-	      --, ((myExtraModMask, xK_k), sendKey noModMask xK_Up)
-	      --, ((myExtraModMask, xK_l), sendKey noModMask xK_Right)
-              , ((myModMask, xK_s), spawn "google-chrome http://sponge/lucky")
-              --, ((myModMask,                 xK_Right), sendMessage $ Go R)
-              --, ((myModMask,                 xK_Left ), sendMessage $ Go L)
-              --, ((myModMask,                 xK_Up   ), sendMessage $ Go U)
-              --, ((myModMask,                 xK_Down ), sendMessage $ Go D)
-              , ((myModMask .|. controlMask, xK_Right), sendMessage $ Swap R)
-              , ((myModMask .|. controlMask, xK_Left ), sendMessage $ Swap L)
-              , ((myModMask .|. controlMask, xK_Up   ), sendMessage $ Swap U)
-              , ((myModMask .|. controlMask, xK_Down ), sendMessage $ Swap D)
-	      , ((myModMask .|. controlMask .|. shiftMask, xK_Right), sendMessage $ Move R)
-	      , ((myModMask .|. controlMask .|. shiftMask, xK_Left ), sendMessage $ Move L)
-	      , ((myModMask .|. controlMask .|. shiftMask, xK_Up   ), sendMessage $ Move U)
-	      , ((myModMask .|. controlMask .|. shiftMask, xK_Down ), sendMessage $ Move D)
-
-	      , ((myModMask .|. controlMask .|. shiftMask, xK_l), sendMessage $ Move R)
-	      , ((myModMask .|. controlMask .|. shiftMask, xK_h), sendMessage $ Move L)
-	      , ((myModMask .|. controlMask .|. shiftMask, xK_k), sendMessage $ Move U)
-	      , ((myModMask .|. controlMask .|. shiftMask, xK_j), sendMessage $ Move D)
-	      {-, ((myModMask .|. controlMask .|. shiftMask, xK_s    ), sendMessage $ SwapWindow)-}
-
-              , ((myModMask , xK_h ), sendMessage $ escape Expand) -- %! Expand the master area of the sublayout
-              , ((myModMask , xK_l ), sendMessage $ escape Shrink) -- %! Shrink the master area of the sublayout
-              , ((myModMask , xK_space ), sendMessage $ escape NextLayout) -- %! Expand the master area of the sublayout
-
-				{-, ((myExtraModMask, xK_a), sendMessage Taller)-}
-				{-, ((myExtraModMask, xK_z), sendMessage Wider)-}
-				{-, ((myExtraModMask, xK_r), sendMessage Reset)-}
-
-     , ((myExtraModMask .|. shiftMask  , xK_a    ), withFocused (sendMessage . expandWindowAlt))
-     , ((myExtraModMask .|. shiftMask  , xK_z    ), withFocused (sendMessage . shrinkWindowAlt))
-     , ((myExtraModMask .|. shiftMask  , xK_s    ), withFocused (sendMessage . tallWindowAlt))
-     , ((myExtraModMask .|. shiftMask  , xK_d    ), withFocused (sendMessage . wideWindowAlt))
-     , ((myExtraModMask .|. shiftMask, xK_r), sendMessage resetAlt)
-
-	      {-, ((myExtraModMask, xK_Print), spawn "scrot screen_%Y-%m-%d-%H-%M-%S.png -d 1 -e 'mv $f ~/Screenshots/'")-}
-	      , ((myExtraModMask , xK_Print), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'")
-
-	      ]
-
-myMouse x = [ ((myModMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
-
-newMouse x = M.union (mouseBindings defaultConfig x) (M.fromList (myMouse x))
-
+myWindowNavKeys x = [
+    ((mehMask,                 xK_l ), sendMessage $ Go R)
+  , ((mehMask,                 xK_h ), sendMessage $ Go L)
+  , ((mehMask,                 xK_j ), sendMessage $ Go D)
+  , ((mehMask,                 xK_k ), sendMessage $ Go U)
+  , ((mehMask .|. shiftMask,   xK_l ), sendMessage $ Swap R)
+  , ((mehMask .|. shiftMask,   xK_h ), sendMessage $ Swap L)
+  , ((mehMask .|. shiftMask,   xK_j ), sendMessage $ Swap D)
+  , ((mehMask .|. shiftMask,   xK_k ), sendMessage $ Swap U)
+  , ((mehMask .|. controlMask, xK_l ), sendMessage $ Move R)
+  , ((mehMask .|. controlMask, xK_h ), sendMessage $ Move L)
+  , ((mehMask .|. controlMask, xK_j ), sendMessage $ Move D)
+  , ((mehMask .|. controlMask, xK_k ), sendMessage $ Move U) ]
+myBspKeys x = [
+    ((hyperMask,                  xK_l ), sendMessage $ BSP.ExpandTowards R)
+  , ((hyperMask,                  xK_h ), sendMessage $ BSP.ExpandTowards L)
+  , ((hyperMask,                  xK_j ), sendMessage $ BSP.ExpandTowards D)
+  , ((hyperMask,                  xK_k ), sendMessage $ BSP.ExpandTowards U)
+  , ((hyperMask .|. shiftMask,    xK_l ), sendMessage $ BSP.ShrinkFrom R)
+  , ((hyperMask .|. shiftMask,    xK_h ), sendMessage $ BSP.ShrinkFrom L)
+  , ((hyperMask .|. shiftMask,    xK_j ), sendMessage $ BSP.ShrinkFrom D)
+  , ((hyperMask .|. shiftMask,    xK_k ), sendMessage $ BSP.ShrinkFrom U)
+  , ((hyperMask,                  xK_r ), sendMessage BSP.Rotate)
+  , ((hyperMask,                  xK_s ), sendMessage BSP.Swap)
+  , ((hyperMask,                  xK_n ), sendMessage BSP.FocusParent)
+  , ((hyperMask .|. shiftMask,    xK_n ), sendMessage BSP.SelectNode)
+  , ((hyperMask .|. controlMask,  xK_n ), sendMessage BSP.MoveNode)
+  , ((hyperMask,                  xK_a ), sendMessage BSP.Balance)
+  , ((hyperMask,                  xK_f ), sendMessage BSP.Equalize)
+  , ((hyperMask,                  xK_e ), sendMessage BSP.RotateL)
+  , ((hyperMask,                  xK_t ), sendMessage BSP.RotateR) ]
+keysToAdd x = [
+    ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
+  , ((myModMask .|. controlMask, xK_l), spawn "gnome-screensaver-command -l")
+  , ((myModMask, xK_s), spawn "google-chrome http://sponge/lucky")
+  , ((myModMask , xK_p), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'") ]
 keysToDel x = []
-
-newKeys x = M.union (keys defaultConfig x) (M.fromList(keysToAdd x))
-
+newKeys x = M.unions [ (keys defaultConfig x)
+                     , (M.fromList(keysToAdd x))
+                     , (M.fromList(myWindowNavKeys x))
+                     , (M.fromList(myBspKeys x)) ]
 myKeys x = foldr M.delete (newKeys x) (keysToDel x)
 
-myEzKeys = [ ("<XF86AudioRaiseVolume>", spawn "~/.xmonad/scripts/volumeup")
-	   , ("<XF86AudioLowerVolume>", spawn "~/.xmonad/scripts/volumedown")
-	   , ("<XF86AudioMute>", spawn "~/.xmonad/scripts/volumemute")
-           ]
+myAdditionalKeys = [
+    ("<XF86AudioRaiseVolume>", spawn "~/.xmonad/scripts/volumeup")
+  , ("<XF86AudioLowerVolume>", spawn "~/.xmonad/scripts/volumedown")
+  , ("<XF86AudioMute>", spawn "~/.xmonad/scripts/volumemute") ]
+
+myMouse x = [ ((myModMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
+myMouseBindings x = M.union (mouseBindings defaultConfig x) (M.fromList (myMouse x))
 
 
 sBar :: String
@@ -154,37 +157,24 @@ main = do
     xmproc <- spawnPipe "xmobar ~/.xmobarrc"
     xmobar2 <- spawnPipe "xmobar ~/.xmobarrc2"
     xmonad
-    	$ withUrgencyHook LibNotifyUrgencyHook
-        $ ewmh defaultConfig {
-		layoutHook = myLayout
-		,modMask = mod4Mask
-		,borderWidth = 1
-		,workspaces=myWorkspaces
-		,mouseBindings = newMouse
-		,keys = myKeys
-		,startupHook = setWMName "LG3D"
-	--	,startupHook = do
-	--		spawn "xcompmgr -n"
-		,manageHook = myManageHook
-		--,handleEventHook = handleEventHook defaultConfig <+> fullscreenEventHook
-		,logHook =
-		    myLogHook <+>
-		    ( workspaceNamesPP pp
-          { ppOutput = hPutStrLn xmobar2
-          {-, ppLayout = shorten 50-}
-          , ppTitle = xmobarColor "green" "" . shorten 50
-          } >>= dynamicLogWithPP )
-          {-<+>-}
-				{-( workspaceNamesPP pp-}
-          {-{ ppOutput = hPutStrLn xmproc-}
-          {-{-, ppLayout = shorten 50-}-}
-          {-, ppTitle = xmobarColor "green" "" . shorten 50-}
-            {-} >>= dynamicLogWithPP ) <+>-}
-				{-( setWMName "LG3D" )-}
-		   -- 	{ ppOutput = hPutStrLn xmobar2
-		   --     , ppTitle = xmobarColor "green" "" .shorten 50
-		   --     } >>= dynamicLogWithPP
-		     -- <+> myLogHook
-	}`additionalKeysP` myEzKeys
+      $ withUrgencyHook LibNotifyUrgencyHook
+      $ ewmh
+      $ docks
+      def {
+          layoutHook = myLayout
+        , modMask = mod4Mask
+        , normalBorderColor = "#000000"
+        , borderWidth = 0
+        , workspaces=myWorkspaces
+        , mouseBindings = myMouseBindings
+        , keys = myKeys
+        , startupHook = setWMName "LG3D"
+        , manageHook = myManageHook
+        , logHook = myLogHook <+> (
+            workspaceNamesPP pp
+            { ppOutput = hPutStrLn xmobar2
+            , ppTitle = xmobarColor "green" "" . shorten 50
+            } >>= dynamicLogWithPP )
+      }`additionalKeysP` myAdditionalKeys
 
 

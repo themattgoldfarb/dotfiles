@@ -1,7 +1,7 @@
 Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
     , bgColor = "black"
     , fgColor = "grey"
-    , position = Static { xpos = 0, ypos = 0, width=1820, height = 20}
+    , position = Static { xpos = 0, ypos = 0, width=1720, height = 20}
     , lowerOnStart = False
     , allDesktops = True
     , commands = [

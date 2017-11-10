@@ -1,9 +1,11 @@
 xcompmgr &
 
-trayer --edge top --align right --SetDockType true --SetPartialStrut true  --expand true --widthtype pixel --width 100 --transparent true --tint 0x000000 --height 20 &
+trayer --edge top --align right --SetDockType true --SetPartialStrut true  --expand true --widthtype pixel --width 200 --transparent true --tint 0x000000 --height 20 &
 parcellite &
 synapse &
-swap.sh
+$HOME/swap.sh
 
-feh --bg-scale ~/wallpaper/spider-man.jpg
+feh --bg-scale ~/Pictures/Wallpapers/spider-gwen.jpg
+
+/usr/share/goobuntu-indicator/goobuntu_indicator.py &
 

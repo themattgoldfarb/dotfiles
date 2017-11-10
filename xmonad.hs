@@ -41,8 +41,6 @@ myModMask = mod1Mask
 myWorkspaces = ["1","2","3","4","5","6","7","8","9"]
 
 defaultLayouts = windowNavigation (
-  onWorkspace "1"   ( combine ||| rcombine ) $
-  onWorkspace "9"   ( combine ||| rcombine ) $
   onWorkspace "2"   ( tabbed ) $
   onWorkspace "3"   ( tabbed ) $
   onWorkspace "5"   ( tabbed ||| mtiled ) $
@@ -142,6 +140,8 @@ myKeys x = foldr M.delete (newKeys x) (keysToDel x)
 myEzKeys = [ ("<XF86AudioRaiseVolume>", spawn "~/.xmonad/scripts/volumeup")
 	   , ("<XF86AudioLowerVolume>", spawn "~/.xmonad/scripts/volumedown")
 	   , ("<XF86AudioMute>", spawn "~/.xmonad/scripts/volumemute")
+     , ("<XF86MonBrightnessUp>", spawn "~/.xmonad/scripts/brightness.sh up")
+     , ("<XF86MonBrightnessDown>", spawn "~/.xmonad/scripts/brightness.sh down")
            ]
 
 
@@ -155,7 +155,7 @@ main = do
     xmonad
     	$ withUrgencyHook LibNotifyUrgencyHook
         $ ewmh 
-          $ docks defaultConfig {
+          $ docks gnomeConfig {
 		layoutHook = myLayout
 		,modMask = mod4Mask
 		,borderWidth = 1

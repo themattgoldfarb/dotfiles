@@ -70,3 +70,29 @@ URxvt.keysym.C-slash:  perl:font-size:show
 
 
 
+scratchpad.font: xft:Terminus:size=9
+scratchpad.boldfont: xft:Terminus-Bold:size=9
+scratchpad*letterSpace: 0
+
+scratchpad.perl-lib: /usr/lib/urxvt/perl/
+scratchpad.perl-ext-common: default,matcher,font-size
+scratchpad.urlLauncher: /usr/bin/xdg-open
+scratchpad.matcher.button: 1
+scratchpad.matcher.pattern.1: \\bwww\\.[\\w-]\\.[\\w./?&@#-\[\]]*[\\w/-]
+scratchpad.matcher.pattern.2: \\bcl/\\d+
+scratchpad.matcher.pattern.3: \\bb/\\d+
+scratchpad.keysym.C-u: perl:matcher:last
+scratchpad.keysym.M-u: perl:matcher:list
+
+scratchpad.keysym.C-Up:     perl:font-size:increase
+scratchpad.keysym.C-Down:   perl:font-size:decrease
+scratchpad.keysym.C-S-Up:   perl:font-size:incglobal
+scratchpad.keysym.C-S-Down: perl:font-size:decglobal
+scratchpad.keysym.C-equal:  perl:font-size:reset
+scratchpad.keysym.C-slash:  perl:font-size:show
+
+scratchpad*background: #000000
+scratchpad*internalBorder: 20
+scratchpad*cursorBlink: true
+
+

@@ -2,6 +2,7 @@ import XMonad
 import XMonad.Actions.WorkspaceNames
 import XMonad.Config.Gnome
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.ManageDocks
@@ -29,6 +30,8 @@ import XMonad.Util.Paste
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Util.Run(spawnPipe)
+import XMonad.Util.Scratchpad
+import XMonad.Util.NamedScratchpad
 import XMonad.Util.WindowPropertiesRE
 
 import qualified Data.Map as M
@@ -42,6 +45,9 @@ myExtraModMask = mod4Mask
 myModMask = mod1Mask
 hyperMask = mod3Mask
 mehMask = mod2Mask
+
+doSink :: ManageHook
+doSink = doF . W.sink =<< ask
 
 myWorkspaces = ["main","term","3","browser","ide","files","7","personal","9"]
 
@@ -85,12 +91,68 @@ myManageHook = manageHook gnomeConfig
 	,	stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main"
 	,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main"
 	,	stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
-  ,	stringProperty "WM_WINDOW_ROLE" =? "pop-up" --> doF W.swapDown
+  {-,	stringProperty "WM_WINDOW_ROLE" =? "pop-up" --> doF W.swapDown-}
 	,	resource =? "google-chrome" --> doFloat
 	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "main"
 	]
 	<+> manageDocks
+  <+> manageScratchPad
+  <+> namedScratchpadManageHook scratchpads
 
+myDynHook = composeAll [
+		stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" -->  doShift "main" <+> doSink
+  ,	stringProperty "WM_NAME" =? "chrome-extension://nckgahadagoaajjgafhacjanaoiihapd/mainapp.html?uv_main_window" --> doFloat
+  ,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main" <+> doSink ]
+
+myHandleEventHook = handleEventHook def
+  <+> composeAll [
+    dynamicPropertyChange "WM_NAME" myDynHook
+  ]
+
+topFloating = customFloating (W.RationalRect l t w h)
+  where
+    h = 0.4
+    w = 1
+    t = 0
+    l = 1-w
+bottomFloating = customFloating (W.RationalRect l t w h)
+  where
+    h = 0.4
+    w = 1
+    t = 1-h
+    l = 1-w
+centerFloating = customFloating (W.RationalRect l t w h)
+  where
+    h = 0.9
+    w = 0.9
+    t = (1-h)/2
+    l = (1-w)/2
+
+manageScratchPad :: ManageHook
+manageScratchPad = scratchpadManageHook (W.RationalRect l t w h )
+  where
+    h = 0.3
+    w = 1
+    t = 1-h
+    l = 1-w
+
+googleMusicCommand = "dex $HOME/.local/share/applications/google-play-music.desktop"
+isGoogleMusic = (resource =? "play.google.com__music_listen")
+buganizerCommand = "dex $HOME/.local/share/applications/buganizer.desktop"
+isBuganizer = (resource =? "b.corp.google.com__savedsearches_432047")
+inboxCommand = "dex $HOME/.local/share/applications/inbox.desktop"
+isInbox = (resource =? "inbox.google.com__u_0")
+calendarCommand = "dex $HOME/.local/share/applications/calendar.desktop"
+isCalendar = (resource =? "calendar.google.com__calendar_r")
+
+scratchpads = [
+    NS "htop" "urxvt -e htop" (title =? "htop") bottomFloating,
+    NS "notes" "gvim --role notes ~/notes.txt" (role =? "notes") topFloating,
+    NS "music" googleMusicCommand isGoogleMusic bottomFloating,
+    NS "bugs" buganizerCommand isBuganizer centerFloating,
+    NS "inbox" inboxCommand isInbox centerFloating,
+    NS "calendar" calendarCommand isCalendar centerFloating
+    ] where role = stringProperty "WM_WINDOW_ROLE"
 
 myLogHook :: X ()
 myLogHook = fadeInactiveLogHook fadeAmount
@@ -131,12 +193,22 @@ keysToAdd x = [
     ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
   , ((myModMask .|. controlMask, xK_l), spawn "gnome-screensaver-command -l")
   , ((myModMask, xK_s), spawn "google-chrome http://sponge/lucky")
+  , ((myExtraModMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
+  , ((myExtraModMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
   , ((myModMask , xK_p), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'") ]
+scratchpadKeys x = [
+    ((myExtraModMask .|. controlMask, xK_t), namedScratchpadAction scratchpads "htop")
+  , ((myExtraModMask .|. controlMask, xK_n), namedScratchpadAction scratchpads "notes")
+  , ((myExtraModMask .|. controlMask, xK_m), namedScratchpadAction scratchpads "music")
+  , ((myExtraModMask .|. controlMask, xK_b), namedScratchpadAction scratchpads "bugs")
+  , ((myExtraModMask .|. controlMask, xK_i), namedScratchpadAction scratchpads "inbox")
+  , ((myExtraModMask .|. controlMask, xK_c), namedScratchpadAction scratchpads "calendar") ]
 keysToDel x = []
 newKeys x = M.unions [ (keys defaultConfig x)
                      , (M.fromList(keysToAdd x))
                      , (M.fromList(myWindowNavKeys x))
-                     , (M.fromList(myBspKeys x)) ]
+                     , (M.fromList(myBspKeys x))
+                     , (M.fromList(scratchpadKeys x)) ]
 myKeys x = foldr M.delete (newKeys x) (keysToDel x)
 
 myAdditionalKeys = [
@@ -147,6 +219,7 @@ myAdditionalKeys = [
 myMouse x = [ ((myModMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
 myMouseBindings x = M.union (mouseBindings defaultConfig x) (M.fromList (myMouse x))
 
+myTerminal = "urxvt"
 
 sBar :: String
 sBar = "xmobar"
@@ -170,6 +243,8 @@ main = do
         , keys = myKeys
         , startupHook = setWMName "LG3D"
         , manageHook = myManageHook
+        , handleEventHook = myHandleEventHook
+        , terminal = myTerminal
         , logHook = myLogHook <+> (
             workspaceNamesPP pp
             { ppOutput = hPutStrLn xmobar2

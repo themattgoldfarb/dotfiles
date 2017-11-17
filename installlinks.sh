@@ -56,3 +56,4 @@ done
 
 $DIR/desktopFiles/installDesktopFiles.sh
 $DIR/iconFiles/installIconFiles.sh
+$DIR/otherFiles/installlinks.sh

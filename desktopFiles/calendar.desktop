@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=Calendar
+Exec=/usr/bin/google-chrome --app="https://calendar.google.com/calendar/r"
+Icon=calendar.png
+StartupWMClass=play.google.com__music_listen

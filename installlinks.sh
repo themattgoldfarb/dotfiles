@@ -53,3 +53,6 @@ for file in $DIR/xmonadscripts/*; do
     [[ ! -d $XMONAD_SCRIPTS ]] && mkdir $XMONAD_SCRIPTS
     ln -s $file $XMONAD_SCRIPTS/${file##*/}
 done
+
+$DIR/desktopFiles/installDesktopFiles.sh
+$DIR/iconFiles/installIconFiles.sh

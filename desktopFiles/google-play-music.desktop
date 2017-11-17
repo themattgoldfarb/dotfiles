@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=My Google Play Music
+Exec=/usr/bin/google-chrome --user-data-dir="/usr/local/google/home/goldfarb/.config/google-chrome-personal" --app=https://play.google.com/music/listen#/home --class=music
+Icon=chrome-https___play.google.com_music_listen_u=0#_wst_artist_A6gg4kmsigi266eyiaxkjgzv4mu
+StartupWMClass=play.google.com__music_listen

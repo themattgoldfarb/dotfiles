@@ -54,6 +54,12 @@ for file in $DIR/xmonadscripts/*; do
     ln -s $file $XMONAD_SCRIPTS/${file##*/}
 done
 
+mkdir -p $HOME/.config/nvim
+if [[ -e "$HOME/.config/nvim/init.vim" ]] ; then 
+    mv "$HOME/.config/nvim/init.vim" $OLD_DIR
+fi
+ln -s $HOME/.vimrc $HOME/.config/nvim/init.vim
+
 $DIR/desktopFiles/installDesktopFiles.sh
 $DIR/iconFiles/installIconFiles.sh
 $DIR/otherFiles/installlinks.sh

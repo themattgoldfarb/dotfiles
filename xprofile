@@ -5,6 +5,6 @@ parcellite &
 synapse &
 $HOME/swap.sh
 
-feh --bg-scale ~/Pictures/Wallpapers/spider-gwen.jpg
+feh --bg-scale ~/wallpaper/spider-gwen.jpg
 
 /usr/share/goobuntu-indicator/goobuntu_indicator.py &

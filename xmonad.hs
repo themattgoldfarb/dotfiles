@@ -59,7 +59,6 @@ defaultLayouts = windowNavigation (
 	tabbed	||| tiled |||  rtiled ||| mtiled ||| bsp )
   where
     tabbed = renamed [Replace "tabbed"] $ simpleTabbed
-    tabbed2345 = renamed [Replace "tabbed"] $ simpleTabbed
     mos = MosaicAlt M.empty
     rtiled = renamed [Replace "rtiled"] $ reflectHoriz tiled
     mtiled = renamed [Replace "mtiled"] $ Mirror tiled
@@ -82,7 +81,7 @@ instance UrgencyHook LibNotifyUrgencyHook where
 		Just idx <- fmap (W.findTag w) $ gets windowset
 		safeSpawn "notify-send" [show name, "workspace " ++ idx]
 
-myManageHook = manageHook gnomeConfig
+myManageHook = manageHook defaultConfig
 	<+> composeAll [
 		resource =? "synapse" --> doFloat
 	,	className =? "Eclipse" --> doShift "ide" -- move eclipse to ide
@@ -108,6 +107,7 @@ myHandleEventHook = handleEventHook def
   <+> composeAll [
     dynamicPropertyChange "WM_NAME" myDynHook
   ]
+	      , ((myExtraModMask, xK_b), sendMessage ToggleStruts )
 
 topFloating = customFloating (W.RationalRect l t w h)
   where
@@ -127,6 +127,9 @@ centerFloating = customFloating (W.RationalRect l t w h)
     w = 0.9
     t = (1-h)/2
     l = (1-w)/2
+
+	      {-, ((myExtraModMask, xK_Print), spawn "scrot screen_%Y-%m-%d-%H-%M-%S.png -d 1 -e 'mv $f ~/Screenshots/'")-}
+	      , ((myExtraModMask , xK_Print), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'")
 
 manageScratchPad :: ManageHook
 manageScratchPad = scratchpadManageHook (W.RationalRect l t w h )
@@ -215,6 +218,8 @@ myAdditionalKeys = [
     ("<XF86AudioRaiseVolume>", spawn "~/.xmonad/scripts/volumeup")
   , ("<XF86AudioLowerVolume>", spawn "~/.xmonad/scripts/volumedown")
   , ("<XF86AudioMute>", spawn "~/.xmonad/scripts/volumemute") ]
+     , ("<XF86MonBrightnessUp>", spawn "~/.xmonad/scripts/brightness.sh up")
+     , ("<XF86MonBrightnessDown>", spawn "~/.xmonad/scripts/brightness.sh down")
 
 myMouse x = [ ((myModMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
 myMouseBindings x = M.union (mouseBindings defaultConfig x) (M.fromList (myMouse x))
@@ -227,6 +232,7 @@ pp = case sBar of
 	"xmobar" -> xmobarPP
 
 main = do
+    xmproc <- spawnPipe "/home/goldfarb/.cabal/bin/xmobar ~/.xmobarrc"
     xmproc <- spawnPipe "xmobar ~/.xmobarrc"
     xmobar2 <- spawnPipe "xmobar ~/.xmobarrc2"
     xmonad
@@ -247,7 +253,7 @@ main = do
         , terminal = myTerminal
         , logHook = myLogHook <+> (
             workspaceNamesPP pp
-            { ppOutput = hPutStrLn xmobar2
+          { ppOutput = hPutStrLn xmproc
             , ppTitle = xmobarColor "green" "" . shorten 50
             } >>= dynamicLogWithPP )
       }`additionalKeysP` myAdditionalKeys

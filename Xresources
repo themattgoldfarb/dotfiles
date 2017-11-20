@@ -38,7 +38,7 @@
 URxvt*scrollBar:  false
 
 !-- Xft settings -- !
- Xft.dpi:        96
+ Xft.dpi:        192
  Xft.antialias:  true
  Xft.rgba:       rgb
  Xft.hinting:    true
@@ -46,8 +46,8 @@ URxvt*scrollBar:  false
 
 !urxvt.font: xft:Ubuntu Mono:size=9
 !urxvt.boldfont: xft:Ubuntu Mono-Bold:size=9
-urxvt.font: xft:Terminus:size=9
-urxvt.boldfont: xft:Terminus-Bold:size=9
+urxvt.font: xft:Terminus:size=10
+urxvt.boldfont: xft:Terminus-Bold:size=10
 URxvt*letterSpace: 0
 
 Urxvt.perl-lib: /usr/lib/urxvt/perl/

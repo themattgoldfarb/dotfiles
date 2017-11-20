@@ -1,0 +1,6 @@
+module MyConfig where
+
+mySuffix = "_laptop"
+
+myXmobarMasterConfig = "~/.xmonad/xmobarmaster"
+myXmobarSlaveConfig = "~/.xmonad/xmobarslave"

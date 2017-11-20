@@ -271,9 +271,12 @@ sBar = "xmobar"
 pp = case sBar of
 	"xmobar" -> xmobarPP
 
+myXmobarMasterConfig = "~/.xmonad/xmobarmaster" ++ My.mySuffix
+myXmobarSlaveConfig = "~/.xmonad/xmobarslave" ++ My.mySuffix
+
 myStatusBar :: ScreenId -> IO Handle
-myStatusBar (S 0) = spawnPipe $ "xmobar -x 0 " ++ My.myXmobarMasterConfig
-myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " " ++ My.myXmobarSlaveConfig
+myStatusBar (S 0) = spawnPipe $ "xmobar -x 0 " ++ myXmobarMasterConfig
+myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " " ++ myXmobarSlaveConfig
 
 myStatusBarCleanup :: IO ()
 myStatusBarCleanup = return ()

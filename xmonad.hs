@@ -191,7 +191,7 @@ myBspKeys x = [
   , ((hyperMask,                  xK_t ), sendMessage BSP.RotateR) ]
 keysToAdd x = [
     ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
-  , ((myModMask .|. controlMask, xK_l), spawn "gnome-screensaver-command -l")
+  , ((myModMask .|. controlMask, xK_l), spawn "xscreensaver-command -lock")
   , ((myModMask, xK_s), spawn "google-chrome http://sponge/lucky")
   , ((myExtraModMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
   , ((myExtraModMask, xK_s), scratchpadSpawnActionTerminal "urxvt")

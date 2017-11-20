@@ -269,7 +269,6 @@ sBar = "xmobar"
 pp = case sBar of
 	"xmobar" -> xmobarPP
 
-
 myStatusBar :: ScreenId -> IO Handle
 myStatusBar (S 0) = spawnPipe "xmobar -x 0 ~/.xmonad/xmobarmaster"
 myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " ~/.xmonad/xmobarslave"
@@ -282,7 +281,6 @@ myStartupHook =
     <+> dynStatusBarStartup myStatusBar myStatusBarCleanup
 
 main = do
-    {-xmproc <- spawnPipe "/home/goldfarb/.cabal/bin/xmobar ~/.xmobarrc"-}
     xmonad
       $ withUrgencyHook LibNotifyUrgencyHook
       $ ewmh
@@ -300,11 +298,6 @@ main = do
         , handleEventHook = myHandleEventHook
         , terminal = myTerminal
         , logHook = myLogHook 
-{-<+> (-}
-            {-workspaceNamesPP pp-}
-            {-{ ppOutput = hPutStrLn xmproc-}
-              {-, ppTitle = xmobarColor "green" "" . shorten 50-}
-            {-} >>= dynamicLogWithPP )-}
       }`additionalKeysP` myAdditionalKeys
 
 

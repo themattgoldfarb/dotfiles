@@ -188,16 +188,16 @@ unfocusedScreenPP =  focusedScreenPP {
         wrapL "        [" "]" ( logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 ""))]
 }
 
-myShorten =
-    if My.mySuffix == "__laptop" then 20
-    else 30
+mySpace =
+    if My.mySuffix == "__laptop" then 60
+    else 160
 
 logTitles ppFocus ppUnfocus =
         let
             windowTitles windowset = sequence (map (fmap showName . getName) (W.index windowset))
                 where
                     numWindows = ( length $ W.index windowset)
-                    spacing = (quot 160 numWindows) - 2
+                    spacing = (quot mySpace numWindows) - 2
                     fw = W.peek windowset
                     showName nw =
                         let

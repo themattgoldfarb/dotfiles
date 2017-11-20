@@ -34,10 +34,14 @@ import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.WindowPropertiesRE
+import XMonad.Util.WorkspaceCompare
 
 import qualified Data.Map as M
 import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.StackSet as W
+import qualified ColorTheme as Sol
+import Control.Monad (when, liftM, sequence)
+import Data.List (intercalate)
 
 import Data.Ratio ((%))
 import System.IO
@@ -153,9 +157,47 @@ scratchpads = [
     NS "calendar" calendarCommand isCalendar centerFloating
     ] where role = stringProperty "WM_WINDOW_ROLE"
 
-myLogHook :: X ()
-myLogHook = fadeInactiveLogHook fadeAmount
+myFadeHook = fadeInactiveLogHook fadeAmount
 		where fadeAmount = 0.8
+myLogHook = myFadeHook
+    <+> multiPP focusedScreenPP unfocusedScreenPP
+
+focusedScreenPP :: PP
+focusedScreenPP = namedScratchpadFilterOutWorkspacePP $ defaultPP {
+      ppLayout  = xmobarColor Sol.yellow ""
+    , ppCurrent = xmobarColor Sol.blue "" . wrap "[" "]"
+    , ppVisible = wrap "-" "-"
+    , ppUrgent  = xmobarColor Sol.red ""
+    , ppTitle   = const ""
+    , ppSep     = " | "
+    , ppExtras  = [logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 "")]
+    , ppSort    = getSortByIndex
+    , ppHiddenNoWindows = xmobarColor Sol.base3 ""
+}
+
+unfocusedScreenPP :: PP
+unfocusedScreenPP =  focusedScreenPP { 
+      ppTitle = const "" 
+    , ppExtras  = [logTitles (xmobarColor Sol.base01 "") (xmobarColor Sol.base01 "")]
+} 
+
+logTitles ppFocus ppUnfocus =
+        let
+            windowTitles windowset = sequence (map (fmap showName . getName) (W.index windowset))
+                where
+                    fw = W.peek windowset
+                    showName nw =
+                        let
+                            window = unName nw
+                            name = shorten 20 (show nw)
+                        in
+                            if maybe False (== window) fw
+                                then
+                                    ppFocus name
+                                else
+                                    ppUnfocus name
+        in
+            withWindowSet $ liftM (Just . (intercalate " | ")) . windowTitles
 
 myWindowNavKeys x = [
     ((mehMask,                 xK_l ), sendMessage $ Go R)
@@ -229,8 +271,8 @@ pp = case sBar of
 
 
 myStatusBar :: ScreenId -> IO Handle
-myStatusBar (S 0) = spawnPipe "xmobar -x 0 ~/.xmonad/master"
-myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " ~/.xmonad/slave"
+myStatusBar (S 0) = spawnPipe "xmobar -x 0 ~/.xmonad/xmobarmaster"
+myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " ~/.xmonad/xmobarslave"
 
 myStatusBarCleanup :: IO ()
 myStatusBarCleanup = return ()
@@ -240,7 +282,7 @@ myStartupHook =
     <+> dynStatusBarStartup myStatusBar myStatusBarCleanup
 
 main = do
-    xmproc <- spawnPipe "/home/goldfarb/.cabal/bin/xmobar ~/.xmobarrc"
+    {-xmproc <- spawnPipe "/home/goldfarb/.cabal/bin/xmobar ~/.xmobarrc"-}
     xmonad
       $ withUrgencyHook LibNotifyUrgencyHook
       $ ewmh
@@ -257,11 +299,12 @@ main = do
         , manageHook = myManageHook
         , handleEventHook = myHandleEventHook
         , terminal = myTerminal
-        , logHook = myLogHook <+> (
-            workspaceNamesPP pp
-            { ppOutput = hPutStrLn xmproc
-              , ppTitle = xmobarColor "green" "" . shorten 50
-            } >>= dynamicLogWithPP )
+        , logHook = myLogHook 
+{-<+> (-}
+            {-workspaceNamesPP pp-}
+            {-{ ppOutput = hPutStrLn xmproc-}
+              {-, ppTitle = xmobarColor "green" "" . shorten 50-}
+            {-} >>= dynamicLogWithPP )-}
       }`additionalKeysP` myAdditionalKeys
 
 

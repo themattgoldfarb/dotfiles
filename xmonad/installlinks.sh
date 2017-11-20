@@ -1,12 +1,11 @@
 #!/bin/bash
 
-DIR=~/dotfiles/desktopFiles # dotfiles directory
-OLD_DIR=~/desktopfiles_old             # old dotfiles backup directory
-DEST_DIR=~/.local/share/applications
+DIR=~/dotfiles/xmonad # dotfiles directory
+OLD_DIR=~/xmonad_old # old dotfiles backup directory
+DEST_DIR=~/.xmonad/
 
 # list of files/folders to symlink in homedir
-files="calendar.desktop cool-retro-term.desktop \
-       google-play-music.desktop inbox.desktop"
+files="xmonad.hs xmobarmaster xmobarslave lib/ColorTheme.hs"
 
 ###########
 

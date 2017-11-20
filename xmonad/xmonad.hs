@@ -40,6 +40,8 @@ import qualified Data.Map as M
 import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.StackSet as W
 import qualified ColorTheme as Sol
+import qualified MyConfig as My
+
 import Control.Monad (when, liftM, sequence)
 import Data.List (intercalate)
 
@@ -270,8 +272,8 @@ pp = case sBar of
 	"xmobar" -> xmobarPP
 
 myStatusBar :: ScreenId -> IO Handle
-myStatusBar (S 0) = spawnPipe "xmobar -x 0 ~/.xmonad/xmobarmaster"
-myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " ~/.xmonad/xmobarslave"
+myStatusBar (S 0) = spawnPipe $ "xmobar -x 0 " ++ My.myXmobarMasterConfig
+myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " " ++ My.myXmobarSlaveConfig
 
 myStatusBarCleanup :: IO ()
 myStatusBarCleanup = return ()

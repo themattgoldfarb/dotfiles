@@ -2,6 +2,7 @@ import XMonad
 import XMonad.Actions.WorkspaceNames
 import XMonad.Config.Gnome
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.DynamicBars
 import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeInactive
@@ -53,7 +54,6 @@ myWorkspaces = ["main","term","3","browser","ide","files","7","personal","9"]
 
 defaultLayouts = windowNavigation (
   onWorkspace "main"   ( main ||| tabbed ) $
-  onWorkspace "term"   ( tabbed ) $
   onWorkspace "3"   ( tabbed ) $
   onWorkspace "ide"   ( tabbed ||| mtiled ) $
 	tabbed	||| tiled |||  rtiled ||| mtiled ||| bsp )
@@ -90,7 +90,6 @@ myManageHook = manageHook defaultConfig
 	,	stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main"
 	,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main"
 	,	stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
-  {-,	stringProperty "WM_WINDOW_ROLE" =? "pop-up" --> doF W.swapDown-}
 	,	resource =? "google-chrome" --> doFloat
 	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "main"
 	]
@@ -106,8 +105,8 @@ myDynHook = composeAll [
 myHandleEventHook = handleEventHook def
   <+> composeAll [
     dynamicPropertyChange "WM_NAME" myDynHook
+  , dynStatusBarEventHook myStatusBar myStatusBarCleanup
   ]
-	      , ((myExtraModMask, xK_b), sendMessage ToggleStruts )
 
 topFloating = customFloating (W.RationalRect l t w h)
   where
@@ -127,9 +126,6 @@ centerFloating = customFloating (W.RationalRect l t w h)
     w = 0.9
     t = (1-h)/2
     l = (1-w)/2
-
-	      {-, ((myExtraModMask, xK_Print), spawn "scrot screen_%Y-%m-%d-%H-%M-%S.png -d 1 -e 'mv $f ~/Screenshots/'")-}
-	      , ((myExtraModMask , xK_Print), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'")
 
 manageScratchPad :: ManageHook
 manageScratchPad = scratchpadManageHook (W.RationalRect l t w h )
@@ -197,7 +193,7 @@ keysToAdd x = [
   , ((myModMask .|. controlMask, xK_l), spawn "gnome-screensaver-command -l")
   , ((myModMask, xK_s), spawn "google-chrome http://sponge/lucky")
   , ((myExtraModMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
-  , ((myExtraModMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
+  , ((myExtraModMask, xK_b), sendMessage ToggleStruts )
   , ((myModMask , xK_p), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'") ]
 scratchpadKeys x = [
     ((myExtraModMask .|. controlMask, xK_t), namedScratchpadAction scratchpads "htop")
@@ -217,9 +213,9 @@ myKeys x = foldr M.delete (newKeys x) (keysToDel x)
 myAdditionalKeys = [
     ("<XF86AudioRaiseVolume>", spawn "~/.xmonad/scripts/volumeup")
   , ("<XF86AudioLowerVolume>", spawn "~/.xmonad/scripts/volumedown")
-  , ("<XF86AudioMute>", spawn "~/.xmonad/scripts/volumemute") ]
-     , ("<XF86MonBrightnessUp>", spawn "~/.xmonad/scripts/brightness.sh up")
-     , ("<XF86MonBrightnessDown>", spawn "~/.xmonad/scripts/brightness.sh down")
+  , ("<XF86AudioMute>", spawn "~/.xmonad/scripts/volumemute")
+  , ("<XF86MonBrightnessUp>", spawn "~/.xmonad/scripts/brightness.sh up")
+  , ("<XF86MonBrightnessDown>", spawn "~/.xmonad/scripts/brightness.sh down") ]
 
 myMouse x = [ ((myModMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
 myMouseBindings x = M.union (mouseBindings defaultConfig x) (M.fromList (myMouse x))
@@ -231,10 +227,20 @@ sBar = "xmobar"
 pp = case sBar of
 	"xmobar" -> xmobarPP
 
+
+myStatusBar :: ScreenId -> IO Handle
+myStatusBar (S 0) = spawnPipe "xmobar -x 0 ~/.xmonad/master"
+myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " ~/.xmonad/slave"
+
+myStatusBarCleanup :: IO ()
+myStatusBarCleanup = return ()
+
+myStartupHook = 
+    setWMName "LG3D"
+    <+> dynStatusBarStartup myStatusBar myStatusBarCleanup
+
 main = do
     xmproc <- spawnPipe "/home/goldfarb/.cabal/bin/xmobar ~/.xmobarrc"
-    xmproc <- spawnPipe "xmobar ~/.xmobarrc"
-    xmobar2 <- spawnPipe "xmobar ~/.xmobarrc2"
     xmonad
       $ withUrgencyHook LibNotifyUrgencyHook
       $ ewmh
@@ -247,14 +253,14 @@ main = do
         , workspaces=myWorkspaces
         , mouseBindings = myMouseBindings
         , keys = myKeys
-        , startupHook = setWMName "LG3D"
+        , startupHook = myStartupHook
         , manageHook = myManageHook
         , handleEventHook = myHandleEventHook
         , terminal = myTerminal
         , logHook = myLogHook <+> (
             workspaceNamesPP pp
-          { ppOutput = hPutStrLn xmproc
-            , ppTitle = xmobarColor "green" "" . shorten 50
+            { ppOutput = hPutStrLn xmproc
+              , ppTitle = xmobarColor "green" "" . shorten 50
             } >>= dynamicLogWithPP )
       }`additionalKeysP` myAdditionalKeys
 

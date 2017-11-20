@@ -6,6 +6,16 @@
 ! Last Modified: 6 Sep 2014
 ! -----------------------------------------------------------------------------
 
+#ifdef SRVR_goldfarb97
+  #define MY_DPI 192
+  #define MY_FONT xft:Terminus:size=10
+  #define MY_BOLD_FONT xft:Terminus-Bold:size=10
+#else
+  #define MY_DPI 96
+  #define MY_FONT xft:Terminus:size=9
+  #define MY_BOLD_FONT xft:Terminus-Bold:size=9
+#endif
+
 ! hard contrast: *background: #1d2021
 *background: #282828
 ! soft contrast: *background: #32302f
@@ -38,16 +48,14 @@
 URxvt*scrollBar:  false
 
 !-- Xft settings -- !
- Xft.dpi:        96
+ Xft.dpi:        MY_DPI
  Xft.antialias:  true
  Xft.rgba:       rgb
  Xft.hinting:    true
  Xft.hintstyle:  hintslight
 
-!urxvt.font: xft:Ubuntu Mono:size=9
-!urxvt.boldfont: xft:Ubuntu Mono-Bold:size=9
-urxvt.font: xft:Terminus:size=9
-urxvt.boldfont: xft:Terminus-Bold:size=9
+urxvt.font: MY_FONT
+urxvt.boldfont: MY_BOLD_FONT
 URxvt*letterSpace: 0
 
 Urxvt.perl-lib: /usr/lib/urxvt/perl/

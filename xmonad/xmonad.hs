@@ -45,7 +45,7 @@ import qualified ColorTheme as Sol
 import qualified MyConfig as My
 
 import Control.Monad (when, liftM, sequence)
-import Data.List (intercalate)
+import Data.List (intercalate, isInfixOf)
 
 import Data.Ratio ((%))
 import System.IO
@@ -75,9 +75,9 @@ defaultLayouts = windowNavigation (
     bsp = renamed [Replace "bsp"] $ BSP.emptyBSP
     main = renamed [Replace "main"] $
         combineTwoP (TwoPane 0.03 0.2)
-            (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (grid) (ClassName  "Firefox") )
+            (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (grid) (ClassName  "Firefox-esr") )
             (tabbed )
-            (Or (ClassName "Firefox") (Or (Title "Google Hangouts - goldfarb@google.com") (Title "Google Hangouts - themattgoldfarb@gmail.com")))
+            (Or (ClassName "Firefox-esr") (Or (Title "Google Hangouts - goldfarb@google.com") (Title "Google Hangouts - themattgoldfarb@gmail.com")))
 
 myLayout = smartBorders $ avoidStruts $ defaultLayouts
 
@@ -192,6 +192,14 @@ mySpace =
     if My.mySuffix == "__laptop" then 60
     else 160
 
+translateWindow :: String -> String
+translateWindow name =
+    if isInfixOf "Google Hangouts - goldfarb" name then "Hangouts - Work"
+    else if isInfixOf "Google Hangouts - themattgoldfarb" name then "Hangouts - Personal"
+    else if isInfixOf "- Google Chrome" name then "Chrome - " ++ takeWhile (/= '-') name
+    else if isInfixOf "goldfarb@goldfarb" name then "Term -" ++ drop 1 (dropWhile (/= ':') name)
+    else name
+
 logTitles ppFocus ppUnfocus =
         let
             windowTitles windowset = sequence (map (fmap showName . getName) (W.index windowset))
@@ -202,7 +210,7 @@ logTitles ppFocus ppUnfocus =
                     showName nw =
                         let
                             window = unName nw
-                            name = shorten spacing (show nw)
+                            name = shorten spacing (translateWindow (show nw))
                         in
                             if maybe False (== window) fw
                                 then

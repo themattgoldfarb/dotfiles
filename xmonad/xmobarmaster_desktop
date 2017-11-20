@@ -2,7 +2,7 @@ Config {
       font = "xft:Terminus:size=10,dpi=192,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull"
     , bgColor = "black"
     , fgColor = "grey"
-    , position = TopW L 90
+    , position = TopW L 93
     , lowerOnStart = False
     , allDesktops = True
     , commands = [
@@ -14,5 +14,5 @@ Config {
     ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "%StdinReader% } { <fc=#777> Volume: %sound% | %cpu% | %memory% | </fc>       %datetime%"
+    , template = "%StdinReader% } { <fc=#777> Volume: %sound% | %cpu% | %memory%  </fc>       %datetime%"
 }

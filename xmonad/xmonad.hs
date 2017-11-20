@@ -26,6 +26,8 @@ import XMonad.Layout.Tabbed
 import XMonad.Layout.TwoPane
 import XMonad.Layout.WindowNavigation
 import XMonad.Prompt
+import XMonad.Util.Font
+import XMonad.Util.Loggers
 import XMonad.Util.NamedWindows
 import XMonad.Util.Paste
 import XMonad.Util.EZConfig
@@ -167,31 +169,40 @@ myLogHook = myFadeHook
 focusedScreenPP :: PP
 focusedScreenPP = namedScratchpadFilterOutWorkspacePP $ defaultPP {
       ppLayout  = xmobarColor Sol.yellow ""
-    , ppCurrent = xmobarColor Sol.blue "" . wrap "[" "]"
-    , ppVisible = wrap "-" "-"
+    , ppCurrent = xmobarColor Sol.blue ""
+    , ppVisible = const ""
     , ppUrgent  = xmobarColor Sol.red ""
     , ppTitle   = const ""
     , ppSep     = " | "
-    , ppExtras  = [logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 "")]
+    , ppExtras  = [
+        wrapL "         [" "]" ( logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 ""))]
     , ppSort    = getSortByIndex
-    , ppHiddenNoWindows = xmobarColor Sol.base3 ""
+    , ppHidden  = const ""
+    , ppHiddenNoWindows = const ""
 }
 
 unfocusedScreenPP :: PP
 unfocusedScreenPP =  focusedScreenPP { 
       ppTitle = const "" 
-    , ppExtras  = [logTitles (xmobarColor Sol.base01 "") (xmobarColor Sol.base01 "")]
-} 
+    , ppExtras  = [
+        wrapL "        [" "]" ( logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 ""))]
+}
+
+myShorten =
+    if My.mySuffix == "__laptop" then 20
+    else 30
 
 logTitles ppFocus ppUnfocus =
         let
             windowTitles windowset = sequence (map (fmap showName . getName) (W.index windowset))
                 where
+                    numWindows = ( length $ W.index windowset)
+                    spacing = (quot 160 numWindows) - 2
                     fw = W.peek windowset
                     showName nw =
                         let
                             window = unName nw
-                            name = shorten 20 (show nw)
+                            name = shorten spacing (show nw)
                         in
                             if maybe False (== window) fw
                                 then
@@ -199,7 +210,7 @@ logTitles ppFocus ppUnfocus =
                                 else
                                     ppUnfocus name
         in
-            withWindowSet $ liftM (Just . (intercalate " | ")) . windowTitles
+            withWindowSet $ liftM (Just . (intercalate "][")) . windowTitles
 
 myWindowNavKeys x = [
     ((mehMask,                 xK_l ), sendMessage $ Go R)

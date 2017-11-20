@@ -11,5 +11,5 @@ Config {
     ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "%StdinReader% }{ slave %datetime%"
+    , template = "%StdinReader% }{ %datetime%"
 }

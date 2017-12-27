@@ -75,9 +75,12 @@ defaultLayouts = windowNavigation (
     bsp = renamed [Replace "bsp"] $ BSP.emptyBSP
     main = renamed [Replace "main"] $
         combineTwoP (TwoPane 0.03 0.2)
-            (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (grid) (ClassName  "Firefox-esr") )
+            (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (grid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
             (tabbed )
-            (Or (ClassName "Firefox-esr") (Or (Title "Google Hangouts - goldfarb@google.com") (Title "Google Hangouts - themattgoldfarb@gmail.com")))
+            (Or (ClassName "Firefox")
+                (Or (ClassName "Firefox-esr")
+                    (Or (Title "Google Hangouts - goldfarb@google.com")
+                        (Title "Google Hangouts - themattgoldfarb@gmail.com"))))
 
 myLayout = smartBorders $ avoidStruts $ defaultLayouts
 

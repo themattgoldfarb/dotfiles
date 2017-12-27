@@ -1,3 +1,5 @@
 #!/bin/bash
 
-pactl set-sink-mute 0 toggle
+SINK=`pactl list sinks | grep -B 1 "State: RUNNING" | grep "Sink" | awk '{print $2}' | sed 's,#,,'`
+
+pactl set-sink-mute $SINK toggle

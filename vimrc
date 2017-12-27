@@ -129,9 +129,14 @@ if has('nvim')
   let g:deoplete#enable_at_startup = 1
   let g:deoplete#auto_complete_start_length = 1
   inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-  "inoremap <silent><expr> <Tab>
-  "\ pumvisible() ? "\<C-n>" :
-  "\ deoplete#mappings#manual_complete()
+  if ! has('gui_running')
+      set ttimeoutlen=10
+      augroup FastEscape
+          autocmd!
+          au InsertEnter * set timeoutlen=0
+          au InsertLeave * set timeoutlen=1000
+      augroup END
+  endif
 else
   " YouCompleteMe remappings
   nnoremap <leader>yg :YcmCompleter GoTo<CR>

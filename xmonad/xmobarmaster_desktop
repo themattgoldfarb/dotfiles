@@ -6,13 +6,10 @@ Config {
     , lowerOnStart = False
     , allDesktops = True
     , commands = [
-	 Run Cpu           ["-t", "CPU: <total>%",    "-m", "2", "-L", "30",    "-l", "#aaa", "-n", "#eee",   "-H", "90",    "-h", "orange"] 10,
-	 Run Memory        ["-t", "Mem: <used> MiB",             "-L", "32000", "-l", "#aaa", "-n", "orange", "-H", "48000", "-h", "red"   ] 10,
 	 Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
-	 Run Com ".xmonad/scripts/getvolume" [ ] "sound"   5,
 	 Run StdinReader
     ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "%StdinReader% } { <fc=#777> Volume: %sound% | %cpu% | %memory%  </fc>       %datetime%"
+    , template = "%StdinReader% }{ %datetime%"
 }

@@ -7,6 +7,7 @@ import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.Script
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
 import qualified XMonad.Layout.BinarySpacePartition as BSP
@@ -35,7 +36,8 @@ import XMonad.Util.Run
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.Scratchpad
 import XMonad.Util.NamedScratchpad
-import XMonad.Util.WindowPropertiesRE
+import XMonad.Util.NamedScratchpad
+import XMonad.Util.WindowProperties
 import XMonad.Util.WorkspaceCompare
 
 import qualified Data.Map as M
@@ -97,7 +99,7 @@ myManageHook = manageHook defaultConfig
 	,	className =? "sun-awt-X11-XFramePeer" --> doShift "ide"
 	,	stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main"
 	,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main"
-	,	stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
+	-- ,	stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
 	,	resource =? "google-chrome" --> doFloat
 	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "main"
 	]
@@ -108,6 +110,7 @@ myManageHook = manageHook defaultConfig
 myDynHook = composeAll [
 		stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" -->  doShift "main" <+> doSink
   ,	stringProperty "WM_NAME" =? "chrome-extension://nckgahadagoaajjgafhacjanaoiihapd/mainapp.html?uv_main_window" --> doFloat
+  , stringProperty "WM_CLASS" =? "Firefox-esr" --> doShift "main" <+> doSink
   ,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main" <+> doSink ]
 
 myHandleEventHook = handleEventHook def
@@ -153,7 +156,7 @@ calendarCommand = "dex $HOME/.local/share/applications/calendar.desktop"
 isCalendar = (resource =? "calendar.google.com__calendar_r")
 
 scratchpads = [
-    NS "htop" "urxvt -e htop" (title =? "htop") bottomFloating,
+    NS "htop" "urxvt -e htop" (title =? "htop") topFloating,
     NS "notes" "gvim --role notes ~/notes.txt" (role =? "notes") topFloating,
     NS "music" googleMusicCommand isGoogleMusic bottomFloating,
     NS "bugs" buganizerCommand isBuganizer centerFloating,
@@ -175,17 +178,17 @@ focusedScreenPP = namedScratchpadFilterOutWorkspacePP $ defaultPP {
     , ppTitle   = const ""
     , ppSep     = " | "
     , ppExtras  = [
-        wrapL "         [" "]" ( logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 ""))]
+        wrapL "[" "]" ( logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 ""))]
     , ppSort    = getSortByIndex
     , ppHidden  = const ""
     , ppHiddenNoWindows = const ""
 }
 
 unfocusedScreenPP :: PP
-unfocusedScreenPP =  focusedScreenPP { 
-      ppTitle = const "" 
+unfocusedScreenPP =  focusedScreenPP {
+      ppTitle = const ""
     , ppExtras  = [
-        wrapL "        [" "]" ( logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 ""))]
+        wrapL "[" "]" ( logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 ""))]
 }
 
 mySpace =
@@ -233,26 +236,13 @@ myWindowNavKeys x = [
   , ((mehMask .|. controlMask, xK_h ), sendMessage $ Move L)
   , ((mehMask .|. controlMask, xK_j ), sendMessage $ Move D)
   , ((mehMask .|. controlMask, xK_k ), sendMessage $ Move U) ]
-myBspKeys x = [
-    ((hyperMask,                  xK_l ), sendMessage $ BSP.ExpandTowards R)
-  , ((hyperMask,                  xK_h ), sendMessage $ BSP.ExpandTowards L)
-  , ((hyperMask,                  xK_j ), sendMessage $ BSP.ExpandTowards D)
-  , ((hyperMask,                  xK_k ), sendMessage $ BSP.ExpandTowards U)
-  , ((hyperMask .|. shiftMask,    xK_l ), sendMessage $ BSP.ShrinkFrom R)
-  , ((hyperMask .|. shiftMask,    xK_h ), sendMessage $ BSP.ShrinkFrom L)
-  , ((hyperMask .|. shiftMask,    xK_j ), sendMessage $ BSP.ShrinkFrom D)
-  , ((hyperMask .|. shiftMask,    xK_k ), sendMessage $ BSP.ShrinkFrom U)
-  , ((hyperMask,                  xK_r ), sendMessage BSP.Rotate)
-  , ((hyperMask,                  xK_s ), sendMessage BSP.Swap)
-  , ((hyperMask,                  xK_n ), sendMessage BSP.FocusParent)
-  , ((hyperMask .|. shiftMask,    xK_n ), sendMessage BSP.SelectNode)
-  , ((hyperMask .|. controlMask,  xK_n ), sendMessage BSP.MoveNode)
-  , ((hyperMask,                  xK_a ), sendMessage BSP.Balance)
-  , ((hyperMask,                  xK_f ), sendMessage BSP.Equalize)
-  , ((hyperMask,                  xK_e ), sendMessage BSP.RotateL)
-  , ((hyperMask,                  xK_t ), sendMessage BSP.RotateR) ]
+myBspKeys x = []
 keysToAdd x = [
     ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
+  , ((hyperMask, xK_j), spawn "~/.xmonad/scripts/hangoutsmouse.sh down")
+  , ((hyperMask, xK_k), spawn "~/.xmonad/scripts/hangoutsmouse.sh up")
+  , ((hyperMask, xK_l), spawn "~/.xmonad/scripts/hangoutsmouse.sh click")
+  , ((hyperMask, xK_n), spawn "xdotool mousemove 1893 1125 click 1 mousemove restore")
   , ((myModMask .|. controlMask, xK_l), spawn "xscreensaver-command -lock")
   , ((myModMask, xK_s), spawn "google-chrome http://sponge/lucky")
   , ((myExtraModMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
@@ -300,9 +290,10 @@ myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " " ++ myXmobarSlaveCo
 myStatusBarCleanup :: IO ()
 myStatusBarCleanup = return ()
 
-myStartupHook = 
+myStartupHook =
     setWMName "LG3D"
     <+> dynStatusBarStartup myStatusBar myStatusBarCleanup
+    <+> execScriptHook "notify-osd"
 
 main = do
     xmonad
@@ -321,7 +312,7 @@ main = do
         , manageHook = myManageHook
         , handleEventHook = myHandleEventHook
         , terminal = myTerminal
-        , logHook = myLogHook 
+        , logHook = myLogHook
       }`additionalKeysP` myAdditionalKeys
 
 

@@ -76,6 +76,10 @@ URxvt.keysym.C-equal:  perl:font-size:reset
 URxvt.keysym.C-slash:  perl:font-size:show
 
 
+URxvt*urgentOnBell: true
+URxvt*visualBell:   true
+
+
 
 
 scratchpad.font: xft:Terminus:size=9
@@ -84,7 +88,7 @@ scratchpad*letterSpace: 0
 
 scratchpad.perl-lib: /usr/lib/urxvt/perl/
 scratchpad.perl-ext-common: default,matcher,font-size
-scratchpad.urlLauncher: /usr/bin/xdg-open
+scratchpad.urlLauncher: /usr/local/google/home/goldfarb/.local/bin/browser
 scratchpad.matcher.button: 1
 scratchpad.matcher.pattern.1: \\bwww\\.[\\w-]\\.[\\w./?&@#-\[\]]*[\\w/-]
 scratchpad.matcher.pattern.2: \\bcl/\\d+

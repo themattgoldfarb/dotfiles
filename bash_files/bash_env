@@ -1,0 +1,56 @@
+#################
+#### HISTORY ####
+#################
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=-1
+HISTFILESIZE=-1
+
+##########
+## PATH ##
+##########
+export PATH="$HOME/.linuxbrew/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/scripts:$PATH"
+export PATH="$PATH:/usr/games"
+export PATH="$PATH:/google/data/ro/users/mp/mpn/git-stuff"
+export PATH="$PATH:/google/data/ro/projects/quality/ui/analysis/tools"
+export PATH="$PATH:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools"
+export PATH="$PATH:/google/data/ro/users/ho/hoffstaetter/scripts"
+export PATH="$PATH:/google/data/ro/teams/grok/tools"
+export PATH="$PATH:/home/build/nonconf/google3/util/shell/gbash/tools"
+
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/share/pkgconfig"
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/lib/x86_64-linux-gnu/pkgconfig"
+
+export ANDROID_SDK_HOME=/google/data/ro/teams/mobile_eng_prod/android_sdk_linux
+export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
+export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
+
+if [ -n "$DISPLAY" ] ; then export G4MULTIDIFF=1 ; fi
+export P4DIFF='bash -c '\''for ((i = 2, j = 3; j <= $#; i += 3, j += 3)); do kdiff3 "${!i}" "${!j}"& done; wait'\'' --' g4 diff
+export P4MERGE='$HOME/bin/kdiff3_p4merge'
+
+export EDITOR='vi'
+
+if [ "$TERM" = "xterm" ]; then
+    export TERM=xterm-256color
+fi
+if [ "$TERM" = "screen" -o "$TERM" = "screen-256color" ]; then
+    export TERM=screen-256color
+    unset TERMCAP
+fi
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+shopt -s globstar

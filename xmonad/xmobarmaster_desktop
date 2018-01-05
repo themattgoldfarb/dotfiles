@@ -1,5 +1,5 @@
 Config { 
-      font = "xft:Terminus:size=10,dpi=192,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull"
+      font = "xft:Terminus:size=9,dpi=96,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull"
     , bgColor = "black"
     , fgColor = "grey"
     , position = TopW L 93

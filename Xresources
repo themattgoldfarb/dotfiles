@@ -12,7 +12,7 @@
   #define MY_BOLD_FONT xft:Terminus-Bold:size=10
 #else
   #define MY_DPI 96
-  #define MY_FONT xft:Terminus:size=9
+  #define MY_FONT xft:Terminus:size=9,xft:Inconsolata\ for\ Powerline:size=9
   #define MY_BOLD_FONT xft:Terminus-Bold:size=9
 #endif
 

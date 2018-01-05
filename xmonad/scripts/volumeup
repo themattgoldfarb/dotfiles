@@ -2,4 +2,6 @@
 
 SINK=`pactl list sinks | grep -B 1 "State: RUNNING" | grep "Sink" | awk '{print $2}' | sed 's,#,,'`
 
+[[ $SINK == "" ]] && SINK=0
+
 pactl set-sink-volume $SINK +5%

@@ -12,6 +12,7 @@
 .tmux.conf
 .xmobarrc_single
 .vimrc
+.bashrc
 
 /desktopFiles/DEST=.local/share/applications
 
@@ -46,3 +47,7 @@ $goldfarb/xmonad/lib/MyConfig.hs__desktop->xmobarmaster->MyConfig.hs
 
 !/otherFiles/installlinks.sh
 !/otherFiles/WindowPropertiesRE.hs
+/bash_files/DEST=.bash_files
+
+
+

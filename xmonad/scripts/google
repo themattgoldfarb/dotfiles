@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GOOGLE_UTILITIES_PATH=/usr/share/goobuntu-indicator/plugins
+GOOGLE_UTILITIES_PATH=$HOME/.local/share/goobuntu-indicator/plugins
 TERMINAL_CMD="/usr/local/bin/urxvtc -e "
 
 if [[ $1 = "--report" ]]; then
@@ -33,10 +33,13 @@ else # Individual metric
     CHECK=$GOOGLE_UTILITIES_PATH/check_${1}.py
     ACTION=$GOOGLE_UTILITIES_PATH/action_${1}.py
 
-    ([[ -f $CHECK  ]] && [[ -x $CHECK  ]]) || exit -2; # ENOENT
-    ([[ -f $ACTION ]] && [[ -x $ACTION ]]) || exit -2; # ENOENT
+    [[ -f $CHECK ]]
+
+    #([[ -f $CHECK  ]] && [[ -x $CHECK  ]]) || exit -2; # ENOENT
+    #([[ -f $ACTION ]] && [[ -x $ACTION ]]) || exit -2; # ENOENT
 
     MSG=`$CHECK 2>&1`
+    echo $MSG
     if [[ $? -ne 0 ]]; then
       echo -n "<fc=#f00><action=\`$ACTION\`>";
       echo $MSG | cut -c1-40 | tr -d '\n';

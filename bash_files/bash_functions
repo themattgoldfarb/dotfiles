@@ -1,0 +1,115 @@
+
+mk() {
+  mkdir -p "$@" && cd "$@"
+}
+
+__get_cl() {
+  git5 status > /dev/null 2>&1
+  if [ $? = 0 ]
+  then
+    CL=`git5 info | grep review_cl: | sed "s/review_cl: //"`
+  else
+    CL=`g4 pending | head -n1 | sed 's/\(.*\):.*/\1/' | sed 's/.*Change.\([0-9]*\).*/\1/'`
+  fi
+  echo $CL
+}
+
+__switch_path() {
+  left=$1
+  right=$2
+
+  currpath=$(pwd)
+  switchedpath=$(pwd |\
+    sed "s,$left/,$right 2/," |\
+    sed "s,$right/,$left/," |\
+    sed "s,$right 2/,$right/,")
+
+  if [[ $switchedpath != currpath ]]
+  then
+    cd "$switchedpath/"
+  fi
+}
+
+fix_auth() {
+  N_AGENTS=$(ls /tmp/ssh-*/agent* | wc -l)
+  if [ -e "$SSH_AUTH_SOCK" ]; then
+    echo "$SSH_AUTH_SOCK still valid."
+  else
+    echo "$SSH_AUTH_SOCK not valid anymore, looking for new agents"
+    if [ "$N_AGENTS" -ne "1" ]; then
+      echo "Found $N_AGENTS agents, can't decide which to use. Exiting..."
+    else
+      SSH_AUTH_SOCK=$(ls /tmp/ssh-*/agent*)
+      echo "Setting SSH_AUTH_SOCK to $SSH_AUTH_SOCK."
+    fi
+  fi
+}
+
+asock() {
+  [[ -z $PERMASOCK ]] && readonly PERMASOCK="/tmp/ssh-agent-$USER/agent"
+
+  [[ -d "/tmp/ssh-agent-$USER" ]] || mkdir -p "/tmp/ssh-agent-$USER"
+
+  find_fresh() {
+    echo "INFO: Finding a valid SSH_AUTH_SOCK" >&2
+    local SSH_AUTH_SOCKS="$(find /tmp/ssh-*/agent.* -user $USER)"
+
+    local GOOD_SSH_SOCK=''
+
+    # find oldest viable one
+    for sockfile in $SSH_AUTH_SOCKS; do
+      echo "INFO: Checking $sockfile..." >&2
+      # should never take more than a second to list entities represented...
+      SSH_AUTH_SOCK="$sockfile" timeout 2 ssh-add -l &>/dev/null && { echo "$sockfile"; echo "Found valid AUTH_SOCK $sockfile" >&2; break; } || continue
+      # if we never find the active sock, clear the var
+      unset SSH_AUTH_SOCK
+    done
+    [[ -z "$SSH_AUTH_SOCK" ]] && { echo "ERROR: could not find a value SSH_AUTH_SOCK" >&2; return 1; }
+  }
+
+  gen_sock() {
+    echo "INFO: Starting new ssh-agent" >&2
+    eval $(ssh-agent) # ssh-agent just generates commands to set vars, but doesn't set them
+    GOOD_SSH_SOCK="$SSH_AUTH_SOCK"
+  }
+
+#  [[ $(find_fresh) ]] && { echo "INFO: couldn't find live agent sock, generating"; gen_sock; }
+
+  # if we find a good sock, symlink it to PERMASOCK
+  GOOD_SSH_SOCK=$(find_fresh)
+  [[ ! -z "$GOOD_SSH_SOCK" ]] && { echo good sock is $GOOD_SSH_SOCK; ln -sf "${GOOD_SSH_SOCK}" "${PERMASOCK}"; }
+  SSH_AUTH_SOCK="$PERMASOCK"
+  export SSH_AUTH_SOCK
+  ll "$SSH_AUTH_SOCK" || echo "something went wrong in connecting SSH_AGENT"
+
+  # https://cs.corp.google.com/piper///depot/google3/experimental/users/rosic/mobi/tmx
+  # experimental/users/rda/ssh-management/
+  # https://g3doc.corp.google.com/company/teams/gnubby/user-docs/scrn.md
+  # https://groups.google.com/a/google.com/forum/#!msg/gnubby-users/MFtd_dcg3b0/OgCfnm-3OBMJ
+  # https://cs.corp.google.com/piper///depot/google3/experimental/users/rosic/mobi/fix_auth_sock
+}
+
+# Extract many types of compressed packages
+# Credit: http://nparikh.org/notes/zshrc.txt
+extract() {
+  if [ -f "$1" ]; then
+    case "$1" in
+      *.tar.bz2)  tar -jxvf "$1"                        ;;
+      *.tar.gz)   tar -zxvf "$1"                        ;;
+      *.bz2)      bunzip2 "$1"                          ;;
+      *.dmg)      hdiutil mount "$1"                    ;;
+      *.gz)       gunzip "$1"                           ;;
+      *.tar)      tar -xvf "$1"                         ;;
+      *.tbz2)     tar -jxvf "$1"                        ;;
+      *.tgz)      tar -zxvf "$1"                        ;;
+      *.zip)      unzip "$1"                            ;;
+      *.ZIP)      unzip "$1"                            ;;
+      *.pax)      cat "$1" | pax -r                     ;;
+      *.pax.Z)    uncompress "$1" --stdout | pax -r     ;;
+      *.Z)        uncompress "$1"                       ;;
+      *) echo "'$1' cannot be extracted/mounted via extract()" ;;
+    esac
+  else
+     echo "'$1' is not a valid file to extract"
+  fi
+}

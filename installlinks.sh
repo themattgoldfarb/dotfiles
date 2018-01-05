@@ -33,17 +33,17 @@ __move_file() {
   [[ $bkp_dir =~ /$ ]] && bkp_dir=${bkp_dir%/}
   [[ $base_dir =~ /$ ]] && dir=${dir%/}
 
-  echo "  $dir/$file -> $dest_dir/$target"
+  echo -n "  $dir/$file -> $dest_dir/$target..."
   mkdir -p $dest_dir
   mkdir -p $bkp_dir
-  if [[ -e "$dest_dir/$target" ]] ; then
-    printf "  -- already exists, moving..." \
+  if [[ -e "$dest_dir/$target" || -L "$dest_dir/$target" ]] ; then
+    printf " moving..." \
       "$target" "$dest_dir" "$bkp_dir"
     mv $dest_dir/$target $bkp_dir/$target
-    echo "done."
+    echo -n "moved..."
   fi
   ln -s $dir/$file $dest_dir/$target
-  echo "  -- done."
+  echo " done."
 }
 
 

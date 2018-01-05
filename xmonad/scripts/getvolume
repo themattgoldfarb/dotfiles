@@ -2,6 +2,8 @@
 
 SINK=`pactl list sinks | grep -B 1 "State: RUNNING" | grep "Sink" | awk '{print $2}'`
 
+[[ $SINK == "" ]] && SINK=0
+
 volume=`pactl list sinks | perl -000ne 'if(/'$SINK'/){/(Volume:.*)/; print "$1\n"}'`
 mute=`pactl list sinks | perl -000ne 'if(/'$SINK'/){/(Mute:.*)/; print "$1\n"}'`
 

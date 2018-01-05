@@ -1,0 +1,72 @@
+#!/bin/bash
+
+gitbiquity() {
+  if [[ $HOSTNAME == *"goldbiquity"* ]]; then
+    git clone --mirror ssh://goldfarb@goldfarb.nyc.corp.google.com/$(pwd)
+  else
+    git clone --mirror ssh://goldfarb@goldbiquity.hot.corp.google.com/$(pwd)
+  fi
+}
+
+# Git/piper
+function gs {
+  if git rev-parse --is-inside-work-tree >/dev/null 2>/dev/null ; then
+    git status "$@"
+  else
+    g4 p -s relativepath "$@"
+  fi
+}
+
+function cdroot {
+  branch=$(git rev-parse --abbrev-ref HEAD)
+  mirror_root="$(git rev-parse --show-toplevel | sed s/gitmirrors/gitsrc/ | sed s/$branch//)/"
+  cd $mirror_root
+}
+function cdm {
+  if [ "$#" -eq "0" ] ; then
+    branch=$(git rev-parse --abbrev-ref HEAD)
+  else
+    branch="$1"
+  fi
+  mirror_root="$(git rev-parse --show-toplevel | sed s/gitsrc/gitmirrors/)/"
+  cd $mirror_root/$branch
+}
+
+#Create a new git5 mirror from an existing git branch
+function g5nm {
+  branch="$1"
+  #TODO(switkows) allow project override
+  proj="fp"
+  if git rev-parse --is-inside-work-tree >/dev/null 2>/dev/null ; then
+    orig_root=$(git rev-parse --show-toplevel)
+  else
+    orig_root="not in git repo"
+  fi
+  #TODO(switkows) allow mirror root override
+  #mirror_root=/usr/local/google/home/$USER/gitsrc/.trees
+  mirror_root="$(git rev-parse --show-toplevel | sed s/gitsrc/gitmirrors/)/"
+  echo $mirror_root
+  if git show-ref --quiet refs/heads/$branch 2>/dev/null; then
+    mkdir -p "$mirror_root"
+    #valid branch. continue!
+    echo "Executing: 'git5 mirror --branch $branch --allow-existing-branch $orig_root $mirror_root/$branch'"
+    #git5 mirror --branch $branch --allow-existing-branch $orig_root $mirror_root/$proj/$branch
+    git5 mirror --branch $branch --allow-existing-branch $orig_root $mirror_root/$branch
+  else
+    echo "Branch $branch does not exist in repo: $orig_root"
+  fi
+}
+  if $has_git_complete ; then __git_complete g5nm _git_branch ; fi
+
+# Crow (Android emulator)
+source /google/data/ro/teams/mobile_eng_prod/crow/crow-complete.bash
+alias crow=/google/data/ro/teams/mobile_eng_prod/crow/crow.par
+
+[ -f ~/scripts/get_blaze_targets.sh ] && source ~/scripts/get_blaze_targets.sh
+[ -f ~/scripts/git-get-commit.sh ] && source ~/scripts/git-get-commit.sh
+[ -f ~/scripts/gitcd.sh ] && source ~/scripts/gitcd.sh
+[ -f ~/scripts/editedfiles.sh ] && source ~/scripts/editedfiles.sh
+
+[[ -f "$HOME/.bash_files_work/bash_functions" ]] && source "$HOME/.bash_files_work/bash_functions"
+[[ -f "$HOME/.bash_files_work/bash_aliases" ]] && source "$HOME/.bash_files_work/bash_aliases"
+[[ -f "$HOME/.bash_files_work/bash_env" ]] && source "$HOME/.bash_files_work/bash_env"

@@ -106,6 +106,8 @@ Plug 'skywind3000/asyncrun.vim'
 
 Plug 'airblade/vim-gitgutter'
 
+Plug 'jlanzarotta/bufexplorer'
+
 "if has('nvim')
   "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
   "Plug 'vhakulinen/neovim-intellij-complete-deoplete'
@@ -179,6 +181,9 @@ let g:tagbar_type_gcl = {
     \ ],
 \ }
 
+
+nnoremap <leader>ee :BufExplorer<CR>
+
 " NERDTree remappings
 nnoremap <leader>tr :NERDTreeFind<CR>
 nnoremap <leader>te :NERDTreeToggle<CR>
@@ -199,7 +204,7 @@ noremap <leader>so :so $MYVIMRC <CR>
 " filetype plugin indent o
 hi StatusLine ctermbg=3 ctermfg=4
 let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 0
+let g:airline#extensions#tabline#enabled = 1
 
 " syntastic
 set statusline+=%#warningmsg#

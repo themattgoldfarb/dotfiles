@@ -242,6 +242,7 @@ myWindowNavKeys x = [
 myBspKeys x = []
 keysToAdd x = [
     ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
+  , ((myExtraModMask .|. shiftMask, xK_s), spawn "$HOME/bin/snipit")
   , ((hyperMask, xK_j), spawn "~/.xmonad/scripts/hangoutsmouse.sh down")
   , ((hyperMask, xK_k), spawn "~/.xmonad/scripts/hangoutsmouse.sh up")
   , ((hyperMask, xK_l), spawn "~/.xmonad/scripts/hangoutsmouse.sh click")

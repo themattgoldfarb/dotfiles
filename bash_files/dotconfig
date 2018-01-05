@@ -1,0 +1,5 @@
+DEST=installCfg
+BKP=installCfg/bkp
+!installlinks.sh
+tmp4->remap4
+.tmp5

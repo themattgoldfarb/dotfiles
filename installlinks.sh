@@ -1,67 +1,148 @@
 #!/bin/bash
 
-DIR=~/dotfiles                    # dotfiles directory
-OLD_DIR=~/dotfiles_old             # old dotfiles backup directory
-XMONAD_SCRIPTS=~/.xmonad/scripts
+DIR=~/dotfiles/ # dotfiles directory
+OLD_DIR=~/dotfiles_old/             # old dotfiles backup directory
+DEST_DIR=~/
+BASE_DIR=~/
 
-# list of files/folders to symlink in homedir
-files="vimrc ideavimrc tmux.conf \
-       xmobarrc xmobarrc2 xmobarrc_single \
-       arrowkeyremap Xmodmap xprofile Xresources \
-       xmodmaprc"
+ROOT="$DIR"
 
-declare -A SPECIAL
-SPECIAL=(
-    #['xmonad.hs']="$HOME/.xmonad/"
-)
+FILES=$(find * | grep -v "installlinks.sh")
 
-###########
 
-# create dotfiles_old in homedir
-echo -n "Creating $OLD_DIR for backup of any existing dotfiles in ~ ..."
-mkdir -p $OLD_DIR
-echo "done"
+## list of files/folders to symlink in homedir
+#files="calendar.desktop cool-retro-term.desktop \
+       #google-play-music.desktop inbox.desktop"
+
+############
+
+FILES=()
+
+sleep 1
+
+__move_file() {
+  file=$1
+  target=$2
+  dir=$3
+  dest_dir=$4
+  bkp_dir=$5
+  base_dir=$6
+
+  [[ $dir =~ /$ ]] && dir=${dir%/}
+  [[ $dest_dir =~ /$ ]] && dest_dir=${dest_dir%/}
+  [[ $bkp_dir =~ /$ ]] && bkp_dir=${bkp_dir%/}
+  [[ $base_dir =~ /$ ]] && dir=${dir%/}
+
+  echo "  $dir/$file -> $dest_dir/$target"
+  mkdir -p $dest_dir
+  mkdir -p $bkp_dir
+  if [[ -e "$dest_dir/$target" ]] ; then
+    printf "  -- already exists, moving..." \
+      "$target" "$dest_dir" "$bkp_dir"
+    mv $dest_dir/$target $bkp_dir/$target
+    echo "done."
+  fi
+  ln -s $dir/$file $dest_dir/$target
+  echo "  -- done."
+}
+
+
+
+dir=${1:-$DIR}
+bkp_dir=${2:-$OLD_DIR}
+dest_dir=${3:-$DEST_DIR}
+root=${4:-$ROOT}
+base_dir=${5:-$BASE_DIR}
+
+[[ $dir =~ /$ ]] && dir=${dir%/}
+[[ $dest_dir =~ /$ ]] && dest_dir=${dest_dir%/}
+[[ $bkp_dir =~ /$ ]] && bkp_dir=${bkp_dir%/}
+[[ $root =~ /$ ]] && root=${root%/}
+[[ $base_dir =~ /$ ]] && base_dir=${base_dir%/}
+
+diff=${dir:${#root}}
 
 # change to the dotfiles directory
-echo -n "Changing to the $DIR directory ..."
-cd $DIR
+echo -n "Changing to the $dir directory ..."
+cd $dir
 echo "done"
 
-for file in $files; do
-    echo "Moving any existing dotfiles from ~ to $OLD_DIR"
-    [[ -e $HOME/.$file ]] && mv ~/.$file $OLD_DIR
-    echo "Creating symlink to $file in home directory."
-    ln -s $DIR/$file ~/.$file
-done
 
-for file in ${!SPECIAL[@]} ; do
-    dest="${SPECIAL[$file]}"
-    if [[ -e "$dest/$file" ]] ; then
-        echo "Backing up $dest/$file to $OLD_DIR"
-        mv "$dest/$file" $OLD_DIR
+excludes=("dotconfig")
+remaps=()
+dots=()
+host=$(hostname | sed 's,\..*,,')
+
+[[ -e "$root/dotconfig" ]] && \
+while IFS='' read -r line || [[ -n "$line" ]]; do
+
+  if [[ "$line" =~ ^[$] ]] ; then
+    line_host=$(echo $line | sed 's,[!/].*,,')
+    line_host=${line_host:1}
+    if [[ "$line_host" == "$host" ]] ; then
+      line=$(echo $line | sed 's,[^!/]*,,')
+    else
+      line=$(echo $line | sed 's,[^!/]*,,')
+      line=$(echo $line | sed 's,->.*,,')
+      line="!$line"
     fi
-    echo "Creating symlink to $file in $dest"
-    ln -s $DIR/$file $dest/$file
+  fi
+
+
+  if [[ ${#diff} > 0 ]] ; then
+    [[ ! $line =~ $diff ]] && continue
+    [[ $line =~ ^[.!]?$diff ]] && line="$(echo $line | sed "s,$diff/,,")"
+  fi
+
+
+
+
+  [[ "$line" =~ ^! ]] && excludes+=("${line:1}")
+  [[ "$line" =~ "->" ]] && remaps+=("$line")
+  [[ "$line" =~ ^\. ]] && dots+=("${line:1}")
+  [[ "$line" =~ ^DEST= ]] && dest_dir="$base_dir/$(echo $line | sed 's,DEST=,,')"
+  [[ "$line" =~ ^BKP= ]] && bkp_dir="$HOME/$(echo $line | sed 's,BKP=,,')"
+done < $root/dotconfig
+
+raw_files=$( find . -maxdepth 1 -type f -printf "%f\n" )
+
+files=()
+for file in $raw_files ; do
+  nomatch=true
+  for exclude in "${excludes[@]}" ; do
+    [[ $file == $exclude ]] && nomatch=false
+  done
+  for dot in "${dots[@]}" ; do
+    [[ $file == $dot ]] && nomatch=false
+  done
+  for remap in "${remaps[@]}" ; do
+    remap_file=$(echo $remap | sed 's,->.*,,')
+    [[ $file == $remap_file ]] && nomatch=false
+  done
+  [[ $nomatch == true ]] && files+=($file)
+done;
+
+for file in ${files[@]} ; do
+  __move_file $file "$file" $dir $dest_dir $bkp_dir
 done
 
-for file in $DIR/xmonadscripts/*; do
-    echo $file
-    if [[ -e "$XMONAD_SCRIPTS/$file" ]] ; then
-        echo "Backing up $dest/$file to $OLD_DIR"
-        mv "$XMONAD_SCRIPTS/$file" $OLD_DIR
-    fi
-    echo "Creating symlink to $file in xmonad scripts"
-    [[ ! -d $XMONAD_SCRIPTS ]] && mkdir $XMONAD_SCRIPTS
-    ln -s $file $XMONAD_SCRIPTS/${file##*/}
+for file in ${dots[@]} ; do
+  [[ -e "$file" ]] && __move_file $file ".$file" $dir $dest_dir $bkp_dir
 done
 
-mkdir -p $HOME/.config/nvim
-if [[ -e "$HOME/.config/nvim/init.vim" ]] ; then
-    mv "$HOME/.config/nvim/init.vim" $OLD_DIR
-fi
-ln -s $HOME/.vimrc $HOME/.config/nvim/init.vim
+for remap in ${remaps[@]} ; do
+  file=$(echo $remap | sed 's,->.*,,')
+  remap=$(echo $remap | sed 's,.*->,,')
+  [[ -e "$file" ]] && __move_file $file $remap $dir $dest_dir $bkp_dir
+done
 
-$DIR/desktopFiles/installDesktopFiles.sh
-$DIR/iconFiles/installIconFiles.sh
-$DIR/otherFiles/installlinks.sh
-$DIR/xmonad/installlinks.sh
+
+directories=$(find . -maxdepth 1 -type d -not -path '*/\.*' -printf "%f\n")
+for directory in $directories ; do
+  if [[ $directory != "." ]] ; then
+    #echo "-->running...."
+    $root/installlinks.sh "$dir/$directory" "$bkp_dir/$directory" "$dest_dir/$directory" "$root" "$dest_dir"
+    #echo "-->done running "
+
+  fi
+done

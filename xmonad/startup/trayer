@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo 'trayer' >> $HOME/start.txt
+
+[[ $(pidof trayer) ]] || \
+  trayer \
+    --edge top \
+    --align right \
+    --SetDockType true \
+    --SetPartialStrut true \
+    --expand true \
+    --height 20 \
+    --widthtype pixel \
+    --width 192 \
+    --transparent true \
+    --tint 0x000000 &

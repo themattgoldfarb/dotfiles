@@ -58,6 +58,10 @@ urxvt.font: MY_FONT
 urxvt.boldfont: MY_BOLD_FONT
 URxvt*letterSpace: 0
 
+URxvt*modifier: mod1
+URxvt*meta8: false
+URxvt.keysym.M-g: command:t
+
 Urxvt.perl-lib: /usr/lib/urxvt/perl/
 URxvt.perl-ext-common: default,matcher,font-size
 URxvt.urlLauncher: /usr/bin/xdg-open
@@ -67,6 +71,7 @@ URxvt.matcher.pattern.2: \\bcl/\\d+
 URxvt.matcher.pattern.3: \\bb/\\d+
 URxvt.keysym.C-u: perl:matcher:last
 URxvt.keysym.M-u: perl:matcher:list
+
 
 URxvt.keysym.C-Up:     perl:font-size:increase
 URxvt.keysym.C-Down:   perl:font-size:decrease

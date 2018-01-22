@@ -1,0 +1,3 @@
+#!/bin/bash
+
+[[ $(pgrep -f goobuntu_indicator) ]] || /usr/share/goobuntu-indicator/goobuntu_indicator.py &

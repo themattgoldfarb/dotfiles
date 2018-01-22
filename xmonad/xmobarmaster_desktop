@@ -1,15 +1,19 @@
 Config { 
       font = "xft:Terminus:size=9,dpi=96,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull"
+    , additionalFonts = [
+      "xft:FontAwesome:pixelsize=13"
+    ]
     , bgColor = "black"
     , fgColor = "grey"
-    , position = TopW L 93
+    , position = TopW L 90
     , lowerOnStart = False
     , allDesktops = True
     , commands = [
 	 Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
+   Run Volume "default" "Master" ["-t", " <volume>%<status>", "--", "--off", "muted", "--on", " "] 10,
 	 Run StdinReader
     ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "%StdinReader% }{ %datetime%"
+    , template = "%StdinReader% }{<fc=#777><fn=1></fn>%default:Master%</fc> %datetime%"
 }

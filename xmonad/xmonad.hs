@@ -99,6 +99,7 @@ myManageHook = manageHook defaultConfig
 		resource =? "synapse" --> doFloat
 	,	className =? "Eclipse" --> doShift "ide" -- move eclipse to ide
 	,	className =? "jetbrains-idea-ce" --> doShift "ide" -- move intellij to ide
+	,	className =? "jetbrains-clion" --> doShift "ide" -- move clion to ide
 	,	className =? "sun-awt-X11-XFramePeer" --> doShift "ide"
 	,	stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main"
 	,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main"
@@ -294,10 +295,16 @@ myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " " ++ myXmobarSlaveCo
 myStatusBarCleanup :: IO ()
 myStatusBarCleanup = return ()
 
-myStartupHook =
-    setWMName "LG3D"
-    <+> dynStatusBarStartup myStatusBar myStatusBarCleanup
-    <+> execScriptHook "notify-osd"
+myStartupHook = composeAll [
+      setWMName "LG3D"
+    , dynStatusBarStartup myStatusBar myStatusBarCleanup
+    , execScriptHook "start goobuntu-indicator"
+    , execScriptHook "start notify-server"
+    , execScriptHook "start screensaver"
+    , execScriptHook "start trayer"
+    , execScriptHook "start xcompmgr"
+    , execScriptHook "start xmobarpipes"
+    ]
 
 main = do
     xmonad

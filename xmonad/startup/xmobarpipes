@@ -1,0 +1,7 @@
+#!/bin/bash
+
+__xmobar_pipe=/tmp/xmobar_pipe
+[[ -p $__xmobar_pipe ]] || mkfifo $__xmobar_pipe &
+echo "" > $__xmobar_pipe &
+
+[[ $(pgrep run_google) ]] || $HOME/.xmonad/scripts/run_google &

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+case "$1" in
+  start)
+    [[ -e ~/.xmonad/startup/$2 ]] && ~/.xmonad/startup/$2
+    ;;
+esac

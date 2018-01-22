@@ -1,4 +1,6 @@
-alias xclip='xclip -selection clipboard'
+#!/bin/bash
+
+alias xcl='xclip -selection clipboard'
 alias tm='~/scripts/tmux-open-session.sh'
 alias top='top -o "%MEM"'
 alias rebash='source ~/.bashrc'

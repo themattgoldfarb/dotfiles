@@ -9,3 +9,15 @@ else
     curl -flo ~/.vim/autoload/plug.vim --create-dirs \
           https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 fi
+
+packages=("xdotool")
+for pkg in "${packages[@]}"; do
+  if dpkg --get-selections | grep "$pkg" > /dev/null ; then
+    echo "$pkg is already installed."
+  else
+    echo -n "Installing $pkg..."
+    sudo apt-get --assume-yes install $pkg
+    echo "done."
+  fi
+done
+

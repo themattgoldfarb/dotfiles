@@ -1,14 +1,16 @@
 #!/bin/bash
 
-TIMEOUT=1 # 2 minutes
+TIMEOUT=10 # 10 minutes
 NOTIFY_WARNING=10 # 10 seconds
+
+notify-send "notification test"
 
 # Start xscreensaver if it isn't running
 [[ $(pidof xscreensaver) ]] && echo 'Screensaver already running' || xscreensaver &
 
 # make sure screen will lock after TIMEOUT minutes
 [[ $(pidof xautolock) ]] && echo 'xautolock already running' || \
-    (xautolock -locker "xscreensaver-command -lock " \
+    (xautolock -locker "~/.xmonad/commands/lockscreen" \
       -time $TIMEOUT -notify $NOTIFY_WARNING -secure \
       -notifier "notify-send 'Locking screen in $NOTIFY_WARNING seconds'" || \
       notify-send "Couldn't setup automatic screen locking") &

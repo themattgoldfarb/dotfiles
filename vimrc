@@ -108,10 +108,14 @@ Plug 'airblade/vim-gitgutter'
 
 Plug 'jlanzarotta/bufexplorer'
 
-"if has('nvim')
-  "Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-  "Plug 'vhakulinen/neovim-intellij-complete-deoplete'
-"endif
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
+
+Plug 'vimwiki/vimwiki'
+
+if has('nvim')
+  Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
+endif
 
 
 call plug#end()            " required
@@ -126,6 +130,12 @@ au BufRead,BufNewFile \.bash_*  set filetype=sh
 syntax on
 set noruler
 set laststatus=2
+
+
+let g:vimwiki_list = [{'path': '~/vimwiki/',
+                     \ 'syntax': 'markdown', 'ext': '.md',
+                     \ 'path_html': '~/vimwiki/site_html/', 'custom_wiki2html': 'vimwiki_markdown'}]
+
 
 if has('nvim')
   let g:deoplete#enable_at_startup = 1
@@ -152,15 +162,19 @@ else
   let g:ycm_filetype_whitelist = {'cpp' :1, 'cc' : 1}
 endif
 
+
+
 " Taglist remappings
 
 " Tagbar settings
-autocmd VimEnter * nested :call tagbar#autoopen(1)
-let g:tagbar_autoclose = 0
+"autocmd VimEnter * nested :call tagbar#autoopen(1)
+let g:tagbar_autoclose = 1
 let g:tagbar_left = 1
 let g:tagbar_autofocus = 1
+let g:tagbar_zoomwidth = 80
 nnoremap <leader>tt :TagbarOpen j<CR>
 nnoremap <leader>tb :TagbarToggle<CR>
+
 
 
 let g:tagbar_type_sh = {
@@ -350,3 +364,47 @@ function! Wipeout()
 endfunction
 
 nnoremap <leader>wo :call Wipeout()<cr>
+
+nnoremap <leader>qa :qa<CR>
+
+
+
+set diffopt=filler,vertical,context:10000000
+set cursorline
+
+if &diff
+  set cursorline
+  nnoremap <leader>dn ]c
+  nnoremap <leader>dp [c
+endif
+
+function! Test()
+  return 0
+endfunction
+
+nnoremap <c-o> :let t = FindFile() <CR> :execute "e ".t <CR>
+
+function! FindFile()
+  let root = getcwd()
+  while !filereadable(root)
+    let cmd = "ls -A ".root
+    let f = systemlist(cmd)
+    let f = f + [".."]
+    let selected = fzf#run({
+        \ 'source': f,
+        \ 'down' : '30%'})
+    if selected[0] == ".."
+      let root = fnamemodify(root, ':p:h:h')
+    else
+      let root = root."/".selected[0]
+    endif
+  endwhile
+  return root
+endfunction
+
+function! s:sanitized_wikiname(wikifile)
+  let initial = fnamemodify(a:wikifile, ":t:r")
+  let lower_sanitized = tolower(initial)
+  let substituted = substitute(lower_sanitized, '[^a-z0-9_-]\+',"-", "g")
+  return substitute(substituted, '\-\+',"-", "g") . ".html"
+endfunction

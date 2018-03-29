@@ -60,7 +60,6 @@ URxvt*letterSpace: 0
 
 URxvt*modifier: mod1
 URxvt*meta8: false
-URxvt.keysym.M-g: command:t
 
 Urxvt.perl-lib: /usr/lib/urxvt/perl/
 URxvt.perl-ext-common: default,matcher,font-size
@@ -112,4 +111,5 @@ scratchpad*background: #000000
 scratchpad*internalBorder: 20
 scratchpad*cursorBlink: true
 
-
+xscreensaver.logFile:/usr/local/google/home/goldfarb/xscreensaver.log
+xscreensaver.verbose:true

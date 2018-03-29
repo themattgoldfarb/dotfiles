@@ -2,8 +2,30 @@
 
 time_to_alert=60
 commands_to_always_alert=('blaze' 'demo1' 'demo2' 'demo3' 'run1' 'run2' 'run3' 'test-long')
+commands_to_never_alert=('gitc' 'vim')
 LAST_HISTORY_NUMBER=""
-prompt_command() {
+
+
+extra_history_file="$HOME/.history_extra"
+[[ -f $extra_history_file ]] || touch $extra_history_file
+
+__get_extra() {
+  id=$1
+  cat $extra_history_file | grep "$id"
+}
+
+PS0='$(__preexec)'
+
+__preexec() {
+  local history_output=$(HISTTIMEFORMAT="%s " history 1)
+  local history_number=$(echo $history_output | awk '{print $1}')
+
+  local window_pid=$(xdotool getwindowfocus getwindowpid)
+
+  echo "$history_number window:$window_pid" >> $extra_history_file
+}
+
+__prompt_command() {
   local history_output=$(HISTTIMEFORMAT="%s " history 1)
   local history_number=$(echo $history_output | awk '{print $1}')
   local trim_hist=$(echo $history_output | xargs)
@@ -11,14 +33,27 @@ prompt_command() {
   local started_at=$(echo $rest | awk '{print $1}')
   local last_command=${rest#* }
   local finished_at=$(date +%s)
-
   local elapsed_seconds=$(( $finished_at - $started_at ))
   local ds=$((elapsed_seconds % 60))
   local dm=$(((elapsed_seconds / 60) % 60))
   local dh=$((elapsed_seconds / 3600))
   local elapsed=$(printf '%02d:%02d:%02d' $dh $dm $ds)
 
-  if [[ ! -z "$LAST_HISTORY_NUMBER" &&
+  local extras=$(__get_extra $history_number)
+  local hist_window_pid=$(echo $extras | awk -F " |:" '{print $3}')
+  local window_pid=$(xdotool getwindowfocus getwindowpid)
+
+  for command in "${commands_to_never_alert[@]}"
+  do
+    if [[ $last_command == *"$command"* ]]
+    then
+      return
+    fi
+  done
+
+  if [[ $hist_window_pid != '' && $hist_window_pid != $window_pid ]] ; then
+    notify-send "Unfocused command complete" "$last_command"
+  elif [[ ! -z "$LAST_HISTORY_NUMBER" &&
 	"$history_number" != "$LAST_HISTORY_NUMBER" ]] &&
     (( $finished_at - $started_at > $time_to_alert )); then
     if [ -n "$DISPLAY" ]; then
@@ -30,7 +65,8 @@ prompt_command() {
     if [[ $last_command == *"blaze"* ]]
     then
       if [ -n "$DISPLAY" ]; then
-        notify-send "Blaze command finished in ${elapsed}" '<a href="http://sponge/lucky">Open Sponge</a>'
+        #notify-send "Blaze command finished in ${elapsed}" '<a href="http://sponge/lucky">Open Sponge</a>'
+        notify-send "$last_command" "finished in ${elapsed}"
       else
         echo "Finished in ${elapsed}"
       fi
@@ -52,5 +88,5 @@ prompt_command() {
   LAST_HISTORY_NUMBER=$history_number
 }
 
-PROMPT_COMMAND=prompt_command
+PROMPT_COMMAND=__prompt_command
 

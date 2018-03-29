@@ -161,7 +161,7 @@ isCalendar = (resource =? "calendar.google.com__calendar_r")
 
 scratchpads = [
     NS "htop" "urxvt -e htop" (title =? "htop") topFloating,
-    NS "notes" "gvim --role notes ~/notes.txt" (role =? "notes") topFloating,
+    NS "notes" "gvim --role notes ~/vimwiki/index.md" (role =? "notes") topFloating,
     NS "music" googleMusicCommand isGoogleMusic bottomFloating,
     NS "bugs" buganizerCommand isBuganizer centerFloating,
     NS "inbox" inboxCommand isInbox centerFloating,
@@ -248,7 +248,8 @@ keysToAdd x = [
   , ((hyperMask, xK_k), spawn "~/.xmonad/scripts/hangoutsmouse.sh up")
   , ((hyperMask, xK_l), spawn "~/.xmonad/scripts/hangoutsmouse.sh click")
   , ((hyperMask, xK_n), spawn "xdotool mousemove 1893 1125 click 1 mousemove restore")
-  , ((myModMask .|. controlMask, xK_l), spawn "xscreensaver-command -lock")
+  , ((myModMask .|. controlMask, xK_l), spawn "~/.xmonad/commands/lockscreen")
+  , ((hyperMask, xK_f), spawn "~/.xmonad/commands/lock_mac")
   , ((myModMask, xK_s), spawn "google-chrome http://sponge/lucky")
   , ((myExtraModMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
   , ((myExtraModMask, xK_b), sendMessage ToggleStruts )
@@ -304,6 +305,9 @@ myStartupHook = composeAll [
     , execScriptHook "start trayer"
     , execScriptHook "start xcompmgr"
     , execScriptHook "start xmobarpipes"
+    , execScriptHook "start run_google"
+    , execScriptHook "start keep_mac_awake"
+    , execScriptHook "start drive"
     ]
 
 main = do

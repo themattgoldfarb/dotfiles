@@ -20,7 +20,7 @@ __preexec() {
   local history_output=$(HISTTIMEFORMAT="%s " history 1)
   local history_number=$(echo $history_output | awk '{print $1}')
 
-  local window_pid=$(xdotool getwindowfocus getwindowpid)
+  local window_pid=$(xdotool getwindowfocus getwindowpid 2> /dev/null)
 
   echo "$history_number window:$window_pid" >> $extra_history_file
 }
@@ -41,7 +41,7 @@ __prompt_command() {
 
   local extras=$(__get_extra $history_number)
   local hist_window_pid=$(echo $extras | awk -F " |:" '{print $3}')
-  local window_pid=$(xdotool getwindowfocus getwindowpid)
+  local window_pid=$(xdotool getwindowfocus getwindowpid 2> /dev/null)
 
   for command in "${commands_to_never_alert[@]}"
   do

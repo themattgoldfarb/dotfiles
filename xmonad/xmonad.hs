@@ -11,6 +11,8 @@ import XMonad.Hooks.Script
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
 import qualified XMonad.Layout.BinarySpacePartition as BSP
+import XMonad.Layout.BorderResize
+import XMonad.Layout.Combo
 import XMonad.Layout.ComboP
 import XMonad.Layout.Grid
 import XMonad.Layout.IM
@@ -66,7 +68,7 @@ defaultLayouts = windowNavigation (
   onWorkspace "main"   ( main ||| tabbed ) $
   onWorkspace "3"   ( tabbed ) $
   onWorkspace "ide"   ( tabbed ||| mtiled ) $
-	tabbed	||| tiled |||  rtiled ||| mtiled ||| bsp )
+	tabbed	||| tiled |||  rtiled ||| mtiled ||| bsp ||| twotiled )
   where
     tabbed = renamed [Replace "tabbed"] $ simpleTabbed
     mos = MosaicAlt M.empty
@@ -75,6 +77,7 @@ defaultLayouts = windowNavigation (
     tiled  = renamed [Replace "tiled"] $ Tall 1 0.03 0.5
     grid = renamed [Replace "grid"] $ GridRatio (0.5)
     bsp = renamed [Replace "bsp"] $ BSP.emptyBSP
+    twotiled = renamed [Replace "twop"] $ combineTwo (TwoPane 0.03 0.5) (tabbed) (tabbed)
     main = renamed [Replace "main"] $
         combineTwoP (TwoPane 0.03 0.2)
             (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (grid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
@@ -84,7 +87,7 @@ defaultLayouts = windowNavigation (
                     (Or (Title "Google Hangouts - goldfarb@google.com")
                         (Title "Google Hangouts - themattgoldfarb@gmail.com"))))
 
-myLayout = smartBorders $ avoidStruts $ defaultLayouts
+myLayout = borderResize $ smartBorders $ avoidStruts $ defaultLayouts
 
 data LibNotifyUrgencyHook = LibNotifyUrgencyHook deriving (Read, Show)
 
@@ -227,6 +230,11 @@ logTitles ppFocus ppUnfocus =
         in
             withWindowSet $ liftM (Just . (intercalate "][")) . windowTitles
 
+  {-, ((hyperMask, xK_j), spawn "~/.xmonad/scripts/hangoutsmouse.sh down")-}
+  {-, ((hyperMask, xK_k), spawn "~/.xmonad/scripts/hangoutsmouse.sh up")-}
+  {-, ((hyperMask, xK_l), spawn "~/.xmonad/scripts/hangoutsmouse.sh click")-}
+  {-, ((hyperMask, xK_n), spawn "xdotool mousemove 1893 1125 click 1 mousemove restore")-}
+
 myWindowNavKeys x = [
     ((mehMask,                 xK_l ), sendMessage $ Go R)
   , ((mehMask,                 xK_h ), sendMessage $ Go L)
@@ -240,14 +248,23 @@ myWindowNavKeys x = [
   , ((mehMask .|. controlMask, xK_h ), sendMessage $ Move L)
   , ((mehMask .|. controlMask, xK_j ), sendMessage $ Move D)
   , ((mehMask .|. controlMask, xK_k ), sendMessage $ Move U) ]
-myBspKeys x = []
+myBspKeys x = [
+    ((hyperMask, xK_l ), sendMessage $ BSP.ExpandTowards R)
+  , ((hyperMask, xK_h ), sendMessage $ BSP.ExpandTowards L)
+  , ((hyperMask, xK_j ), sendMessage $ BSP.ExpandTowards D)
+  , ((hyperMask, xK_k ), sendMessage $ BSP.ExpandTowards U)
+  , ((hyperMask .|. controlMask, xK_l ), sendMessage $ BSP.ShrinkFrom R)
+  , ((hyperMask .|. controlMask, xK_h ), sendMessage $ BSP.ShrinkFrom L)
+  , ((hyperMask .|. controlMask, xK_j ), sendMessage $ BSP.ShrinkFrom D)
+  , ((hyperMask .|. controlMask, xK_k ), sendMessage $ BSP.ShrinkFrom U)
+  , ((hyperMask, xK_r ), sendMessage BSP.Rotate)
+  , ((hyperMask, xK_s ), sendMessage BSP.Swap)
+  , ((hyperMask, xK_n ), sendMessage BSP.FocusParent)
+  , ((hyperMask .|. controlMask, xK_n ), sendMessage BSP.SelectNode)
+  , ((hyperMask .|. shiftMask, xK_n ), sendMessage BSP.MoveNode) ]
 keysToAdd x = [
     ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
   , ((myExtraModMask .|. shiftMask, xK_s), spawn "$HOME/bin/snipit")
-  , ((hyperMask, xK_j), spawn "~/.xmonad/scripts/hangoutsmouse.sh down")
-  , ((hyperMask, xK_k), spawn "~/.xmonad/scripts/hangoutsmouse.sh up")
-  , ((hyperMask, xK_l), spawn "~/.xmonad/scripts/hangoutsmouse.sh click")
-  , ((hyperMask, xK_n), spawn "xdotool mousemove 1893 1125 click 1 mousemove restore")
   , ((myModMask .|. controlMask, xK_l), spawn "~/.xmonad/commands/lockscreen")
   , ((hyperMask, xK_f), spawn "~/.xmonad/commands/lock_mac")
   , ((myModMask, xK_s), spawn "google-chrome http://sponge/lucky")
@@ -319,6 +336,7 @@ main = do
           layoutHook = myLayout
         , modMask = mod4Mask
         , normalBorderColor = "#000000"
+        , focusedBorderColor = "#FF0000"
         , borderWidth = 0
         , workspaces=myWorkspaces
         , mouseBindings = myMouseBindings

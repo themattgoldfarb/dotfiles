@@ -1,5 +1,7 @@
 #!/bin/bash
 
+alias x='DISPLAY=:100 ' # launch on xpra
+
 alias xcl='xclip -selection clipboard'
 alias tm='~/scripts/tmux-open-session.sh'
 alias top='top -o "%MEM"'

@@ -46,7 +46,7 @@ __after_command() {
 
   local extras=$(__get_from_extra_history $history_number)
   local hist_window_pid=$(echo $extras | awk -F " |:" '{print $3}')
-  local started_at==$(echo $extras | awk -F " |:" '{print $5}')
+  local started_at=$(echo $extras | awk -F " |:" '{print $5}')
 
   local finished_at=$(date +%s)
   local elapsed_seconds=$(( $finished_at - $started_at ))

@@ -6,6 +6,9 @@
 # This will alert for long running commands, commands run in a window that is
 # not currently focused, or commands that match the commands to always alert.
 # This will not alert for commands in commands to never alert.
+#
+# To use this, add the following to your .bashrc:
+#   [[ -f "$HOME/.bash_files/alert_on_long_running" ]] && source "$HOME/.bash_files/alert_on_long_running"
 
 time_to_alert=60
 commands_to_always_alert=('blaze' 'demo1' 'demo2' 'demo3' 'run1' 'run2' 'run3' 'test-long')

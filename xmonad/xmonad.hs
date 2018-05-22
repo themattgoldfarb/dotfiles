@@ -1,5 +1,6 @@
 import XMonad
 import XMonad.Actions.WorkspaceNames
+import XMonad.Actions.CopyWindow
 import XMonad.Config.Gnome
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicBars
@@ -12,6 +13,7 @@ import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
 import qualified XMonad.Layout.BinarySpacePartition as BSP
 import XMonad.Layout.BorderResize
+import XMonad.Layout.BoringWindows (focusUp, focusDown, boringWindows)
 import XMonad.Layout.Combo
 import XMonad.Layout.ComboP
 import XMonad.Layout.Grid
@@ -25,6 +27,7 @@ import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
 import XMonad.Layout.Renamed
 import XMonad.Layout.Spacing
+import XMonad.Layout.SubLayouts
 import XMonad.Layout.Tabbed
 import XMonad.Layout.TwoPane
 import XMonad.Layout.WindowNavigation
@@ -54,10 +57,10 @@ import Data.List (intercalate, isInfixOf)
 import Data.Ratio ((%))
 import System.IO
 
-myExtraModMask = mod4Mask
-myModMask = mod1Mask
-hyperMask = mod3Mask
-mehMask = mod2Mask
+lWinMask = mod4Mask
+lAltMask = mod1Mask
+rWinMask = mod3Mask
+rAltMask = mod2Mask
 
 doSink :: ManageHook
 doSink = doF . W.sink =<< ask
@@ -65,10 +68,11 @@ doSink = doF . W.sink =<< ask
 myWorkspaces = ["main","term","3","browser","ide","files","7","personal","9"]
 
 defaultLayouts = windowNavigation (
-  onWorkspace "main"   ( main ||| tabbed ) $
-  onWorkspace "3"   ( tabbed ) $
-  onWorkspace "ide"   ( tabbed ||| mtiled ) $
-	tabbed	||| tiled |||  rtiled ||| mtiled ||| bsp ||| twotiled )
+  onWorkspace "main"  ( main ||| mainBsp ||| tbsp ||| tabbed ) $
+  onWorkspace "9"  ( main ||| mainBsp ||| tbsp ||| tabbed ) $
+  onWorkspace "3"   ( tabbed  ||| tbsp ) $
+  onWorkspace "ide"   ( tabbed ||| mtiled ||| tbsp ) $
+	tabbed	||| tbsp ||| tiled |||  rtiled ||| mtiled ||| twotiled )
   where
     tabbed = renamed [Replace "tabbed"] $ simpleTabbed
     mos = MosaicAlt M.empty
@@ -76,12 +80,22 @@ defaultLayouts = windowNavigation (
     mtiled = renamed [Replace "mtiled"] $ Mirror tiled
     tiled  = renamed [Replace "tiled"] $ Tall 1 0.03 0.5
     grid = renamed [Replace "grid"] $ GridRatio (0.5)
+    hgrid = GridRatio (0.4)
     bsp = renamed [Replace "bsp"] $ BSP.emptyBSP
+    tbsp = subTabbed $ bsp
     twotiled = renamed [Replace "twop"] $ combineTwo (TwoPane 0.03 0.5) (tabbed) (tabbed)
     main = renamed [Replace "main"] $
         combineTwoP (TwoPane 0.03 0.2)
-            (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (grid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
+            (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (hgrid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
             (tabbed )
+            (Or (ClassName "Firefox")
+                (Or (ClassName "Firefox-esr")
+                    (Or (Title "Google Hangouts - goldfarb@google.com")
+                        (Title "Google Hangouts - themattgoldfarb@gmail.com"))))
+    mainBsp = renamed [Replace "mainBsp"] $
+        combineTwoP (TwoPane 0.03 0.2)
+            (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (hgrid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
+            (tbsp )
             (Or (ClassName "Firefox")
                 (Or (ClassName "Firefox-esr")
                     (Or (Title "Google Hangouts - goldfarb@google.com")
@@ -104,21 +118,32 @@ myManageHook = manageHook defaultConfig
 	,	className =? "jetbrains-idea-ce" --> doShift "ide" -- move intellij to ide
 	,	className =? "jetbrains-clion" --> doShift "ide" -- move clion to ide
 	,	className =? "sun-awt-X11-XFramePeer" --> doShift "ide"
+  , fmap ( "https://hangouts.google.com/webchat/iframe3?" `isInfixOf`) (stringProperty "WM_NAME") --> doSink
 	,	stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main"
 	,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main"
 	-- ,	stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
 	,	resource =? "google-chrome" --> doFloat
 	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "main"
+	,	stringProperty "WM_NAME" =? "modal" --> doFloat
 	]
 	<+> manageDocks
   <+> manageScratchPad
   <+> namedScratchpadManageHook scratchpads
 
+doSwap = do
+            name <- liftX (sendMessage  SwapWindow)
+            doF W.swapUp
+
+
+
+
 myDynHook = composeAll [
 		stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" -->  doShift "main" <+> doSink
   ,	stringProperty "WM_NAME" =? "chrome-extension://nckgahadagoaajjgafhacjanaoiihapd/mainapp.html?uv_main_window" --> doFloat
   , stringProperty "WM_CLASS" =? "Firefox-esr" --> doShift "main" <+> doSink
-  ,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main" <+> doSink ]
+  ,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main" <+> doSink 
+  , fmap ( "https://hangouts.google.com/webchat/frame3?" `isInfixOf`) (stringProperty "WM_NAME") --> doSink <+> doSwap
+  ]
 
 myHandleEventHook = handleEventHook def
   <+> composeAll [
@@ -230,54 +255,70 @@ logTitles ppFocus ppUnfocus =
         in
             withWindowSet $ liftM (Just . (intercalate "][")) . windowTitles
 
-  {-, ((hyperMask, xK_j), spawn "~/.xmonad/scripts/hangoutsmouse.sh down")-}
-  {-, ((hyperMask, xK_k), spawn "~/.xmonad/scripts/hangoutsmouse.sh up")-}
-  {-, ((hyperMask, xK_l), spawn "~/.xmonad/scripts/hangoutsmouse.sh click")-}
-  {-, ((hyperMask, xK_n), spawn "xdotool mousemove 1893 1125 click 1 mousemove restore")-}
+  {-, ((rWinMask, xK_j), spawn "~/.xmonad/scripts/hangoutsmouse.sh down")-}
+  {-, ((rWinMask, xK_k), spawn "~/.xmonad/scripts/hangoutsmouse.sh up")-}
+  {-, ((rWinMask, xK_l), spawn "~/.xmonad/scripts/hangoutsmouse.sh click")-}
+  {-, ((rWinMask, xK_n), spawn "xdotool mousemove 1893 1125 click 1 mousemove restore")-}
 
 myWindowNavKeys x = [
-    ((mehMask,                 xK_l ), sendMessage $ Go R)
-  , ((mehMask,                 xK_h ), sendMessage $ Go L)
-  , ((mehMask,                 xK_j ), sendMessage $ Go D)
-  , ((mehMask,                 xK_k ), sendMessage $ Go U)
-  , ((mehMask .|. shiftMask,   xK_l ), sendMessage $ Swap R)
-  , ((mehMask .|. shiftMask,   xK_h ), sendMessage $ Swap L)
-  , ((mehMask .|. shiftMask,   xK_j ), sendMessage $ Swap D)
-  , ((mehMask .|. shiftMask,   xK_k ), sendMessage $ Swap U)
-  , ((mehMask .|. controlMask, xK_l ), sendMessage $ Move R)
-  , ((mehMask .|. controlMask, xK_h ), sendMessage $ Move L)
-  , ((mehMask .|. controlMask, xK_j ), sendMessage $ Move D)
-  , ((mehMask .|. controlMask, xK_k ), sendMessage $ Move U) ]
+    ((rAltMask,                 xK_l ), sendMessage $ pullGroup R)
+  , ((rAltMask,                 xK_h ), sendMessage $ pullGroup L)
+  , ((rAltMask,                 xK_j ), sendMessage $ pullGroup D)
+  , ((rAltMask,                 xK_k ), sendMessage $ pullGroup U)
+  , ((rAltMask,                 xK_m ), withFocused (sendMessage . MergeAll))
+  , ((rAltMask,                 xK_u ), withFocused (sendMessage . UnMerge)) 
+  , ((rAltMask .|. lWinMask,    xK_k ), onGroup W.focusUp' )
+  , ((rAltMask,                 xK_s ), sendMessage $ SwapWindow)
+  , ((rAltMask .|. lWinMask,    xK_j ), onGroup W.focusDown' ) ]
+  {-, ((rAltMask .|. controlMask, xK_k ), focusUp )-}
+  {-, ((rAltMask .|. controlMask, xK_j ), focusDown U) ]-}
 myBspKeys x = [
-    ((hyperMask, xK_l ), sendMessage $ BSP.ExpandTowards R)
-  , ((hyperMask, xK_h ), sendMessage $ BSP.ExpandTowards L)
-  , ((hyperMask, xK_j ), sendMessage $ BSP.ExpandTowards D)
-  , ((hyperMask, xK_k ), sendMessage $ BSP.ExpandTowards U)
-  , ((hyperMask .|. controlMask, xK_l ), sendMessage $ BSP.ShrinkFrom R)
-  , ((hyperMask .|. controlMask, xK_h ), sendMessage $ BSP.ShrinkFrom L)
-  , ((hyperMask .|. controlMask, xK_j ), sendMessage $ BSP.ShrinkFrom D)
-  , ((hyperMask .|. controlMask, xK_k ), sendMessage $ BSP.ShrinkFrom U)
-  , ((hyperMask, xK_r ), sendMessage BSP.Rotate)
-  , ((hyperMask, xK_s ), sendMessage BSP.Swap)
-  , ((hyperMask, xK_n ), sendMessage BSP.FocusParent)
-  , ((hyperMask .|. controlMask, xK_n ), sendMessage BSP.SelectNode)
-  , ((hyperMask .|. shiftMask, xK_n ), sendMessage BSP.MoveNode) ]
+    ((rWinMask,                 xK_l ), sendMessage $ Go R)
+  , ((rWinMask,                 xK_h ), sendMessage $ Go L)
+  , ((rWinMask,                 xK_j ), sendMessage $ Go D)
+  , ((rWinMask,                 xK_k ), sendMessage $ Go U)
+  , ((rWinMask .|. lWinMask,    xK_l ), sendMessage $ BSP.ExpandTowards R)
+  , ((rWinMask .|. lWinMask,    xK_h ), sendMessage $ BSP.ExpandTowards L)
+  , ((rWinMask .|. lWinMask,    xK_j ), sendMessage $ BSP.ExpandTowards D)
+  , ((rWinMask .|. lWinMask,    xK_k ), sendMessage $ BSP.ExpandTowards U)
+  , ((rWinMask .|. controlMask,   xK_l ), sendMessage $ Swap R)
+  , ((rWinMask .|. controlMask,   xK_h ), sendMessage $ Swap L)
+  , ((rWinMask .|. controlMask,   xK_j ), sendMessage $ Swap D)
+  , ((rWinMask .|. controlMask,   xK_k ), sendMessage $ Swap U)
+  , ((rWinMask,                 xK_r ), sendMessage BSP.Rotate)
+  , ((rWinMask,                 xK_s ), sendMessage BSP.Swap)
+  , ((rWinMask,                 xK_n ), sendMessage BSP.FocusParent)
+  , ((rWinMask .|. controlMask, xK_n ), sendMessage BSP.SelectNode)
+  , ((rWinMask .|. shiftMask,   xK_n ), sendMessage BSP.MoveNode)
+  , ((rWinMask,                 xK_a ), sendMessage BSP.Equalize)
+  , ((rWinMask .|. lWinMask,    xK_a ), sendMessage BSP.Balance) 
+  , ((rWinMask .|. lAltMask,    xK_l ), sendMessage $ pullGroup R)
+  , ((rWinMask .|. lAltMask,    xK_h ), sendMessage $ pullGroup L)
+  , ((rWinMask .|. lAltMask,    xK_j ), sendMessage $ pullGroup D)
+  , ((rWinMask .|. lAltMask,    xK_k ), sendMessage $ pullGroup U)
+  , ((rWinMask,                 xK_m ), withFocused (sendMessage . MergeAll))
+  , ((rWinMask,                 xK_u ), withFocused (sendMessage . UnMerge))
+  , ((rWinMask .|. shiftMask,    xK_k ), onGroup W.focusUp' )
+  , ((rWinMask .|. shiftMask,    xK_j ), onGroup W.focusDown' ) ]
 keysToAdd x = [
-    ((myExtraModMask, xK_n), renameWorkspace defaultXPConfig)
-  , ((myExtraModMask .|. shiftMask, xK_s), spawn "$HOME/bin/snipit")
-  , ((myModMask .|. controlMask, xK_l), spawn "~/.xmonad/commands/lockscreen")
-  , ((hyperMask, xK_f), spawn "~/.xmonad/commands/lock_mac")
-  , ((myModMask, xK_s), spawn "google-chrome http://sponge/lucky")
-  , ((myExtraModMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
-  , ((myExtraModMask, xK_b), sendMessage ToggleStruts )
-  , ((myModMask , xK_p), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'") ]
+    ((lWinMask, xK_n), renameWorkspace defaultXPConfig)
+  , ((lWinMask .|. shiftMask, xK_s), spawn "$HOME/bin/snipit")
+  , ((lAltMask .|. controlMask, xK_l), spawn "~/.xmonad/commands/lockscreen")
+  , ((rWinMask, xK_f), spawn "~/.xmonad/commands/lock_mac")
+  , ((lAltMask, xK_s), spawn "google-chrome http://sponge/lucky")
+  , ((lWinMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
+  , ((lWinMask, xK_b), sendMessage ToggleStruts )
+  , ((lAltMask , xK_p), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'") ]
+  ++ [ ((lWinMask .|. controlMask .|. shiftMask, k ) , windows $ f i )
+        | (i, k) <- zip (workspaces x) [xK_1 ..]
+        , (f, m) <- [(W.view, 0), (W.shift, shiftMask), (copy, shiftMask .|. controlMask) ] ]
 scratchpadKeys x = [
-    ((myExtraModMask .|. controlMask, xK_t), namedScratchpadAction scratchpads "htop")
-  , ((myExtraModMask .|. controlMask, xK_n), namedScratchpadAction scratchpads "notes")
-  , ((myExtraModMask .|. controlMask, xK_m), namedScratchpadAction scratchpads "music")
-  , ((myExtraModMask .|. controlMask, xK_b), namedScratchpadAction scratchpads "bugs")
-  , ((myExtraModMask .|. controlMask, xK_i), namedScratchpadAction scratchpads "inbox")
-  , ((myExtraModMask .|. controlMask, xK_c), namedScratchpadAction scratchpads "calendar") ]
+    ((lWinMask .|. controlMask, xK_t), namedScratchpadAction scratchpads "htop")
+  , ((lWinMask .|. controlMask, xK_n), namedScratchpadAction scratchpads "notes")
+  , ((lWinMask .|. controlMask, xK_m), namedScratchpadAction scratchpads "music")
+  , ((lWinMask .|. controlMask, xK_b), namedScratchpadAction scratchpads "bugs")
+  , ((lWinMask .|. controlMask, xK_i), namedScratchpadAction scratchpads "inbox")
+  , ((lWinMask .|. controlMask, xK_c), namedScratchpadAction scratchpads "calendar") ]
 keysToDel x = []
 newKeys x = M.unions [ (keys defaultConfig x)
                      , (M.fromList(keysToAdd x))
@@ -286,6 +327,8 @@ newKeys x = M.unions [ (keys defaultConfig x)
                      , (M.fromList(scratchpadKeys x)) ]
 myKeys x = foldr M.delete (newKeys x) (keysToDel x)
 
+
+
 myAdditionalKeys = [
     ("<XF86AudioRaiseVolume>", spawn "~/.xmonad/scripts/volumeup")
   , ("<XF86AudioLowerVolume>", spawn "~/.xmonad/scripts/volumedown")
@@ -293,7 +336,7 @@ myAdditionalKeys = [
   , ("<XF86MonBrightnessUp>", spawn "~/.xmonad/scripts/brightness.sh up")
   , ("<XF86MonBrightnessDown>", spawn "~/.xmonad/scripts/brightness.sh down") ]
 
-myMouse x = [ ((myModMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
+myMouse x = [ ((lAltMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
 myMouseBindings x = M.union (mouseBindings defaultConfig x) (M.fromList (myMouse x))
 
 myTerminal = "urxvt"
@@ -337,7 +380,7 @@ main = do
         , modMask = mod4Mask
         , normalBorderColor = "#000000"
         , focusedBorderColor = "#FF0000"
-        , borderWidth = 0
+        , borderWidth = 1
         , workspaces=myWorkspaces
         , mouseBindings = myMouseBindings
         , keys = myKeys

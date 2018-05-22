@@ -34,7 +34,7 @@ esac
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-HISTCONTROL=asdf
+export HISTCONTROL=ignoreboth
 
 # append to the history file, don't overwrite it
 shopt -s histappend
@@ -121,7 +121,7 @@ fi
 set -o vi
 
 [[ -f "$HOME/.bashrc_work" ]] &&    source "$HOME/.bashrc_work"
-[[ -f "$HOME/.bash_files/prompt_command" ]] && source "$HOME/.bash_files/prompt_command"
+[[ -f "$HOME/.bash_files/alert_on_long_running" ]] && source "$HOME/.bash_files/alert_on_long_running"
 
 [[ -f "$HOME/.bash_files/bash_functions" ]] && source "$HOME/.bash_files/bash_functions"
 [[ -f "$HOME/.bash_files/bash_aliases" ]] &&   source "$HOME/.bash_files/bash_aliases"

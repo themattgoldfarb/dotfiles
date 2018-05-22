@@ -41,7 +41,6 @@ endif
 
 "colorscheme elflord
 
-set clipboard=unnamedplus
 set nu  " show line numbers
 set so=5  " scroll offset
 set ignorecase  " make search case insensitive

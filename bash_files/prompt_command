@@ -1,47 +1,56 @@
 #!/bin/bash
 
+# WARNING: This will overwrite your PROMPT_COMMAND and PS0 environment
+# variables.  If you weren't using them, that's probably fine.
+#
+# This will alert for long running commands, commands run in a window that is
+# not currently focused, or commands that match the commands to always alert.
+# This will not alert for commands in commands to never alert.
+
 time_to_alert=60
 commands_to_always_alert=('blaze' 'demo1' 'demo2' 'demo3' 'run1' 'run2' 'run3' 'test-long')
 commands_to_never_alert=('gitc' 'vim')
-LAST_HISTORY_NUMBER=""
+
 
 
 extra_history_file="$HOME/.history_extra"
+#  Create the file if it is missing.
 [[ -f $extra_history_file ]] || touch $extra_history_file
 
-__get_extra() {
+__get_from_extra_history() {
   id=$1
-  cat $extra_history_file | grep "$id"
+  cat $extra_history_file | grep "$id-$$" | tail -1
 }
 
-PS0='$(__preexec)'
-
-__preexec() {
+__before_command() {
   local history_output=$(HISTTIMEFORMAT="%s " history 1)
   local history_number=$(echo $history_output | awk '{print $1}')
 
   local window_pid=$(xdotool getwindowfocus getwindowpid 2> /dev/null)
+  local time=$(date +%s)
 
-  echo "$history_number window:$window_pid" >> $extra_history_file
+  echo "$history_number-$$ window:$window_pid time:$time" >> $extra_history_file
 }
 
-__prompt_command() {
+__after_command() {
   local history_output=$(HISTTIMEFORMAT="%s " history 1)
   local history_number=$(echo $history_output | awk '{print $1}')
   local trim_hist=$(echo $history_output | xargs)
   local rest=${trim_hist#* }
-  local started_at=$(echo $rest | awk '{print $1}')
   local last_command=${rest#* }
+
+  local window_pid=$(xdotool getwindowfocus getwindowpid 2> /dev/null)
+
+  local extras=$(__get_from_extra_history $history_number)
+  local hist_window_pid=$(echo $extras | awk -F " |:" '{print $3}')
+  local started_at==$(echo $extras | awk -F " |:" '{print $5}')
+
   local finished_at=$(date +%s)
   local elapsed_seconds=$(( $finished_at - $started_at ))
   local ds=$((elapsed_seconds % 60))
   local dm=$(((elapsed_seconds / 60) % 60))
   local dh=$((elapsed_seconds / 3600))
   local elapsed=$(printf '%02d:%02d:%02d' $dh $dm $ds)
-
-  local extras=$(__get_extra $history_number)
-  local hist_window_pid=$(echo $extras | awk -F " |:" '{print $3}')
-  local window_pid=$(xdotool getwindowfocus getwindowpid 2> /dev/null)
 
   for command in "${commands_to_never_alert[@]}"
   do
@@ -53,9 +62,7 @@ __prompt_command() {
 
   if [[ $hist_window_pid != '' && $hist_window_pid != $window_pid ]] ; then
     notify-send "Unfocused command complete" "$last_command"
-  elif [[ ! -z "$LAST_HISTORY_NUMBER" &&
-	"$history_number" != "$LAST_HISTORY_NUMBER" ]] &&
-    (( $finished_at - $started_at > $time_to_alert )); then
+  elif (( $elapsed_seconds > $time_to_alert )); then
     if [ -n "$DISPLAY" ]; then
       notify-send "Long running command finished in ${elapsed}" "$last_command"
     else
@@ -84,9 +91,7 @@ __prompt_command() {
       done
     fi
   fi
-
-  LAST_HISTORY_NUMBER=$history_number
 }
 
-PROMPT_COMMAND=__prompt_command
-
+PROMPT_COMMAND=__after_command
+PS0='$(__before_command)'

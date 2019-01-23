@@ -70,7 +70,21 @@ esac
 force_color_prompt=yes
 
 parse_git_branch() {
-     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+is_hg() {
+  hg log &> /dev/null && echo true || echo false
+}
+
+hg_message() {
+    message=$(hg log -r "p1()" 2> /dev/null | grep "^summary:.*" | sed "s/summary:\s//")
+    message=$(echo $message)
+    line=$(hg xl 2> /dev/null | grep "^@")
+    commit=$(echo $line | sed -E 's,^@ *(\S*).*,\1,')
+    cl=$(echo $line | sed -E 's,.*(http[^\s>]*).*,\1,')
+    output=$(echo "$commit $cl" | sed -E 's,(\S+) (\S+), \(\1 - \2\),')
+    echo " ($message)"
 }
 
 if [ -n "$force_color_prompt" ]; then
@@ -86,7 +100,7 @@ fi
 
 arrow_prompt=$'  \[\e[1m\]\u2192\[\e[0m\] '
 if [ "$color_prompt" = yes ]; then
-  PS1="\[\e[92m\e[1m\]######--- \[\e[0m\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;32m\]\$(parse_git_branch)\$\[\033[00m\e[92m\e[1m\] (\t)---######\[\e[0m\]\n$arrow_prompt"
+  PS1="\[\e[92m\e[1m\]######--< \[\e[0m\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;32m\]\[\033[01;91m\]\$(hg_message)\$(parse_git_branch)\[\033[00m\e[92m\e[1m\] (\t) >--######\[\e[0m\]\n$arrow_prompt"
     PS2="  \[\e[92m\]$arrow_prompt"
     #PS2="&gt; "
 else

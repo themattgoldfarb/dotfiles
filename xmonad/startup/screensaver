@@ -3,8 +3,12 @@
 TIMEOUT=600 # 10 minutes
 NOTIFY_WARNING=10 # 10 seconds
 
+echo 'test' >> ~/testtest.txt
+
 xset s $TIMEOUT $NOTIFY_WARNING
-xss-lock -n /usr/lib/xsecurelock/dimmer -l -- xsecurelock
+# xss-lock -n /usr/lib/x86_64-linux-gnu/xsecurelock/dimmer -l -- xsecurelock
+xss-lock -n /usr/lib/x86_64-linux-gnu/xsecurelock/dimmer -l \
+  -- /usr/share/goobuntu-desktop-files/xsecurelock.sh
 
 # make sure screen will lock after TIMEOUT minutes
 #[[ $(pidof xautolock) ]] && echo 'xautolock already running' || \

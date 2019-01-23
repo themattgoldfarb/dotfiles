@@ -88,6 +88,8 @@ Plug 'tpope/vim-obsession'
 
 Plug 'tpope/vim-fugitive'
 
+Plug 'tpope/vim-abolish'
+
 Plug 'lrvick/Conque-Shell'
 
 Plug 'christoomey/vim-tmux-runner'
@@ -115,7 +117,6 @@ Plug 'vimwiki/vimwiki'
 if has('nvim')
   Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
 endif
-
 
 call plug#end()            " required
 filetype plugin indent on    " required
@@ -158,7 +159,7 @@ else
   let g:EclimCompletionMethod = 'omnifunc'
   let g:ycm_auto_trigger = 1
   let g:ycm_add_preview_to_completeopt = 2
-  let g:ycm_filetype_whitelist = {'cpp' :1, 'cc' : 1}
+  let g:ycm_filetype_whitelist = {'cpp' :1, 'cc' : 1, 'go' : 1}
 endif
 
 
@@ -173,6 +174,8 @@ let g:tagbar_autofocus = 1
 let g:tagbar_zoomwidth = 80
 nnoremap <leader>tt :TagbarOpen j<CR>
 nnoremap <leader>tb :TagbarToggle<CR>
+
+nnoremap <leader>vuc :
 
 
 
@@ -380,8 +383,6 @@ endif
 function! Test()
   return 0
 endfunction
-
-nnoremap <c-o> :let t = FindFile() <CR> :execute "e ".t <CR>
 
 function! FindFile()
   let root = getcwd()

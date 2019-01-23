@@ -1,6 +1,7 @@
 import XMonad
 import XMonad.Actions.WorkspaceNames
 import XMonad.Actions.CopyWindow
+import XMonad.Actions.TagWindows
 import XMonad.Config.Gnome
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicBars
@@ -8,17 +9,21 @@ import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeInactive
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.Script
 import XMonad.Hooks.SetWMName
 import XMonad.Hooks.UrgencyHook
+import XMonad.Hooks.XPropManage
 import qualified XMonad.Layout.BinarySpacePartition as BSP
 import XMonad.Layout.BorderResize
 import XMonad.Layout.BoringWindows (focusUp, focusDown, boringWindows)
 import XMonad.Layout.Combo
 import XMonad.Layout.ComboP
 import XMonad.Layout.Grid
+import qualified XMonad.Layout.GridVariants as GV
 import XMonad.Layout.IM
 import XMonad.Layout.LayoutCombinators hiding ( (|||) )
+import XMonad.Layout.LayoutScreens
 import XMonad.Layout.Master
 import XMonad.Layout.MessageControl
 import XMonad.Layout.MosaicAlt
@@ -65,14 +70,23 @@ rAltMask = mod2Mask
 doSink :: ManageHook
 doSink = doF . W.sink =<< ask
 
-myWorkspaces = ["main","term","3","browser","ide","files","7","personal","9"]
+myExtraWorkspaces = [
+    (xK_1, "main2"), (xK_2, "term2"), (xK_3, "32")
+  , (xK_4, "browser2"), (xK_5, "ide2"), (xK_6, "files2")
+  , (xK_7, "72"), (xK_8, "personal2"), (xK_9, "92") ]
+
+myWorkspaces = ["main","term","3","browser","ide","files","7","personal","9"] ++ (map snd myExtraWorkspaces)
+
+
+ -- onWorkspace "main2"  ( main ||| mainBsp ||| tbsp ||| tabbed ||| sgrid ) $
 
 defaultLayouts = windowNavigation (
-  onWorkspace "main"  ( main ||| mainBsp ||| tbsp ||| tabbed ) $
+  onWorkspace "main2" (left) $
   onWorkspace "9"  ( main ||| mainBsp ||| tbsp ||| tabbed ) $
   onWorkspace "3"   ( tabbed  ||| tbsp ) $
-  onWorkspace "ide"   ( tabbed ||| mtiled ||| tbsp ) $
-	tabbed	||| tbsp ||| tiled |||  rtiled ||| mtiled ||| twotiled )
+  onWorkspace "term"   ( tabbed  ||| tiled ) $
+  onWorkspace "ide"   ( tabbed ||| rtiled ||| tbsp ) $
+	tabbed	||| tbsp ||| tiled |||  rtiled ||| mtiled ||| twotiled ||| sgrid)
   where
     tabbed = renamed [Replace "tabbed"] $ simpleTabbed
     mos = MosaicAlt M.empty
@@ -83,25 +97,33 @@ defaultLayouts = windowNavigation (
     hgrid = GridRatio (0.4)
     bsp = renamed [Replace "bsp"] $ BSP.emptyBSP
     tbsp = subTabbed $ bsp
+    sgrid = GV.SplitGrid GV.T 2 1 (2/3) (16/10) (5/100)
     twotiled = renamed [Replace "twop"] $ combineTwo (TwoPane 0.03 0.5) (tabbed) (tabbed)
+    left = renamed [Replace "left"] $
+        combineTwoP (Mirror $ reflectHoriz $ TwoPane 0.03 0.45)
+            (tabbed)
+            (combineTwoP (Mirror $ reflectHoriz (TwoPane 0.03 0.3))
+                (combineTwoP (TwoPane 0.03 0.5) (TwoPane 0.03 0.5) (tabbed) (Tagged "hangouts"))
+                (tabbed)
+                (Or (Tagged "pomodoro") (Or (ClassName "Firefox-esr") (Tagged "hangouts") )))
+            (Or (Tagged "vimwiki") (Or (Tagged "memegen") (Or (Tagged "inbox") (Tagged "gmail"))))
     main = renamed [Replace "main"] $
         combineTwoP (TwoPane 0.03 0.2)
             (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (hgrid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
             (tabbed )
             (Or (ClassName "Firefox")
                 (Or (ClassName "Firefox-esr")
-                    (Or (Title "Google Hangouts - goldfarb@google.com")
+                    (Or (Title "Inbox - goldfarb@google.com")
                         (Title "Google Hangouts - themattgoldfarb@gmail.com"))))
     mainBsp = renamed [Replace "mainBsp"] $
-        combineTwoP (TwoPane 0.03 0.2)
-            (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (hgrid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
+        combineTwoP (TwoPane 0.03 0.2) (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (hgrid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
             (tbsp )
             (Or (ClassName "Firefox")
                 (Or (ClassName "Firefox-esr")
                     (Or (Title "Google Hangouts - goldfarb@google.com")
                         (Title "Google Hangouts - themattgoldfarb@gmail.com"))))
 
-myLayout = borderResize $ smartBorders $ avoidStruts $ defaultLayouts
+myLayout = borderResize $ avoidStruts $ defaultLayouts
 
 data LibNotifyUrgencyHook = LibNotifyUrgencyHook deriving (Read, Show)
 
@@ -111,6 +133,20 @@ instance UrgencyHook LibNotifyUrgencyHook where
 		Just idx <- fmap (W.findTag w) $ gets windowset
 		safeSpawn "notify-send" [show name, "workspace " ++ idx]
 
+xPropMatches = [ ([ (wM_CLASS, any ("inbox" `isInfixOf`))], (\w -> return (W.shift "main2") ))
+               , ([ (wM_CLASS, any ("inbox" `isInfixOf`))], pmX (addTag "inbox" ))
+               , ([ (wM_CLASS, any ("memegen" `isInfixOf`))], pmX (addTag "memegen" ))
+               , ([ (wM_CLASS, any ("memegen" `isInfixOf`))], (\w -> return (W.shift "main2") ))
+               , ([ (wM_CLASS, any ("localhost" `isInfixOf`))], pmX (addTag "vimwiki" ))
+               , ([ (wM_CLASS, any ("localhost" `isInfixOf`))], (\w -> return (W.shift "main2") ))
+               , ([ (wM_CLASS, any ("mail.google" `isInfixOf`))], (\w -> return (W.shift "main2") ))
+               , ([ (wM_CLASS, any ("mail.google" `isInfixOf`))], pmX (addTag "gmail" ))
+               , ([ (wM_CLASS, any ("crx_nckgah" `isInfixOf`))], (\w -> return (W.shift "main2") ))
+               , ([ (wM_CLASS, any ("crx_nckgah" `isInfixOf`))], pmX (addTag "hangouts" ))
+               , ([ (wM_CLASS, any ("pomodoro" `isInfixOf`))], (\w -> return (W.shift "main2") ))
+               , ([ (wM_CLASS, any ("pomodoro" `isInfixOf`))], pmX (addTag "pomodoro" ))
+               ]
+
 myManageHook = manageHook defaultConfig
 	<+> composeAll [
 		resource =? "synapse" --> doFloat
@@ -118,9 +154,11 @@ myManageHook = manageHook defaultConfig
 	,	className =? "jetbrains-idea-ce" --> doShift "ide" -- move intellij to ide
 	,	className =? "jetbrains-clion" --> doShift "ide" -- move clion to ide
 	,	className =? "sun-awt-X11-XFramePeer" --> doShift "ide"
+  , propertyToQuery (Role "GtkFileChooserDialog") --> doRectFloat (W.RationalRect (1%4) (1%4) (1%2) (1%2))
   , fmap ( "https://hangouts.google.com/webchat/iframe3?" `isInfixOf`) (stringProperty "WM_NAME") --> doSink
-	,	stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main"
-	,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main"
+	,	stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main2"
+	,	stringProperty "WM_NAME" =? "Inbox - goldfarb@google.com" --> doShift "main2"
+	,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main2"
 	-- ,	stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
 	,	resource =? "google-chrome" --> doFloat
 	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "main"
@@ -129,6 +167,7 @@ myManageHook = manageHook defaultConfig
 	<+> manageDocks
   <+> manageScratchPad
   <+> namedScratchpadManageHook scratchpads
+  <+> xPropManageHook xPropMatches
 
 doSwap = do
             name <- liftX (sendMessage  SwapWindow)
@@ -138,10 +177,11 @@ doSwap = do
 
 
 myDynHook = composeAll [
-		stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" -->  doShift "main" <+> doSink
+		stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" -->  doShift "main2" <+> doSink
+  , stringProperty "WM_NAME" =? "Inbox - goldfarb@google.com" -->  doShift "main2" <+> doSink
   ,	stringProperty "WM_NAME" =? "chrome-extension://nckgahadagoaajjgafhacjanaoiihapd/mainapp.html?uv_main_window" --> doFloat
   , stringProperty "WM_CLASS" =? "Firefox-esr" --> doShift "main" <+> doSink
-  ,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main" <+> doSink 
+  ,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main" <+> doSink
   , fmap ( "https://hangouts.google.com/webchat/frame3?" `isInfixOf`) (stringProperty "WM_NAME") --> doSink <+> doSwap
   ]
 
@@ -183,7 +223,7 @@ isGoogleMusic = (resource =? "play.google.com__music_listen")
 buganizerCommand = "dex $HOME/.local/share/applications/buganizer.desktop"
 isBuganizer = (resource =? "b.corp.google.com__savedsearches_432047")
 inboxCommand = "dex $HOME/.local/share/applications/inbox.desktop"
-isInbox = (resource =? "inbox.google.com__u_0")
+isInbox = (resource =? "XXXinbox.google.com__u_0")
 calendarCommand = "dex $HOME/.local/share/applications/calendar.desktop"
 isCalendar = (resource =? "calendar.google.com__calendar_r")
 
@@ -260,16 +300,37 @@ logTitles ppFocus ppUnfocus =
   {-, ((rWinMask, xK_l), spawn "~/.xmonad/scripts/hangoutsmouse.sh click")-}
   {-, ((rWinMask, xK_n), spawn "xdotool mousemove 1893 1125 click 1 mousemove restore")-}
 
+
+myExtraWorkspaceKeys x = [
+    ((rWinMask,                 key  ), (windows $ W.greedyView ws))
+    | (key,ws) <- myExtraWorkspaces
+ ] ++ [
+    ((rWinMask .|. shiftMask,   key  ), (windows $ W.shift ws))
+    | (key,ws) <- myExtraWorkspaces
+ ]
+
+
+
+myScreenNavKeys x = [
+    ((m .|. lWinMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
+        | (key, sc) <- zip [xK_w, xK_e, xK_r, xK_f] [2, 0, 3, 1]
+        , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
+
 myWindowNavKeys x = [
     ((rAltMask,                 xK_l ), sendMessage $ pullGroup R)
   , ((rAltMask,                 xK_h ), sendMessage $ pullGroup L)
   , ((rAltMask,                 xK_j ), sendMessage $ pullGroup D)
   , ((rAltMask,                 xK_k ), sendMessage $ pullGroup U)
   , ((rAltMask,                 xK_m ), withFocused (sendMessage . MergeAll))
-  , ((rAltMask,                 xK_u ), withFocused (sendMessage . UnMerge)) 
+  , ((rAltMask,                 xK_u ), withFocused (sendMessage . UnMerge))
   , ((rAltMask .|. lWinMask,    xK_k ), onGroup W.focusUp' )
   , ((rAltMask,                 xK_s ), sendMessage $ SwapWindow)
-  , ((rAltMask .|. lWinMask,    xK_j ), onGroup W.focusDown' ) ]
+  , ((rAltMask .|. lWinMask,    xK_j ), onGroup W.focusDown' )
+  , ((lWinMask,                 xK_d ), spawn "~/.xmonad/scripts/focusMouse.sh")
+  , ((rWinMask,                 xK_d ), spawn "~/.xmonad/scripts/focusMouse.sh")
+  , ((rWinMask .|. rAltMask,    xK_s ), layoutSplitScreen 2 (TwoPane 0.8 0.2))
+  , ((rWinMask .|. rAltMask .|. shiftMask,    xK_s ), rescreen) ]
+
   {-, ((rAltMask .|. controlMask, xK_k ), focusUp )-}
   {-, ((rAltMask .|. controlMask, xK_j ), focusDown U) ]-}
 myBspKeys x = [
@@ -281,6 +342,7 @@ myBspKeys x = [
   , ((rWinMask .|. lWinMask,    xK_h ), sendMessage $ BSP.ExpandTowards L)
   , ((rWinMask .|. lWinMask,    xK_j ), sendMessage $ BSP.ExpandTowards D)
   , ((rWinMask .|. lWinMask,    xK_k ), sendMessage $ BSP.ExpandTowards U)
+  {-, ((rWinMask             ,    xK_b ), sendMessage $ BSP.TreeBalance)-}
   , ((rWinMask .|. controlMask,   xK_l ), sendMessage $ Swap R)
   , ((rWinMask .|. controlMask,   xK_h ), sendMessage $ Swap L)
   , ((rWinMask .|. controlMask,   xK_j ), sendMessage $ Swap D)
@@ -291,7 +353,7 @@ myBspKeys x = [
   , ((rWinMask .|. controlMask, xK_n ), sendMessage BSP.SelectNode)
   , ((rWinMask .|. shiftMask,   xK_n ), sendMessage BSP.MoveNode)
   , ((rWinMask,                 xK_a ), sendMessage BSP.Equalize)
-  , ((rWinMask .|. lWinMask,    xK_a ), sendMessage BSP.Balance) 
+  , ((rWinMask .|. lWinMask,    xK_a ), sendMessage BSP.Balance)
   , ((rWinMask .|. lAltMask,    xK_l ), sendMessage $ pullGroup R)
   , ((rWinMask .|. lAltMask,    xK_h ), sendMessage $ pullGroup L)
   , ((rWinMask .|. lAltMask,    xK_j ), sendMessage $ pullGroup D)
@@ -320,9 +382,19 @@ scratchpadKeys x = [
   , ((lWinMask .|. controlMask, xK_i), namedScratchpadAction scratchpads "inbox")
   , ((lWinMask .|. controlMask, xK_c), namedScratchpadAction scratchpads "calendar") ]
 keysToDel x = []
-newKeys x = M.unions [ (keys defaultConfig x)
+
+defaultKeysToDel x = [
+    (lWinMask, xK_w)
+  , (lWinMask, xK_e)
+  , (lWinMask, xK_r) ]
+keysDefault = keys defaultConfig
+defaultKeys x = foldr M.delete (keysDefault x) (defaultKeysToDel x)
+
+newKeys x = M.unions [ (defaultKeys x)
+                     , (M.fromList(myExtraWorkspaceKeys x))
                      , (M.fromList(keysToAdd x))
                      , (M.fromList(myWindowNavKeys x))
+                     , (M.fromList(myScreenNavKeys x))
                      , (M.fromList(myBspKeys x))
                      , (M.fromList(scratchpadKeys x)) ]
 myKeys x = foldr M.delete (newKeys x) (keysToDel x)
@@ -363,11 +435,15 @@ myStartupHook = composeAll [
     , execScriptHook "start notify-server"
     , execScriptHook "start screensaver"
     , execScriptHook "start trayer"
-    , execScriptHook "start xcompmgr"
+    , execScriptHook "start compton"
     , execScriptHook "start xmobarpipes"
     , execScriptHook "start run_google"
     , execScriptHook "start keep_mac_awake"
     , execScriptHook "start drive"
+    , execScriptHook "start feh"
+    , execScriptHook "start synapse"
+    , execScriptHook "start blueman"
+    , execScriptHook "start speak"
     ]
 
 main = do
@@ -380,7 +456,7 @@ main = do
         , modMask = mod4Mask
         , normalBorderColor = "#000000"
         , focusedBorderColor = "#FF0000"
-        , borderWidth = 1
+        , borderWidth = 2
         , workspaces=myWorkspaces
         , mouseBindings = myMouseBindings
         , keys = myKeys

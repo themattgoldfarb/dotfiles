@@ -13,4 +13,5 @@ echo 'trayer' >> $HOME/start.txt
     --widthtype pixel \
     --width 192 \
     --transparent true \
+    --monitor 1 \
     --tint 0x000000 &

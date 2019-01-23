@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo 'speak' >> $HOME/start.txt
+[[ $(pgrep -f speech_reader.sh) ]] && echo 'already running' >> $HOME/start.txt || echo 'not running' >> $HOME/start.txt
+
+[[ $(pgrep -f speech_reader.sh) ]] || $HOME/speech_reader.sh &

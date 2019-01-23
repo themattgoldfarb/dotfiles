@@ -5,15 +5,40 @@
 ! Source: https://github.com/morhetz/gruvbox-generalized
 ! Last Modified: 6 Sep 2014
 ! -----------------------------------------------------------------------------
+!
+ #define TERMINUS
 
 #ifdef SRVR_goldfarb97
   #define MY_DPI 192
   #define MY_FONT xft:Terminus:size=10
   #define MY_BOLD_FONT xft:Terminus-Bold:size=10
+  #define MY_ANTIALIAS true
+  #define MY_RGBA rgb
+  #define MY_HINTING true
+  #define MY_HINTSTYPE hintslight
+  #define MY_LETTERSPACE 0
 #else
-  #define MY_DPI 96
-  #define MY_FONT xft:Terminus:size=9,xft:Inconsolata\ for\ Powerline:size=9
-  #define MY_BOLD_FONT xft:Terminus-Bold:size=9
+  #ifdef TERMINUS
+    #define MY_DPI 96
+    #define MY_FONT xft:Terminus:size=9,xft:Inconsolata\ for\ Powerline:size=9
+    #define MY_BOLD_FONT xft:Terminus-Bold:size=9
+    #define MY_ANTIALIAS true
+    #define MY_RGBA rgb
+    #define MY_HINTING true
+    #define MY_HINTSTYPE hintslight
+    #define MY_LETTERSPACE 0
+    #define MY_LINESPACE 0
+  #else
+    #define MY_DPI 96
+    #define MY_FONT xft:Source\ Code\ Pro\ Medium:size=8
+    #define MY_BOLD_FONT xft:Source\ Code\ Pro\ Semibold:size=8
+    #define MY_ANTIALIAS true
+    #define MY_RGBA rgb
+    #define MY_HINTING false
+    #define MY_HINTSTYPE hintsnone
+    #define MY_LETTERSPACE -1.5
+    #define MY_LINESPACE -5
+  #endif
 #endif
 
 ! hard contrast: *background: #1d2021
@@ -48,15 +73,22 @@
 URxvt*scrollBar:  false
 
 !-- Xft settings -- !
+! Xft.dpi:        MY_DPI
+! Xft.antialias:  true
+! Xft.rgba:       rgb
+! Xft.hinting:    true
+! Xft.hintstyle:  hintslight
+
  Xft.dpi:        MY_DPI
- Xft.antialias:  true
- Xft.rgba:       rgb
- Xft.hinting:    true
- Xft.hintstyle:  hintslight
+ Xft.antialias:  MY_ANTIALIAS
+ Xft.rgba:       MY_RGBA
+ Xft.hinting:    MY_HINTING
+ Xft.hintstyle:  MYHINTSTYPE
 
 urxvt.font: MY_FONT
 urxvt.boldfont: MY_BOLD_FONT
-URxvt*letterSpace: 0
+URxvt*letterSpace: MY_LETTERSPACE
+URxvt*lineSpace: -50
 
 URxvt*modifier: mod1
 URxvt*meta8: false
@@ -68,10 +100,10 @@ URxvt.matcher.button: 1
 URxvt.matcher.pattern.1: \\bwww\\.[\\w-]\\.[\\w./?&@#-\[\]]*[\\w/-]
 URxvt.matcher.pattern.2: \\bcl/\\d+
 URxvt.matcher.pattern.3: \\bb/\\d+
-URxvt.matcher.pattern.4: \\b(add_dep [^\s]+ [^\s]+)
-URxvt.matcher.launcher.4: /usr/local/google/home/goldfarb/scripts/run-modal.sh $1
-URxvt.matcher.pattern.5: \\brun (.*)
-URxvt.matcher.launcher.5: /usr/local/google/home/goldfarb/scripts/run-modal.sh $1
+!URxvt.matcher.pattern.4: \\b(add_dep [^\s]+ [^\s]+)
+!URxvt.matcher.launcher.4: /usr/local/google/home/goldfarb/scripts/run-modal.sh $1
+!URxvt.matcher.pattern.5: \\brun (.*)
+!URxvt.matcher.launcher.5: /usr/local/google/home/goldfarb/scripts/run-modal.sh $1
 URxvt.keysym.C-u: perl:matcher:last
 URxvt.keysym.M-u: perl:matcher:list
 

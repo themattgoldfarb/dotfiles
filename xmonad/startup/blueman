@@ -1,0 +1,3 @@
+#!/bin/bash
+
+[[ $(pgrep -f blueman-applet) ]] || blueman-applet &

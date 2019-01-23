@@ -44,3 +44,13 @@ alias grd="git rev-parse --show-toplevel"
 alias bb='echo $(git rev-parse --show-toplevel)/google3/blaze-bin$(git rev-parse --show-prefix | sed s/google3//)'
 alias lsbb='ls $(bb)'
 alias cdbb='cd $(bb)'
+
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ......='cd ../../../../..'
+alias .......='cd ../../../../../..'
+alias ........='cd ../../../../../../..'
+

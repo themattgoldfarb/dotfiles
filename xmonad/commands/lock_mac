@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sleep 1
+xdotool key --clearmodifiers alt+shift+super+l
+
+notify-send "mac"

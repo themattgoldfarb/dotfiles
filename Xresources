@@ -6,7 +6,8 @@
 ! Last Modified: 6 Sep 2014
 ! -----------------------------------------------------------------------------
 !
- #define TERMINUS
+#define TERMINUS
+!#define UBUNTU
 
 #ifdef SRVR_goldfarb97
   #define MY_DPI 192
@@ -21,7 +22,7 @@
   #ifdef TERMINUS
     #define MY_DPI 96
     #define MY_FONT xft:Terminus:size=9,xft:Inconsolata\ for\ Powerline:size=9
-    #define MY_BOLD_FONT xft:Terminus-Bold:size=9
+    #define MY_BOLD_FONT xft:Terminus:size=9
     #define MY_ANTIALIAS true
     #define MY_RGBA rgb
     #define MY_HINTING true
@@ -29,15 +30,26 @@
     #define MY_LETTERSPACE 0
     #define MY_LINESPACE 0
   #else
-    #define MY_DPI 96
-    #define MY_FONT xft:Source\ Code\ Pro\ Medium:size=8
-    #define MY_BOLD_FONT xft:Source\ Code\ Pro\ Semibold:size=8
-    #define MY_ANTIALIAS true
-    #define MY_RGBA rgb
-    #define MY_HINTING false
-    #define MY_HINTSTYPE hintsnone
-    #define MY_LETTERSPACE -1.5
-    #define MY_LINESPACE -5
+    #ifdef UBUNTU
+      #define MY_DPI 96
+      #define MY_FONT xft:Fira Mono:pixelsize=15,style=regular
+      #define MY_ANTIALIAS true
+      #define MY_RGBA rgb
+      #define MY_HINTING false
+      #define MY_HINTSTYPE hintsnone
+      #define MY_LETTERSPACE 0
+      #define MY_LINESPACE 0
+    #else
+      #define MY_DPI 96
+      #define MY_FONT xft:Source\ Code\ Pro\ Medium:size=9
+      #define MY_BOLD_FONT xft:Source\ Code\ Pro\ Medium:size=9
+      #define MY_ANTIALIAS false
+      #define MY_RGBA rgba
+      #define MY_HINTING false
+      #define MY_HINTSTYPE hintsfull
+      #define MY_LETTERSPACE 0
+      #define MY_LINESPACE 0
+    #endif
   #endif
 #endif
 
@@ -113,7 +125,7 @@ URxvt.keysym.C-Down:   perl:font-size:decrease
 URxvt.keysym.C-S-Up:   perl:font-size:incglobal
 URxvt.keysym.C-S-Down: perl:font-size:decglobal
 URxvt.keysym.C-equal:  perl:font-size:reset
-URxvt.keysym.C-slash:  perl:font-size:show
+URxvt.keysym.M-slash:  perl:font-size:show
 
 
 URxvt*urgentOnBell: true

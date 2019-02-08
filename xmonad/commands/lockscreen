@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Start xscreensaver if it isn't running
+# [[ $(pidof xscreensaver) ]] && echo 'Screensaver already running' || xscreensaver -no-splash &
+
+sleep 1
+xdotool key shift+ctrl+alt+l # synergy chord that sends a lock to my other window.
+
+
+xset s activate
+# /usr/share/goobuntu-desktop-files/xsecurelock.sh
+# xscreensaver-command -lock

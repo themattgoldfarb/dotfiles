@@ -106,7 +106,7 @@ defaultLayouts = windowNavigation (
                 (combineTwoP (TwoPane 0.03 0.5) (TwoPane 0.03 0.5) (tabbed) (Tagged "hangouts"))
                 (tabbed)
                 (Or (Tagged "pomodoro") (Or (ClassName "Firefox-esr") (Tagged "hangouts") )))
-            (Or (Tagged "vimwiki") (Or (Tagged "memegen") (Or (Tagged "inbox") (Tagged "gmail"))))
+            (Or (Tagged "dynamite") (Or (Tagged "vimwiki") (Or (Tagged "memegen") (Or (Tagged "inbox") (Tagged "gmail")))))
     main = renamed [Replace "main"] $
         combineTwoP (TwoPane 0.03 0.2)
             (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (hgrid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
@@ -137,6 +137,8 @@ xPropMatches = [ ([ (wM_CLASS, any ("inbox" `isInfixOf`))], (\w -> return (W.shi
                , ([ (wM_CLASS, any ("inbox" `isInfixOf`))], pmX (addTag "inbox" ))
                , ([ (wM_CLASS, any ("memegen" `isInfixOf`))], pmX (addTag "memegen" ))
                , ([ (wM_CLASS, any ("memegen" `isInfixOf`))], (\w -> return (W.shift "main2") ))
+               , ([ (wM_CLASS, any ("chat" `isInfixOf`))], pmX (addTag "dynamite" ))
+               , ([ (wM_CLASS, any ("chat" `isInfixOf`))], (\w -> return (W.shift "main2") ))
                , ([ (wM_CLASS, any ("localhost" `isInfixOf`))], pmX (addTag "vimwiki" ))
                , ([ (wM_CLASS, any ("localhost" `isInfixOf`))], (\w -> return (W.shift "main2") ))
                , ([ (wM_CLASS, any ("mail.google" `isInfixOf`))], (\w -> return (W.shift "main2") ))

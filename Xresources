@@ -8,7 +8,7 @@
 !
  #define TERMINUS
 
-#ifdef SRVR_goldfarb97
+#ifdef SRVR_goldfarb4
   #define MY_DPI 192
   #define MY_FONT xft:Terminus:size=10
   #define MY_BOLD_FONT xft:Terminus-Bold:size=10

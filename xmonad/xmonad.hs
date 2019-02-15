@@ -70,12 +70,21 @@ rAltMask = mod2Mask
 doSink :: ManageHook
 doSink = doF . W.sink =<< ask
 
-myExtraWorkspaces = [
+myFirstWorkspaces = [
+    (xK_1, "main1"), (xK_2, "term1"), (xK_3, "31")
+  , (xK_4, "browser1"), (xK_5, "ide1"), (xK_6, "files1")
+  , (xK_7, "71"), (xK_8, "personal1"), (xK_9, "91") ]
+mySecondWorkspaces = [
     (xK_1, "main2"), (xK_2, "term2"), (xK_3, "32")
   , (xK_4, "browser2"), (xK_5, "ide2"), (xK_6, "files2")
   , (xK_7, "72"), (xK_8, "personal2"), (xK_9, "92") ]
+myThirdWorkspaces = [
+    (xK_1, "main3"), (xK_2, "term3"), (xK_3, "33")
+  , (xK_4, "browser3"), (xK_5, "ide3"), (xK_6, "files3")
+  , (xK_7, "73"), (xK_8, "personal3"), (xK_9, "93") ]
 
-myWorkspaces = ["main","term","3","browser","ide","files","7","personal","9"] ++ (map snd myExtraWorkspaces)
+myWorkspaces = [] ++ (map snd myFirstWorkspaces) ++ (map snd mySecondWorkspaces) ++ (map snd myThirdWorkspaces)
+
 
 
  -- onWorkspace "main2"  ( main ||| mainBsp ||| tbsp ||| tabbed ||| sgrid ) $
@@ -303,12 +312,28 @@ logTitles ppFocus ppUnfocus =
   {-, ((rWinMask, xK_n), spawn "xdotool mousemove 1893 1125 click 1 mousemove restore")-}
 
 
-myExtraWorkspaceKeys x = [
+mySecondWorkspaceKeys x = [
     ((rWinMask,                 key  ), (windows $ W.greedyView ws))
-    | (key,ws) <- myExtraWorkspaces
+    | (key,ws) <- mySecondWorkspaces
  ] ++ [
     ((rWinMask .|. shiftMask,   key  ), (windows $ W.shift ws))
-    | (key,ws) <- myExtraWorkspaces
+    | (key,ws) <- mySecondWorkspaces
+ ]
+
+myThirdWorkspaceKeys x = [
+    ((rAltMask,                 key  ), (windows $ W.greedyView ws))
+    | (key,ws) <- myThirdWorkspaces
+ ] ++ [
+    ((rAltMask .|. shiftMask,   key  ), (windows $ W.shift ws))
+    | (key,ws) <- myThirdWorkspaces
+ ]
+
+myGroupdWorkspaceKeys x = [
+    ((rAltMask,                 key  ), (windows $ W.greedyView ws))
+    | (key,ws) <- myThirdWorkspaces
+ ] ++ [
+    ((rAltMask .|. shiftMask,   key  ), (windows $ W.shift ws))
+    | (key,ws) <- myThirdWorkspaces
  ]
 
 
@@ -393,7 +418,8 @@ keysDefault = keys defaultConfig
 defaultKeys x = foldr M.delete (keysDefault x) (defaultKeysToDel x)
 
 newKeys x = M.unions [ (defaultKeys x)
-                     , (M.fromList(myExtraWorkspaceKeys x))
+                     , (M.fromList(mySecondWorkspaceKeys x))
+                     , (M.fromList(myThirdWorkspaceKeys x))
                      , (M.fromList(keysToAdd x))
                      , (M.fromList(myWindowNavKeys x))
                      , (M.fromList(myScreenNavKeys x))

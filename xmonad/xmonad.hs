@@ -1,5 +1,6 @@
 import XMonad
 import XMonad.Actions.WorkspaceNames
+import XMonad.Actions.Commands
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.TagWindows
 import XMonad.Config.Gnome
@@ -37,6 +38,11 @@ import XMonad.Layout.Tabbed
 import XMonad.Layout.TwoPane
 import XMonad.Layout.WindowNavigation
 import XMonad.Prompt
+import XMonad.Prompt.AppLauncher as AL
+import XMonad.Prompt.FuzzyMatch
+import XMonad.Prompt.Shell
+import XMonad.Prompt.Window ( windowPromptGoto )
+import XMonad.Prompt.XMonad
 import XMonad.Util.Font
 import XMonad.Util.Loggers
 import XMonad.Util.NamedWindows
@@ -161,6 +167,7 @@ xPropMatches = [ ([ (wM_CLASS, any ("inbox" `isInfixOf`))], (\w -> return (W.shi
 myManageHook = manageHook defaultConfig
 	<+> composeAll [
 		resource =? "synapse" --> doFloat
+  ,	className =? "XTerm" --> doFloat
 	,	className =? "Eclipse" --> doShift "ide" -- move eclipse to ide
 	,	className =? "jetbrains-idea-ce" --> doShift "ide" -- move intellij to ide
 	,	className =? "jetbrains-clion" --> doShift "ide" -- move clion to ide
@@ -191,6 +198,7 @@ myDynHook = composeAll [
 		stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" -->  doShift "main2" <+> doSink
   , stringProperty "WM_NAME" =? "Inbox - goldfarb@google.com" -->  doShift "main2" <+> doSink
   ,	stringProperty "WM_NAME" =? "chrome-extension://nckgahadagoaajjgafhacjanaoiihapd/mainapp.html?uv_main_window" --> doFloat
+  , stringProperty "WM_CLASS" =? "XTerm" --> doFloat
   , stringProperty "WM_CLASS" =? "Firefox-esr" --> doShift "main" <+> doSink
   ,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main" <+> doSink
   , fmap ( "https://hangouts.google.com/webchat/frame3?" `isInfixOf`) (stringProperty "WM_NAME") --> doSink <+> doSwap
@@ -408,6 +416,26 @@ scratchpadKeys x = [
   , ((lWinMask .|. controlMask, xK_b), namedScratchpadAction scratchpads "bugs")
   , ((lWinMask .|. controlMask, xK_i), namedScratchpadAction scratchpads "inbox")
   , ((lWinMask .|. controlMask, xK_c), namedScratchpadAction scratchpads "calendar") ]
+promptKeys x = [
+   ((lWinMask,                 xK_g),  spawn "$HOME/.xmonad/scripts/gmail.sh --xmonad" )
+  ,((lWinMask,                 xK_u),  spawn "$HOME/.xmonad/scripts/gmail.sh --xmonad unread" )
+  {-, ((lWinMask,                 xK_g), spawn (runProcessWithInput "~/.xmonad/scripts/gmail.sh" ["--list"] ""))-}
+  {-, ((lWinMask,                 xK_g),  gmailPrompt [("asdf", spawn "ls")] myXPConfig ) ]-}
+  , ((lWinMask,                 xK_t),  AL.launchApp myXPConfig "xdg-open" ) ]
+
+{-data XMonad = XMonad-}
+{--- | An xmonad prompt with a custom command list-}
+{-gmailPrompt :: [(String, X())] -> XPConfig -> X ()-}
+{-gmailPrompt commands c =-}
+    {-mkXPrompt XMonad c (mkComplFunFromList' c) $-}
+        {-fromMaybe (return ()) . (`lookup` commands)-}
+
+{-gmailCommands = [ ("direct-to-me", safeSpawn "~/.xmonad/scripts/gmail.sh direct-to-me") ]-}
+
+{-gmailLabels = runProcessWithInput "~/.xmonad/scripts/gmail.sh" ["--list"]-}
+
+
+
 keysToDel x = []
 
 defaultKeysToDel x = [
@@ -424,6 +452,7 @@ newKeys x = M.unions [ (defaultKeys x)
                      , (M.fromList(myWindowNavKeys x))
                      , (M.fromList(myScreenNavKeys x))
                      , (M.fromList(myBspKeys x))
+                     , (M.fromList(promptKeys x))
                      , (M.fromList(scratchpadKeys x)) ]
 myKeys x = foldr M.delete (newKeys x) (keysToDel x)
 
@@ -455,6 +484,10 @@ myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " " ++ myXmobarSlaveCo
 
 myStatusBarCleanup :: IO ()
 myStatusBarCleanup = return ()
+
+myXPConfig = def {
+    searchPredicate = fuzzyMatch
+}
 
 myStartupHook = composeAll [
       setWMName "LG3D"

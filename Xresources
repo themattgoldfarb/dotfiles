@@ -11,8 +11,8 @@
 
 #ifdef SRVR_goldfarb4
   #define MY_DPI 192
-  #define MY_FONT xft:Terminus:size=10
-  #define MY_BOLD_FONT xft:Terminus-Bold:size=10
+  #define MY_FONT xft:Terminus:size=8
+  #define MY_BOLD_FONT xft:Terminus-Bold:size=8
   #define MY_ANTIALIAS true
   #define MY_RGBA rgb
   #define MY_HINTING true
@@ -41,14 +41,14 @@
       #define MY_LINESPACE 0
     #else
       #define MY_DPI 96
-      #define MY_FONT xft:Source\ Code\ Pro\ Medium:size=9
-      #define MY_BOLD_FONT xft:Source\ Code\ Pro\ Medium:size=9
-      #define MY_ANTIALIAS false
+      #define MY_FONT xft:Source\ Code\ Pro\ Semibold:size=8
+      #define MY_BOLD_FONT xft:Source\ Code\ Pro\ Bold:size=8
+      #define MY_ANTIALIAS true
       #define MY_RGBA rgba
-      #define MY_HINTING false
+      #define MY_HINTING true
       #define MY_HINTSTYPE hintsfull
-      #define MY_LETTERSPACE 0
-      #define MY_LINESPACE 0
+      #define MY_LETTERSPACE -1
+      #define MY_LINESPACE -5
     #endif
   #endif
 #endif
@@ -130,6 +130,10 @@ URxvt.keysym.M-slash:  perl:font-size:show
 
 URxvt*urgentOnBell: true
 URxvt*visualBell:   true
+
+
+urxvt*depth: 32
+urxvt*background: rgba:0000/0000/0200/3000
 
 
 

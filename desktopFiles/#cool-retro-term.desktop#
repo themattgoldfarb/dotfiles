@@ -1,9 +1,9 @@
 [Desktop Entry]
 Comment=Use the command line the old way
-Exec=~/apps/cool-retro-term/cool-retro-term
+Exec=cool-retro-term
 GenericName=Terminal emulator
 Icon=cool-retro-term
-Name=Cool Retro Term
+Name=Cool Retro Term2
 Categories=System;TerminalEmulator;
 StartupNotify=true
 Terminal=false

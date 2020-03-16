@@ -54,3 +54,4 @@ alias ......='cd ../../../../..'
 alias .......='cd ../../../../../..'
 alias ........='cd ../../../../../../..'
 
+alias fix_display='export DISPLAY="`tmux show-env | sed -n '"'"'s/^DISPLAY=//p'"'"'`"'

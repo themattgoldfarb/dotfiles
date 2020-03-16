@@ -6,6 +6,7 @@ Config {
     , lowerOnStart = False
     , allDesktops = True
     , commands = [
+	 Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/getvolume" [ ] "sound"   5,
 	 Run Cpu           ["-t", "CPU: <total>%",    "-m", "2", "-L", "30",    "-l", "#aaa", "-n", "#eee",   "-H", "90",    "-h", "orange"] 10,
 
    Run Battery        [ "--template" , "Batt: <acstatus>"
@@ -30,7 +31,6 @@ Config {
 	 Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/google" [ "goobuntu_check"   ] "g_chk"  600,
 	 Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/google" [ "goobuntu_updater" ] "g_upt"  150,
 	 Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/google" [ "prodcertstatus"   ] "g_prd"   40,
-	 Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/getvolume" [ ] "sound"   5,
 	 Run StdinReader
     ]
     , sepChar = "%"

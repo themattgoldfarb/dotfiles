@@ -1,17 +1,14 @@
 Config { 
-      font = "xft:Terminus:size=9,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull"
-    , additionalFonts = [
-      "xft:FontAwesome:pixelsize=13"
-    ]
+      font = "xft:Terminus:size=9,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull,FontAwesome:pixelsize=13"
     , bgColor = "black"
     , fgColor = "grey"
     , position = Top
     , lowerOnStart = False
     , allDesktops = True
     , commands = [
-	 Run Cpu           ["-t", "<fn=1></fn> <total>%",    "-m", "2", "-L", "30",    "-l", "#aaa", "-n", "#eee",   "-H", "90",    "-h", "orange"] 10,
-   Run MultiCpu      ["-t", "<fn=1></fn> <total>%", "-m", "2", "-L", "30",    "-l", "#aaa", "-n", "#eee",   "-H", "90",    "-h", "orange"] 10,
-	 Run Memory        ["-t", "<fn=1></fn><usedratio>%-<used>MiB",             "-L", "32000", "-l", "#aaa", "-n", "orange", "-H", "48000", "-h", "red"   ] 10,
+	 Run Cpu           ["-t", " <total>%",    "-m", "2", "-L", "30",    "-l", "#aaa", "-n", "#eee",   "-H", "90",    "-h", "orange"] 10,
+   Run MultiCpu      ["-t", " <total>%", "-m", "2", "-L", "30",    "-l", "#aaa", "-n", "#eee",   "-H", "90",    "-h", "orange"] 10,
+	 Run Memory        ["-t", "\xf268 <usedratio>%-<used>MiB",             "-L", "32000", "-l", "#aaa", "-n", "orange", "-H", "48000", "-h", "red"   ] 10,
    Run PipeReader "/tmp/xmobar_pipe" "pipe",
    Run PipeReader "/tmp/xmobar_google" "googlepipe",
    Run Volume "default" "Master" ["-t", " <volume>%<status>", "--", "--off", "muted", "--on", " "] 10,
@@ -27,9 +24,9 @@ Config {
         \%StdinReader%\
         \}{\
         \<fc=#777>\
-        \<fn=1><action=`/usr/local/google/home/goldfarb/.xmonad/scripts/volumedown`> </action></fn>\
-        \<action=`/usr/local/google/home/goldfarb/.xmonad/scripts/volumemute`>%default:Master%</action>\
-        \<fn=1><action=`/usr/local/google/home/goldfarb/.xmonad/scripts/volumeup`>  </action></fn>\
+        \<action=`/usr/local/google/home/goldfarb/.xmonad/scripts/volumedown`> </action>\
+        \<action=`/usr/local/google/home/goldfarb/.xmonad/scripts/volumemute`>%sound%</action>\
+        \<action=`/usr/local/google/home/goldfarb/.xmonad/scripts/volumeup`> </action>\
         \</fc>\
         \<fc=#777> | %multicpu% | %memory%</fc>\
         \    \

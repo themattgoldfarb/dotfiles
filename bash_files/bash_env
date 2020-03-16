@@ -34,6 +34,8 @@ export ANDROID_SDK_HOME=/google/data/ro/teams/mobile_eng_prod/android_sdk_linux
 export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
 export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
 
+export _JAVA_AWT_WM_NONREPARENTING=1
+
 if [ -n "$DISPLAY" ] ; then export G4MULTIDIFF=1 ; fi
 export P4DIFF='bash -c '\''for ((i = 2, j = 3; j <= $#; i += 3, j += 3)); do kdiff3 "${!i}" "${!j}"& done; wait'\'' --' g4 diff
 export P4MERGE='$HOME/bin/kdiff3_p4merge'

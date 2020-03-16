@@ -7,10 +7,14 @@ SINK=`pactl list sinks | grep -B 1 "State: RUNNING" | grep "Sink" | awk '{print 
 volume=`pactl list sinks | perl -000ne 'if(/'$SINK'/){/(Volume:.*)/; print "$1\n"}'`
 mute=`pactl list sinks | perl -000ne 'if(/'$SINK'/){/(Mute:.*)/; print "$1\n"}'`
 
+#echo "#####"
+#echo $volume
+#echo "#####"
+
 if [[ $mute = "Mute: yes" ]]
-then 
+then
   echo 'Muted'
 else
-  echo $volume | awk '{print $5}'
-  pactl list sinks | grep "Volume: front" | awk '{print $5}' 
+  echo $volume | awk '{print $5}' | head -n 1
+  #pactl list sinks | grep "Volume: front" | awk '{print $5}' | head -n 1
 fi

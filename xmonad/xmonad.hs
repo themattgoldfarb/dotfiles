@@ -24,10 +24,12 @@ import XMonad.Layout.Grid
 import qualified XMonad.Layout.GridVariants as GV
 import XMonad.Layout.IM
 import XMonad.Layout.LayoutCombinators hiding ( (|||) )
+import XMonad.Layout.LayoutHints
 import XMonad.Layout.LayoutScreens
 import XMonad.Layout.Master
 import XMonad.Layout.MessageControl
 import XMonad.Layout.MosaicAlt
+import XMonad.Layout.MouseResizableTile
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
 import XMonad.Layout.Reflect
@@ -36,6 +38,7 @@ import XMonad.Layout.Spacing
 import XMonad.Layout.SubLayouts
 import XMonad.Layout.Tabbed
 import XMonad.Layout.TwoPane
+import XMonad.Layout.WindowArranger
 import XMonad.Layout.WindowNavigation
 import XMonad.Prompt
 import XMonad.Prompt.AppLauncher as AL
@@ -95,13 +98,13 @@ myWorkspaces = [] ++ (map snd myFirstWorkspaces) ++ (map snd mySecondWorkspaces)
 
  -- onWorkspace "main2"  ( main ||| mainBsp ||| tbsp ||| tabbed ||| sgrid ) $
 
-defaultLayouts = windowNavigation (
-  onWorkspace "main2" (left) $
-  onWorkspace "9"  ( main ||| mainBsp ||| tbsp ||| tabbed ) $
+defaultLayouts = layoutHints ( windowNavigation (
+  onWorkspace "main2" (left ||| tbsp ) $
+  onWorkspace "91"  ( main ||| mainBsp ||| tbsp ||| tabbed ) $
   onWorkspace "3"   ( tabbed  ||| tbsp ) $
   onWorkspace "term"   ( tabbed  ||| tiled ) $
   onWorkspace "ide"   ( tabbed ||| rtiled ||| tbsp ) $
-	tabbed	||| tbsp ||| tiled |||  rtiled ||| mtiled ||| twotiled ||| sgrid)
+  tabbed ||| tbsp ||| tiled |||  rtiled ||| mtiled ||| twotiled ||| sgrid))
   where
     tabbed = renamed [Replace "tabbed"] $ simpleTabbed
     mos = MosaicAlt M.empty
@@ -121,32 +124,34 @@ defaultLayouts = windowNavigation (
                 (combineTwoP (TwoPane 0.03 0.5) (TwoPane 0.03 0.5) (tabbed) (Tagged "hangouts"))
                 (tabbed)
                 (Or (Tagged "pomodoro") (Or (ClassName "Firefox-esr") (Tagged "hangouts") )))
-            (Or (Tagged "dynamite") (Or (Tagged "vimwiki") (Or (Tagged "memegen") (Or (Tagged "inbox") (Tagged "gmail")))))
+            (Or (Tagged "dynamite") (Or (Tagged "vimwiki") (Or (Tagged "memegen") (Or (Tagged "inbox") (Or (Tagged "gnosis") (Tagged "gmail"))))))
     main = renamed [Replace "main"] $
         combineTwoP (TwoPane 0.03 0.2)
             (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (hgrid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
             (tabbed )
             (Or (ClassName "Firefox")
                 (Or (ClassName "Firefox-esr")
-                    (Or (Title "Inbox - goldfarb@google.com")
-                        (Title "Google Hangouts - themattgoldfarb@gmail.com"))))
+                    (Or (ClassName "gnosis.googleplex.com")
+                        (Or (Title "Inbox - goldfarb@google.com")
+                            (Title "Google Hangouts - themattgoldfarb@gmail.com")))))
     mainBsp = renamed [Replace "mainBsp"] $
         combineTwoP (TwoPane 0.03 0.2) (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (hgrid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
             (tbsp )
             (Or (ClassName "Firefox")
                 (Or (ClassName "Firefox-esr")
-                    (Or (Title "Google Hangouts - goldfarb@google.com")
-                        (Title "Google Hangouts - themattgoldfarb@gmail.com"))))
+                    (Or (ClassName "gnosis.googleplex.com")
+                        (Or (Title "Google Hangouts - goldfarb@google.com")
+                            (Title "Google Hangouts - themattgoldfarb@gmail.com")))))
 
-myLayout = borderResize $ avoidStruts $ defaultLayouts
+myLayout = avoidStruts $ borderResize $ defaultLayouts
 
 data LibNotifyUrgencyHook = LibNotifyUrgencyHook deriving (Read, Show)
 
 instance UrgencyHook LibNotifyUrgencyHook where
-	urgencyHook LibNotifyUrgencyHook w = do
-		name     <- getName w
-		Just idx <- fmap (W.findTag w) $ gets windowset
-		safeSpawn "notify-send" [show name, "workspace " ++ idx]
+  urgencyHook LibNotifyUrgencyHook w = do
+    name     <- getName w
+    Just idx <- fmap (W.findTag w) $ gets windowset
+    safeSpawn "notify-send" [show name, "workspace " ++ idx]
 
 xPropMatches = [ ([ (wM_CLASS, any ("inbox" `isInfixOf`))], (\w -> return (W.shift "main2") ))
                , ([ (wM_CLASS, any ("inbox" `isInfixOf`))], pmX (addTag "inbox" ))
@@ -155,6 +160,7 @@ xPropMatches = [ ([ (wM_CLASS, any ("inbox" `isInfixOf`))], (\w -> return (W.shi
                , ([ (wM_CLASS, any ("chat" `isInfixOf`))], pmX (addTag "dynamite" ))
                , ([ (wM_CLASS, any ("chat" `isInfixOf`))], (\w -> return (W.shift "main2") ))
                , ([ (wM_CLASS, any ("localhost" `isInfixOf`))], pmX (addTag "vimwiki" ))
+               , ([ (wM_CLASS, any ("gnosis" `isInfixOf`))], pmX (addTag "gnosis" ))
                , ([ (wM_CLASS, any ("localhost" `isInfixOf`))], (\w -> return (W.shift "main2") ))
                , ([ (wM_CLASS, any ("mail.google" `isInfixOf`))], (\w -> return (W.shift "main2") ))
                , ([ (wM_CLASS, any ("mail.google" `isInfixOf`))], pmX (addTag "gmail" ))
@@ -165,24 +171,26 @@ xPropMatches = [ ([ (wM_CLASS, any ("inbox" `isInfixOf`))], (\w -> return (W.shi
                ]
 
 myManageHook = manageHook defaultConfig
-	<+> composeAll [
-		resource =? "synapse" --> doFloat
-  ,	className =? "XTerm" --> doFloat
-	,	className =? "Eclipse" --> doShift "ide" -- move eclipse to ide
-	,	className =? "jetbrains-idea-ce" --> doShift "ide" -- move intellij to ide
-	,	className =? "jetbrains-clion" --> doShift "ide" -- move clion to ide
-	,	className =? "sun-awt-X11-XFramePeer" --> doShift "ide"
+  <+> composeAll [
+    resource =? "synapse" --> doFloat
+  ,  className =? "XTerm" --> doFloat
+  ,  appName =? "xmessage" --> doFloat
+  , appName =? "xclock" --> doRectFloat (W.RationalRect (1%4) (1%4) (1%2) (1%2))
+  , className =? "Eclipse" --> doShift "ide" -- move eclipse to ide
+  , className =? "jetbrains-idea-ce" --> doShift "ide" -- move intellij to ide
+  , className =? "jetbrains-clion" --> doShift "ide" -- move clion to ide
+  , className =? "sun-awt-X11-XFramePeer" --> doShift "ide"
   , propertyToQuery (Role "GtkFileChooserDialog") --> doRectFloat (W.RationalRect (1%4) (1%4) (1%2) (1%2))
   , fmap ( "https://hangouts.google.com/webchat/iframe3?" `isInfixOf`) (stringProperty "WM_NAME") --> doSink
-	,	stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main2"
-	,	stringProperty "WM_NAME" =? "Inbox - goldfarb@google.com" --> doShift "main2"
-	,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main2"
-	-- ,	stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
-	,	resource =? "google-chrome" --> doFloat
-	,	stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "main"
-	,	stringProperty "WM_NAME" =? "modal" --> doFloat
-	]
-	<+> manageDocks
+  , stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" --> doShift "main2"
+  , stringProperty "WM_NAME" =? "Inbox - goldfarb@google.com" --> doShift "main2"
+  , stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main2"
+  -- , stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
+  , resource =? "google-chrome" --> doFloat
+  , stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "main"
+  , stringProperty "WM_NAME" =? "modal" --> doFloat
+  ]
+  <+> manageDocks
   <+> manageScratchPad
   <+> namedScratchpadManageHook scratchpads
   <+> xPropManageHook xPropMatches
@@ -195,12 +203,12 @@ doSwap = do
 
 
 myDynHook = composeAll [
-		stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" -->  doShift "main2" <+> doSink
+    stringProperty "WM_NAME" =? "Google Hangouts - goldfarb@google.com" -->  doShift "main2" <+> doSink
   , stringProperty "WM_NAME" =? "Inbox - goldfarb@google.com" -->  doShift "main2" <+> doSink
-  ,	stringProperty "WM_NAME" =? "chrome-extension://nckgahadagoaajjgafhacjanaoiihapd/mainapp.html?uv_main_window" --> doFloat
+  , stringProperty "WM_NAME" =? "chrome-extension://nckgahadagoaajjgafhacjanaoiihapd/mainapp.html?uv_main_window" --> doFloat
   , stringProperty "WM_CLASS" =? "XTerm" --> doFloat
   , stringProperty "WM_CLASS" =? "Firefox-esr" --> doShift "main" <+> doSink
-  ,	stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main" <+> doSink
+  , stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main" <+> doSink
   , fmap ( "https://hangouts.google.com/webchat/frame3?" `isInfixOf`) (stringProperty "WM_NAME") --> doSink <+> doSwap
   ]
 
@@ -256,7 +264,7 @@ scratchpads = [
     ] where role = stringProperty "WM_WINDOW_ROLE"
 
 myFadeHook = fadeInactiveLogHook fadeAmount
-		where fadeAmount = 0.8
+    where fadeAmount = 0.8
 myLogHook = myFadeHook
     <+> multiPP focusedScreenPP unfocusedScreenPP
 
@@ -284,14 +292,17 @@ unfocusedScreenPP =  focusedScreenPP {
 
 mySpace =
     if My.mySuffix == "__laptop" then 60
-    else 160
+    else 320
 
 translateWindow :: String -> String
 translateWindow name =
-    if isInfixOf "Google Hangouts - goldfarb" name then "Hangouts - Work"
-    else if isInfixOf "Google Hangouts - themattgoldfarb" name then "Hangouts - Personal"
-    else if isInfixOf "- Google Chrome" name then "Chrome - " ++ takeWhile (/= '-') name
-    else if isInfixOf "goldfarb@goldfarb" name then "Term -" ++ drop 1 (dropWhile (/= ':') name)
+    if isInfixOf "Google Hangouts - goldfarb" name then "\xf651"
+    else if isInfixOf "Google Hangouts - themattgoldfarb" name then "\xf075"
+    else if isInfixOf "Google Hangouts" name then "\xf075"
+    else if isInfixOf "- Google.com Mail" name then " \xf0e0 "
+    else if isInfixOf "Google.com - Calendar" name then " \xf073 "
+    else if isInfixOf "- Google Chrome" name then " \xf268" ++ take ((length name) - 15) name
+    else if isInfixOf "goldfarb@goldfarb" name then "\xf120" ++ drop 1 (dropWhile (/= ':') name)
     else name
 
 logTitles ppFocus ppUnfocus =
@@ -299,7 +310,9 @@ logTitles ppFocus ppUnfocus =
             windowTitles windowset = sequence (map (fmap showName . getName) (W.index windowset))
                 where
                     numWindows = ( length $ W.index windowset)
-                    spacing = (quot mySpace numWindows) - 2
+                    spacing =
+                        if (quot mySpace numWindows) - 2 > 30 then 30
+                        else (quot mySpace numWindows)
                     fw = W.peek windowset
                     showName nw =
                         let
@@ -348,7 +361,7 @@ myGroupdWorkspaceKeys x = [
 
 myScreenNavKeys x = [
     ((m .|. lWinMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        | (key, sc) <- zip [xK_w, xK_e, xK_r, xK_f] [2, 0, 3, 1]
+        | (key, sc) <- zip [xK_w, xK_e, xK_r, xK_f] [3, 0, 2, 1]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 myWindowNavKeys x = [
@@ -373,6 +386,10 @@ myBspKeys x = [
   , ((rWinMask,                 xK_h ), sendMessage $ Go L)
   , ((rWinMask,                 xK_j ), sendMessage $ Go D)
   , ((rWinMask,                 xK_k ), sendMessage $ Go U)
+  , ((lWinMask,                 xK_l ), sendMessage $ Go R)
+  , ((lWinMask,                 xK_h ), sendMessage $ Go L)
+  , ((lWinMask,                 xK_j ), sendMessage $ Go D)
+  , ((lWinMask,                 xK_k ), sendMessage $ Go U)
   , ((rWinMask .|. lWinMask,    xK_l ), sendMessage $ BSP.ExpandTowards R)
   , ((rWinMask .|. lWinMask,    xK_h ), sendMessage $ BSP.ExpandTowards L)
   , ((rWinMask .|. lWinMask,    xK_j ), sendMessage $ BSP.ExpandTowards D)
@@ -473,13 +490,14 @@ myTerminal = "urxvt"
 sBar :: String
 sBar = "xmobar"
 pp = case sBar of
-	"xmobar" -> xmobarPP
+  "xmobar" -> xmobarPP
 
 myXmobarMasterConfig = "~/.xmonad/xmobarmaster" ++ My.mySuffix
 myXmobarSlaveConfig = "~/.xmonad/xmobarslave" ++ My.mySuffix
 
 myStatusBar :: ScreenId -> IO Handle
-myStatusBar (S 0) = spawnPipe $ "xmobar -x 0 " ++ myXmobarMasterConfig
+{-myStatusBar (S 0) = spawnPipe $ "xmobar -x 0 " ++ myXmobarSlaveConfig-}
+myStatusBar (S 3) = spawnPipe $ "xmobar -x 3 " ++ myXmobarMasterConfig
 myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " " ++ myXmobarSlaveConfig
 
 myStatusBarCleanup :: IO ()

@@ -7,46 +7,14 @@ say() {
     "http://translate.google.com/translate_tts?tl=en&client=t&q=$1";
 }
 
+say_normal() {
+  [ -f "$HOME/.silent" ] || \
+  mpv \
+    "http://translate.google.com/translate_tts?tl=en&client=t&q=$1";
+}
+
 mk() {
   mkdir -p "$@" && cd "$@"
-}
-
-__get_cl() {
-  git5 status > /dev/null 2>&1
-  if [ $? = 0 ]
-  then
-    CL=`git5 info | grep review_cl: | sed "s/review_cl: //"`
-  else
-    hg xl > /dev/null 2>&1
-    if [ $? = 0 ]
-    then
-      CL=`hg xl | sed 's,\(cl/[0-9]*\).*,\1,' \
-          | sed 's,goldfarb ,,' \
-          | awk '/^[@o]/{printf "%d %s %s", NR, $2, $3} /^\|/{printf " %s\n", $0}' \
-          | fzf | awk '{print $3}' | sed 's,^cl/,,'`
-    else
-      CL=`g4 pending | head -n1 | sed 's/\(.*\):.*/\1/' | sed 's/.*Change.\([0-9]*\).*/\1/'`
-    fi
-  fi
-  echo $CL
-}
-
-__hg_get_cl() {
-  xl=`hg xl`
-  echo "xl->"
-  ehco "$xl"
-  echo "**********"
-  echo "**********"
-  echo "**********"
-  s=`hg xl | sed 's,\(cl/[0-9]*\).*,\1,'`
-  echo "s->$s"
-  echo "**********"
-  echo "**********"
-  echo "**********"
-  #      CL=`hg xl | sed 's,\(cl/[0-9]*\).*,\1,' \
-  #          | sed 's,goldfarb ,,' \
-  #          | awk '/^[@o]/{printf "%d %s %s", NR, $2, $3} /^\|/{printf " %s\n", $0}' \
-  #          | fzf | awk '{print $3}' | sed 's,^cl/,,'`
 }
 
 __hg_get_rev() {

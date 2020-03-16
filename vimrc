@@ -33,13 +33,18 @@ filetype plugin indent on
 func! VimrcCallback()
 endfunc
 
+func! AddPlugValues()
+endfunction
+
+
+
 if filereadable(expand('~/.at_work'))
   source ~/.vimrc_work
 else
   source ~/.vimrc_home
 endif
 
-"colorscheme elflord
+colorscheme elflord
 
 set nu  " show line numbers
 set so=5  " scroll offset
@@ -55,8 +60,6 @@ Plug 'gmarik/Vundle.vim'
 Plug 'scrooloose/nerdtree'
 
 Plug 'scrooloose/nerdcommenter'
-
-Plug 'scrooloose/syntastic'
 
 Plug 'ctrlpvim/ctrlp.vim'
 
@@ -114,6 +117,13 @@ Plug 'prabirshrestha/vim-lsp'
 
 Plug 'vimwiki/vimwiki'
 
+Plug 'tmux-plugins/vim-tmux'
+Plug 'nanotech/jellybeans.vim'
+
+Plug 'dense-analysis/ale'
+
+call AddPlugValues()
+
 if has('nvim')
   Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
 endif
@@ -149,18 +159,18 @@ if has('nvim')
           au InsertLeave * set timeoutlen=1000
       augroup END
   endif
-else
+endif
   " YouCompleteMe remappings
   nnoremap <leader>yg :YcmCompleter GoTo<CR>
   nnoremap <leader>yd :YcmCompleter GoToDeclaration<CR>
   nnoremap <leader>yf :YcmCompleter GoToDefinition<CR>
   nnoremap <leader>yt :YcmCompleter GetType<CR>
   nnoremap <leader>yp :YcmCompleter GetParent<CR>
+  nnoremap <leader>yl :YcmCompleter
   let g:EclimCompletionMethod = 'omnifunc'
   let g:ycm_auto_trigger = 1
   let g:ycm_add_preview_to_completeopt = 2
   let g:ycm_filetype_whitelist = {'cpp' :1, 'cc' : 1, 'go' : 1}
-endif
 
 
 
@@ -221,16 +231,6 @@ noremap <leader>so :so $MYVIMRC <CR>
 hi StatusLine ctermbg=3 ctermfg=4
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
-
-" syntastic
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
 
 nnoremap <leader>en :lnext<CR>
 nnoremap <leader>ep :lprevious<CR>
@@ -345,6 +345,8 @@ nnoremap <leader>rb :call fzf#run({
 
 call VimrcCallback()
 
+  nnoremap <leader>cs :CSearch<Space>
+
 function! Wipeout()
     "From tabpagebuflist() help, get a list of all buffers in all tabs
     let tablist = []
@@ -380,31 +382,54 @@ if &diff
   nnoremap <leader>dp [c
 endif
 
-function! Test()
-  return 0
-endfunction
+"function! Test()
+  "return 0
+"endfunction
 
-function! FindFile()
-  let root = getcwd()
-  while !filereadable(root)
-    let cmd = "ls -A ".root
-    let f = systemlist(cmd)
-    let f = f + [".."]
-    let selected = fzf#run({
-        \ 'source': f,
-        \ 'down' : '30%'})
-    if selected[0] == ".."
-      let root = fnamemodify(root, ':p:h:h')
-    else
-      let root = root."/".selected[0]
-    endif
-  endwhile
-  return root
-endfunction
+"function! FindFile()
+  "let root = getcwd()
+  "while !filereadable(root)
+    "let cmd = "ls -A ".root
+    "let f = systemlist(cmd)
+    "let f = f + [".."]
+    "let selected = fzf#run({
+        "\ 'source': f,
+        "\ 'down' : '30%'})
+    "if selected[0] == ".."
+      "let root = fnamemodify(root, ':p:h:h')
+    "else
+      "let root = root."/".selected[0]
+    "endif
+  "endwhile
+  "return root
+"endfunction
 
-function! s:sanitized_wikiname(wikifile)
-  let initial = fnamemodify(a:wikifile, ":t:r")
-  let lower_sanitized = tolower(initial)
-  let substituted = substitute(lower_sanitized, '[^a-z0-9_-]\+',"-", "g")
-  return substitute(substituted, '\-\+',"-", "g") . ".html"
-endfunction
+"function! s:sanitized_wikiname(wikifile)
+  "let initial = fnamemodify(a:wikifile, ":t:r")
+  "let lower_sanitized = tolower(initial)
+  "let substituted = substitute(lower_sanitized, '[^a-z0-9_-]\+',"-", "g")
+  "return substitute(substituted, '\-\+',"-", "g") . ".html"
+"endfunction
+
+"command! -complete=shellcmd -nargs=+ Shell call s:RunShellCommand(<q-args>)
+"function! s:RunShellCommand(cmdline)
+  "echo a:cmdline
+  "let expanded_cmdline = a:cmdline
+  "for part in split(a:cmdline, ' ')
+     "if part[0] =~ '\v[%#<]'
+        "let expanded_part = fnameescape(expand(part))
+        "let expanded_cmdline = substitute(expanded_cmdline, part, expanded_part, '')
+     "endif
+  "endfor
+  "botright new
+  "setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
+  "call setline(1, 'You entered:    ' . a:cmdline)
+  "call setline(2, 'buf num:    ' . bufnr('%') . ' name: "' . bufname('%') .'"' )
+  "call setline(3, 'Expanded Form:  ' .expanded_cmdline)
+  "call setline(4,substitute(getline(3),'.','=','g'))
+  "execute '$read !'. expanded_cmdline
+  "1
+"endfunction
+
+
+

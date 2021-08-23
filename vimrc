@@ -120,7 +120,7 @@ Plug 'vimwiki/vimwiki'
 Plug 'tmux-plugins/vim-tmux'
 Plug 'nanotech/jellybeans.vim'
 
-Plug 'dense-analysis/ale'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call AddPlugValues()
 
@@ -431,5 +431,6 @@ endif
   "1
 "endfunction
 
-
+" vimrc config for coc.
+source ~/.vim/coc.vim
 

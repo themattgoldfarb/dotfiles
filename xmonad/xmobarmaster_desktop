@@ -6,10 +6,10 @@ Config {
     , lowerOnStart = False
     , allDesktops = True
     , commands = [
-	 Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
-   Run Volume "default" "Master" ["-t", " <volume>%<status>", "--", "--off", "muted", "--on", " "] 10,
-	 Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/getvolume" [ ] "sound"   5,
-	 Run StdinReader
+       Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
+       Run Volume "default" "Master" [] 10,
+       Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/getvolume" [ ] "sound"   5,
+       Run StdinReader
     ]
     , sepChar = "%"
     , alignSep = "}{"

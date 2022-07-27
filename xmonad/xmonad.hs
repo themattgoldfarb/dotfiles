@@ -245,8 +245,8 @@ manageScratchPad = scratchpadManageHook (W.RationalRect l t w h )
     t = 1-h
     l = 1-w
 
-googleMusicCommand = "dex $HOME/.local/share/applications/google-play-music.desktop"
-isGoogleMusic = (resource =? "play.google.com__music_listen")
+googleMusicCommand = "dex $HOME/.local/share/applications/youtube-music.desktop"
+isGoogleMusic = (resource =? "music.youtube.com")
 buganizerCommand = "dex $HOME/.local/share/applications/buganizer.desktop"
 isBuganizer = (resource =? "b.corp.google.com__savedsearches_432047")
 inboxCommand = "dex $HOME/.local/share/applications/inbox.desktop"
@@ -264,7 +264,7 @@ scratchpads = [
     ] where role = stringProperty "WM_WINDOW_ROLE"
 
 myFadeHook = fadeInactiveLogHook fadeAmount
-    where fadeAmount = 0.8
+    where fadeAmount = 0.9
 myLogHook = myFadeHook
     <+> multiPP focusedScreenPP unfocusedScreenPP
 
@@ -497,7 +497,7 @@ myXmobarSlaveConfig = "~/.xmonad/xmobarslave" ++ My.mySuffix
 
 myStatusBar :: ScreenId -> IO Handle
 {-myStatusBar (S 0) = spawnPipe $ "xmobar -x 0 " ++ myXmobarSlaveConfig-}
-myStatusBar (S 3) = spawnPipe $ "xmobar -x 3 " ++ myXmobarMasterConfig
+myStatusBar (S 0) = spawnPipe $ "xmobar -x 0 " ++ myXmobarMasterConfig
 myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " " ++ myXmobarSlaveConfig
 
 myStatusBarCleanup :: IO ()

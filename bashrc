@@ -101,12 +101,20 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 arrow_prompt=$'  \[\e[1m\]\u2192\[\e[0m\] '
+
+if [ "$SSH_CLIENT" ] || [ "$SSH_TTY" ];
+then
+  host="\h"
+else
+  host="local"
+fi
+
 if [ "$color_prompt" = yes ]; then
-  PS1="\[\e[92m\e[1m\]##--< \[\e[0m\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\H\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;32m\]\[\033[01;91m\]\$(hg_message)\$(parse_git_branch)\[\033[00m\e[92m\e[1m\] (\t) >--##\[\e[0m\]\n$arrow_prompt"
+  PS1="\[\e[92m\e[1m\]-◀ \[\e[0m\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@${host}\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;32m\]\[\033[01;91m\]\$(hg_message)\$(parse_git_branch)\[\033[00m\e[92m\e[1m\] (\t) ▶-\[\e[0m\]\n$arrow_prompt"
     PS2="  \[\e[92m\]$arrow_prompt"
     #PS2="&gt; "
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\u@${host}:\w\$ '
     #PS2="&gt; "
     #PS2=$'  \u2192 '
     PS2="  $arrow_prompt"

@@ -36,6 +36,8 @@ __before_command() {
 }
 
 __after_command() {
+  __update-x11-forwarding
+
   local history_output=$(HISTTIMEFORMAT="%s " history 1)
   local history_number=$(echo $history_output | awk '{print $1}')
   local trim_hist=$(echo $history_output | xargs)
@@ -94,6 +96,7 @@ __after_command() {
       done
     fi
   fi
+
 }
 
 PROMPT_COMMAND=__after_command

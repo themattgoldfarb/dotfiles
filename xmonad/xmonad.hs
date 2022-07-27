@@ -253,8 +253,8 @@ manageScratchPad = scratchpadManageHook (W.RationalRect l t w h )
     t = 1-h
     l = 1-w
 
-youtubeMusicCommand = "dex $HOME/.local/share/applications/youtube-music.desktop"
-isYoutubeMusic = (resource =? "music.youtube.com")
+googleMusicCommand = "dex $HOME/.local/share/applications/youtube-music.desktop"
+isGoogleMusic = (resource =? "music.youtube.com")
 buganizerCommand = "dex $HOME/.local/share/applications/buganizer.desktop"
 isBuganizer = (resource =? "b.corp.google.com__savedsearches_432047")
 gmailCommand = "dex $HOME/.local/share/applications/gmail.desktop"
@@ -263,6 +263,8 @@ hotkeysCommand = "dex $HOME/.local/share/applications/hotkeys.desktop"
 isHotkeys = (className =? "hotkeyref")
 chatCommand = "dex $HOME/.local/share/applications/chat.desktop"
 isChat = (resource =? "go__goldfarb-dynamite")
+inboxCommand = "dex $HOME/.local/share/applications/inbox.desktop"
+isInbox = (resource =? "XXXinbox.google.com__u_0")
 calendarCommand = "dex $HOME/.local/share/applications/calendar.desktop"
 isCalendar = (resource =? "calendar.google.com__calendar_r")
 
@@ -278,7 +280,7 @@ scratchpads = [
     ] where role = stringProperty "WM_WINDOW_ROLE"
 
 myFadeHook = fadeInactiveLogHook fadeAmount
-    where fadeAmount = 0.8
+    where fadeAmount = 0.9
 myLogHook = myFadeHook
 
 formatFocused   = wrap "[" "]" . xmobarColor "#ff79c6" "" . shorten 30 . xmobarStrip
@@ -599,7 +601,7 @@ myStartupHook = composeAll [
     , execScriptHook "start drive"
     , execScriptHook "start feh"
     , execScriptHook "start synapse"
-    --, execScriptHook "start blueman"
+    , execScriptHook "start blueman"
     , execScriptHook "start speak"
     ]
 

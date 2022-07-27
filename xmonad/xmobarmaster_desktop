@@ -9,8 +9,12 @@ Config {
     , alignSep = "}{"
     , template = "%StdinReader%}{<fc=#777>%sound%</fc>  %datetime%"
     , commands = [
-        Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
-        Run Com "/usr/local/google/home/goldfarb/.config/xmonad/scripts/getvolume" [ ] "sound"   5,
-	Run StdinReader
+       Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
+       Run Volume "default" "Master" [] 10,
+       Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/getvolume" [ ] "sound"   5,
+       Run StdinReader
     ]
+    , sepChar = "%"
+    , alignSep = "}{"
+    , template = "%StdinReader% }{<fc=#777>%sound%</fc> %datetime%"
 }

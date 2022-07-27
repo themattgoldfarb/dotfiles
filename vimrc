@@ -87,6 +87,8 @@ Plug 'altercation/vim-colors-solarized'
 
 Plug 'morhetz/gruvbox'
 
+Plug '~/apps/goldbox/goldbox'
+
 Plug 'tpope/vim-obsession'
 
 Plug 'tpope/vim-fugitive'
@@ -120,7 +122,7 @@ Plug 'vimwiki/vimwiki'
 Plug 'tmux-plugins/vim-tmux'
 Plug 'nanotech/jellybeans.vim'
 
-Plug 'dense-analysis/ale'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call AddPlugValues()
 
@@ -329,8 +331,16 @@ endif
 set background=dark
 "let g:gruvbox_italic=1
 let g:gruvbox_contrast_dark='hard'
-colorscheme gruvbox
+let g:gruvbox_contrast_light='hard'
+let g:gruvbox_transparent_bg=1
+let g:goldbox_contrast_dark='hard'
+let g:goldbox_contrast_light='hard'
+let g:goldbox_transparent_bg=1
+"colorscheme gruvbox
+colorscheme goldbox
 "colorscheme solarized
+
+highlight Normal ctermbg=none
 
 nnoremap <leader>gf :call fzf#run({
       \ 'source': 'source ~/scripts/editedfiles.sh && __editedFiles',
@@ -431,5 +441,6 @@ endif
   "1
 "endfunction
 
-
+" vimrc config for coc.
+source ~/.vim/coc.vim
 

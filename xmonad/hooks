@@ -1,14 +1,28 @@
 #!/bin/bash
-
-
+ 
 __run_hook() {
   hook=$1
+  params=${@:2}
 
-  [[ -e $hook ]] && [[ ! $(pgrep -f $hook) ]] && $hook &
+  [[ -e $hook ]] && [[ ! $(pgrep -f $hook) ]] && $hook $params &
+}
+
+__run_restart() {
+  hook=$1
+  params=${@:2}
+
+  if [[ -e $hook ]] ; then
+    [[ $(pgrep -f $hook) ]] && kill -9 $(pgrep -f $hook)
+   
+    $hook $params &
+  fi
 }
 
 case "$1" in
   start)
-    __run_hook ~/.xmonad/startup/$2
+	  __run_hook ~/.xmonad/startup/$2 ${@:3}
+    ;;
+  restart)
+    __run_restart ~/.xmonad/startup/$2 ${@:3}
     ;;
 esac

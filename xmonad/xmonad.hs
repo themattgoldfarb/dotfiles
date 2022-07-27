@@ -5,7 +5,6 @@ import XMonad.Actions.CopyWindow
 import XMonad.Actions.TagWindows
 import XMonad.Config.Gnome
 import XMonad.Hooks.DynamicLog
-import XMonad.Hooks.DynamicBars
 import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.FadeInactive
@@ -13,6 +12,8 @@ import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.Script
 import XMonad.Hooks.SetWMName
+import XMonad.Hooks.StatusBar
+import XMonad.Hooks.StatusBar.PP
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.XPropManage
 import qualified XMonad.Layout.BinarySpacePartition as BSP
@@ -32,6 +33,7 @@ import XMonad.Layout.MosaicAlt
 import XMonad.Layout.MouseResizableTile
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
+import XMonad.Layout.PerScreenLocation
 import XMonad.Layout.Reflect
 import XMonad.Layout.Renamed
 import XMonad.Layout.Spacing
@@ -58,6 +60,7 @@ import XMonad.Util.NamedScratchpad
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.WindowProperties
 import XMonad.Util.WorkspaceCompare
+import XMonad.Prelude (fromMaybe)
 
 import qualified Data.Map as M
 import qualified XMonad.Actions.FlexibleResize as Flex
@@ -76,13 +79,13 @@ lAltMask = mod1Mask
 rWinMask = mod3Mask
 rAltMask = mod2Mask
 
-doSink :: ManageHook
-doSink = doF . W.sink =<< ask
+-- doSink :: ManageHook
+-- doSink = doF . W.sink =<< ask
 
 myFirstWorkspaces = [
-    (xK_1, "main1"), (xK_2, "term1"), (xK_3, "31")
-  , (xK_4, "browser1"), (xK_5, "ide1"), (xK_6, "files1")
-  , (xK_7, "71"), (xK_8, "personal1"), (xK_9, "91") ]
+    (xK_1, "main"), (xK_2, "term"), (xK_3, "pterm")
+  , (xK_4, "browser"), (xK_5, "ide"), (xK_6, "files")
+  , (xK_7, "other"), (xK_8, "personal"), (xK_9, "pother") ]
 mySecondWorkspaces = [
     (xK_1, "main2"), (xK_2, "term2"), (xK_3, "32")
   , (xK_4, "browser2"), (xK_5, "ide2"), (xK_6, "files2")
@@ -98,23 +101,23 @@ myWorkspaces = [] ++ (map snd myFirstWorkspaces) ++ (map snd mySecondWorkspaces)
 
  -- onWorkspace "main2"  ( main ||| mainBsp ||| tbsp ||| tabbed ||| sgrid ) $
 
-defaultLayouts = layoutHints ( windowNavigation (
-  onWorkspace "main2" (left ||| tbsp ) $
-  onWorkspace "91"  ( main ||| mainBsp ||| tbsp ||| tabbed ) $
-  onWorkspace "3"   ( tabbed  ||| tbsp ) $
-  onWorkspace "term"   ( tabbed  ||| tiled ) $
-  onWorkspace "ide"   ( tabbed ||| rtiled ||| tbsp ) $
-  tabbed ||| tbsp ||| tiled |||  rtiled ||| mtiled ||| twotiled ||| sgrid))
+defaultLayouts = ( windowNavigation (
+  onWorkspaces ["main", "main2"] (tbsp) $
+  onWorkspaces ["term", "pterm"] (tiled ||| tabbed) $
+  onWorkspaces ["ide"] (tiled ||| tabbed) $
+  smarttiled ||| tiled ||| rtiled ||| mtiled ||| tabbed ||| tbsp ||| sgrid))
   where
     tabbed = renamed [Replace "tabbed"] $ simpleTabbed
     mos = MosaicAlt M.empty
     rtiled = renamed [Replace "rtiled"] $ reflectHoriz tiled
+    spaced = renamed [Replace "spaced"] $ spacingRaw True (Border 20 20 20 20) True (Border 20 20 20 20) True $ grid
     mtiled = renamed [Replace "mtiled"] $ Mirror tiled
     tiled  = renamed [Replace "tiled"] $ Tall 1 0.03 0.5
+    smarttiled = renamed [Replace "smart"] $ ifRightOf 1 tiled rtiled
     grid = renamed [Replace "grid"] $ GridRatio (0.5)
     hgrid = GridRatio (0.4)
     bsp = renamed [Replace "bsp"] $ BSP.emptyBSP
-    tbsp = subTabbed $ bsp
+    tbsp = renamed [Replace "tbsp"] $ subTabbed $ bsp
     sgrid = GV.SplitGrid GV.T 2 1 (2/3) (16/10) (5/100)
     twotiled = renamed [Replace "twop"] $ combineTwo (TwoPane 0.03 0.5) (tabbed) (tabbed)
     left = renamed [Replace "left"] $
@@ -137,13 +140,19 @@ defaultLayouts = layoutHints ( windowNavigation (
     mainBsp = renamed [Replace "mainBsp"] $
         combineTwoP (TwoPane 0.03 0.2) (combineTwoP (Mirror (TwoPane 0.03 0.2)) (tabbed) (hgrid) (Or (ClassName  "Firefox-esr") (ClassName "Firefox") ) )
             (tbsp )
-            (Or (ClassName "Firefox")
+            (Or (ClassName "FirEfox")
                 (Or (ClassName "Firefox-esr")
                     (Or (ClassName "gnosis.googleplex.com")
                         (Or (Title "Google Hangouts - goldfarb@google.com")
                             (Title "Google Hangouts - themattgoldfarb@gmail.com")))))
 
 myLayout = avoidStruts $ borderResize $ defaultLayouts
+
+-- Get the name of the active layout.
+getActiveLayoutDescription :: X String
+getActiveLayoutDescription = do
+    workspaces <- gets windowset
+    return $ description . W.layout . W.workspace . W.current $ workspaces
 
 data LibNotifyUrgencyHook = LibNotifyUrgencyHook deriving (Read, Show)
 
@@ -170,7 +179,7 @@ xPropMatches = [ ([ (wM_CLASS, any ("inbox" `isInfixOf`))], (\w -> return (W.shi
                , ([ (wM_CLASS, any ("pomodoro" `isInfixOf`))], pmX (addTag "pomodoro" ))
                ]
 
-myManageHook = manageHook defaultConfig
+myManageHook = manageHook def
   <+> composeAll [
     resource =? "synapse" --> doFloat
   ,  className =? "XTerm" --> doFloat
@@ -186,7 +195,7 @@ myManageHook = manageHook defaultConfig
   , stringProperty "WM_NAME" =? "Inbox - goldfarb@google.com" --> doShift "main2"
   , stringProperty "WM_NAME" =? "Google Hangouts - themattgoldfarb@gmail.com" --> doShift "main2"
   -- , stringProperty "WM_NAME" ~? ".* - Cider" --> doShift "ide"
-  , resource =? "google-chrome" --> doFloat
+  , resource =? "google-chrome" --> doSink
   , stringProperty "WM_NAME" =? "thankevan.com/hacking/pomodoro/ - Google Chrome" --> doShift "main"
   , stringProperty "WM_NAME" =? "modal" --> doFloat
   ]
@@ -215,7 +224,6 @@ myDynHook = composeAll [
 myHandleEventHook = handleEventHook def
   <+> composeAll [
     dynamicPropertyChange "WM_NAME" myDynHook
-  , dynStatusBarEventHook myStatusBar myStatusBarCleanup
   ]
 
 topFloating = customFloating (W.RationalRect l t w h)
@@ -245,49 +253,53 @@ manageScratchPad = scratchpadManageHook (W.RationalRect l t w h )
     t = 1-h
     l = 1-w
 
-googleMusicCommand = "dex $HOME/.local/share/applications/google-play-music.desktop"
-isGoogleMusic = (resource =? "play.google.com__music_listen")
+youtubeMusicCommand = "dex $HOME/.local/share/applications/youtube-music.desktop"
+isYoutubeMusic = (resource =? "music.youtube.com")
 buganizerCommand = "dex $HOME/.local/share/applications/buganizer.desktop"
 isBuganizer = (resource =? "b.corp.google.com__savedsearches_432047")
-inboxCommand = "dex $HOME/.local/share/applications/inbox.desktop"
-isInbox = (resource =? "XXXinbox.google.com__u_0")
+gmailCommand = "dex $HOME/.local/share/applications/gmail.desktop"
+isGmail = (resource =? "go__direct-to-me-goldfarb-google.com-google.com-mail")
+hotkeysCommand = "dex $HOME/.local/share/applications/hotkeys.desktop"
+isHotkeys = (className =? "hotkeyref")
+chatCommand = "dex $HOME/.local/share/applications/chat.desktop"
+isChat = (resource =? "go__goldfarb-dynamite")
 calendarCommand = "dex $HOME/.local/share/applications/calendar.desktop"
 isCalendar = (resource =? "calendar.google.com__calendar_r")
 
 scratchpads = [
     NS "htop" "urxvt -e htop" (title =? "htop") topFloating,
-    NS "notes" "gvim --role notes ~/vimwiki/index.md" (role =? "notes") topFloating,
-    NS "music" googleMusicCommand isGoogleMusic bottomFloating,
+    NS "hotkeys" hotkeysCommand isHotkeys centerFloating,
+    NS "notes" "gnome-terminal --role notes --hide-menubar --profile=scratchpad -- vim ~/vimwiki/index.md" (role =? "notes") topFloating,
+    NS "music" youtubeMusicCommand isYoutubeMusic bottomFloating,
     NS "bugs" buganizerCommand isBuganizer centerFloating,
-    NS "inbox" inboxCommand isInbox centerFloating,
+    NS "inbox" gmailCommand isGmail centerFloating,
+    NS "chat" chatCommand isChat centerFloating,
     NS "calendar" calendarCommand isCalendar centerFloating
     ] where role = stringProperty "WM_WINDOW_ROLE"
 
 myFadeHook = fadeInactiveLogHook fadeAmount
     where fadeAmount = 0.8
 myLogHook = myFadeHook
-    <+> multiPP focusedScreenPP unfocusedScreenPP
 
-focusedScreenPP :: PP
-focusedScreenPP = namedScratchpadFilterOutWorkspacePP $ defaultPP {
-      ppLayout  = xmobarColor Sol.yellow ""
-    , ppCurrent = xmobarColor Sol.blue ""
+formatFocused   = wrap "[" "]" . xmobarColor "#ff79c6" "" . shorten 30 . xmobarStrip
+formatUnfocused = wrap "(" ")" . xmobarColor "#bd93f9" "" . shorten 30 . xmobarStrip
+
+focusedScreenPP :: ScreenId -> PP
+focusedScreenPP s = filterOutWsPP [scratchpadWorkspaceTag] $ xmobarPP {
+      ppLayout  = const "" --xmobarColor Sol.yellow ""
+    , ppCurrent = const "" --xmobarColor Sol.blue ""
     , ppVisible = const ""
-    , ppUrgent  = xmobarColor Sol.red ""
+    , ppUrgent  = const "" --xmobarColor Sol.red ""
     , ppTitle   = const ""
-    , ppSep     = " | "
+    , ppSep     = " "
     , ppExtras  = [
-        wrapL "[" "]" ( logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 ""))]
+        xmobarColorL "#33FFFF" "" $ logCurrentOnScreen s 
+      , xmobarColorL "#FFFF33" "" $ logLayoutOnScreen s
+      , logTitlesOnScreen s formatFocused formatUnfocused .| logConst "With great power comes great responsibility..."
+    ]
     , ppSort    = getSortByIndex
     , ppHidden  = const ""
     , ppHiddenNoWindows = const ""
-}
-
-unfocusedScreenPP :: PP
-unfocusedScreenPP =  focusedScreenPP {
-      ppTitle = const ""
-    , ppExtras  = [
-        wrapL "[" "]" ( logTitles (xmobarColor Sol.green "") (xmobarColor Sol.base01 ""))]
 }
 
 mySpace =
@@ -305,7 +317,7 @@ translateWindow name =
     else if isInfixOf "goldfarb@goldfarb" name then "\xf120" ++ drop 1 (dropWhile (/= ':') name)
     else name
 
-logTitles ppFocus ppUnfocus =
+logTitles2 ppFocus ppUnfocus =
         let
             windowTitles windowset = sequence (map (fmap showName . getName) (W.index windowset))
                 where
@@ -364,6 +376,42 @@ myScreenNavKeys x = [
         | (key, sc) <- zip [xK_w, xK_e, xK_r, xK_f] [3, 0, 2, 1]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
+
+-- perLayoutKey :: ((KeyMask, KeySym), X (), X ()) -> ((KeyMask, KeySym), X())
+perLayoutKey (keys, tbspFunc, normalFunc) =
+    (( keys) , do
+    layout <- getActiveLayoutDescription
+    case layout of
+        "tbsp" -> tbspFunc
+        _      -> normalFunc
+    )
+
+myPerLayoutKeys x = map perLayoutKey [
+    ((lWinMask, xK_h ), sendMessage $ Go L, sendMessage Shrink),
+    ((lWinMask, xK_j ), sendMessage $ Go D, windows W.focusDown),
+    ((lWinMask, xK_k ), sendMessage $ Go U, windows W.focusUp),
+    ((lWinMask, xK_l ), sendMessage $ Go R, sendMessage Expand),
+    ((lWinMask .|. shiftMask, xK_h ), 
+        sendMessage $ BSP.ExpandTowards L, sendMessage Shrink),
+    ((lWinMask .|. shiftMask,   xK_j ),
+        sendMessage $ BSP.ExpandTowards D, windows W.swapDown),
+    ((lWinMask .|. shiftMask,   xK_k ),
+        sendMessage $ BSP.ExpandTowards U, windows W.swapUp),
+    ((lWinMask .|. shiftMask,   xK_l ),
+        sendMessage $ BSP.ExpandTowards R, sendMessage Expand),
+    ((lWinMask .|. controlMask,   xK_h ), sendMessage $ Swap L, sendMessage Shrink),
+    ((lWinMask .|. controlMask,   xK_j ), sendMessage $ Swap D, windows W.swapDown),
+    ((lWinMask .|. controlMask,   xK_k ), sendMessage $ Swap U, windows W.swapUp),
+    ((lWinMask .|. controlMask,   xK_l ), sendMessage $ Swap R, sendMessage Expand)
+    
+ ]
+
+
+--  , ((rWinMask,                 xK_m ), withFocused (sendMessage . MergeAll))
+--  , ((rWinMask,                 xK_u ), withFocused (sendMessage . UnMerge))
+--  , ((rWinMask .|. shiftMask,    xK_k ), onGroup W.focusUp' )
+--  , ((rWinMask .|. shiftMask,    xK_j ), onGroup W.focusDown' ) ]
+
 myWindowNavKeys x = [
     ((rAltMask,                 xK_l ), sendMessage $ pullGroup R)
   , ((rAltMask,                 xK_h ), sendMessage $ pullGroup L)
@@ -399,7 +447,25 @@ myBspKeys x = [
   , ((rWinMask .|. controlMask,   xK_h ), sendMessage $ Swap L)
   , ((rWinMask .|. controlMask,   xK_j ), sendMessage $ Swap D)
   , ((rWinMask .|. controlMask,   xK_k ), sendMessage $ Swap U)
-  , ((rWinMask,                 xK_r ), sendMessage BSP.Rotate)
+
+
+  , ((lWinMask .|. shiftMask,   xK_r ), sendMessage BSP.Rotate)
+  , ((rWinMask .|. shiftMask,   xK_s ), sendMessage BSP.Swap)
+  , ((lWinMask,                 xK_n ), sendMessage BSP.FocusParent)
+  , ((lWinMask .|. shiftMask, xK_n ), sendMessage BSP.SelectNode)
+  , ((lWinMask .|. shiftMask .|. controlMask, xK_n ), sendMessage BSP.MoveNode)
+  , ((lWinMask,                 xK_a ), sendMessage BSP.Equalize)
+  , ((lWinMask .|. shiftMask,   xK_a ), sendMessage BSP.Balance)
+  , ((lWinMask .|. lAltMask,    xK_l ), sendMessage $ pullGroup R)
+  , ((lWinMask .|. lAltMask,    xK_h ), sendMessage $ pullGroup L)
+  , ((lWinMask .|. lAltMask,    xK_j ), sendMessage $ pullGroup D)
+  , ((lWinMask .|. lAltMask,    xK_k ), sendMessage $ pullGroup U)
+  , ((lWinMask,                 xK_m ), withFocused (sendMessage . MergeAll))
+  , ((lWinMask .|. shiftMask,   xK_m ), withFocused (sendMessage . UnMerge))
+  , ((lWinMask .|. controlMask .|. shiftMask,    xK_k ), onGroup W.focusUp' )
+  , ((lWinMask .|. controlMask .|. shiftMask,    xK_j ), onGroup W.focusDown' )
+
+
   , ((rWinMask,                 xK_s ), sendMessage BSP.Swap)
   , ((rWinMask,                 xK_n ), sendMessage BSP.FocusParent)
   , ((rWinMask .|. controlMask, xK_n ), sendMessage BSP.SelectNode)
@@ -415,13 +481,13 @@ myBspKeys x = [
   , ((rWinMask .|. shiftMask,    xK_k ), onGroup W.focusUp' )
   , ((rWinMask .|. shiftMask,    xK_j ), onGroup W.focusDown' ) ]
 keysToAdd x = [
-    ((lWinMask, xK_n), renameWorkspace defaultXPConfig)
-  , ((lWinMask .|. shiftMask, xK_s), spawn "$HOME/bin/snipit")
+    ((lWinMask .|. shiftMask, xK_s), spawn "$HOME/bin/snipit")
   , ((lAltMask .|. controlMask, xK_l), spawn "~/.xmonad/commands/lockscreen")
   , ((rWinMask, xK_f), spawn "~/.xmonad/commands/lock_mac")
   , ((lAltMask, xK_s), spawn "google-chrome http://sponge/lucky")
   , ((lWinMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
   , ((lWinMask, xK_b), sendMessage ToggleStruts )
+  , ((lWinMask, xK_z), spawn "rofi -show window")
   , ((lAltMask , xK_p), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'") ]
   ++ [ ((lWinMask .|. controlMask .|. shiftMask, k ) , windows $ f i )
         | (i, k) <- zip (workspaces x) [xK_1 ..]
@@ -432,13 +498,14 @@ scratchpadKeys x = [
   , ((lWinMask .|. controlMask, xK_m), namedScratchpadAction scratchpads "music")
   , ((lWinMask .|. controlMask, xK_b), namedScratchpadAction scratchpads "bugs")
   , ((lWinMask .|. controlMask, xK_i), namedScratchpadAction scratchpads "inbox")
+  , ((lWinMask .|. controlMask, xK_r), namedScratchpadAction scratchpads "hotkeys")
+  , ((lWinMask .|. controlMask, xK_d), namedScratchpadAction scratchpads "chat")
   , ((lWinMask .|. controlMask, xK_c), namedScratchpadAction scratchpads "calendar") ]
 promptKeys x = [
    ((lWinMask,                 xK_g),  spawn "$HOME/.xmonad/scripts/gmail.sh --xmonad" )
-  ,((lWinMask,                 xK_u),  spawn "$HOME/.xmonad/scripts/gmail.sh --xmonad unread" )
+  ,((lWinMask,                 xK_u),  spawn "$HOME/.xmonad/scripts/gmail.sh --xmonad unread" ) ]
   {-, ((lWinMask,                 xK_g), spawn (runProcessWithInput "~/.xmonad/scripts/gmail.sh" ["--list"] ""))-}
   {-, ((lWinMask,                 xK_g),  gmailPrompt [("asdf", spawn "ls")] myXPConfig ) ]-}
-  , ((lWinMask,                 xK_t),  AL.launchApp myXPConfig "xdg-open" ) ]
 
 {-data XMonad = XMonad-}
 {--- | An xmonad prompt with a custom command list-}
@@ -458,8 +525,16 @@ keysToDel x = []
 defaultKeysToDel x = [
     (lWinMask, xK_w)
   , (lWinMask, xK_e)
-  , (lWinMask, xK_r) ]
-keysDefault = keys defaultConfig
+  , (lWinMask, xK_r) 
+  , (lWinMask, xK_h)
+  , (lWinMask, xK_j)
+  , (lWinMask, xK_k)
+  , (lWinMask, xK_l) 
+  , (lWinMask .|. shiftMask, xK_h)
+  , (lWinMask .|. shiftMask, xK_j)
+  , (lWinMask .|. shiftMask, xK_k)
+  , (lWinMask .|. shiftMask, xK_l) ]
+keysDefault = keys def
 defaultKeys x = foldr M.delete (keysDefault x) (defaultKeysToDel x)
 
 newKeys x = M.unions [ (defaultKeys x)
@@ -468,6 +543,7 @@ newKeys x = M.unions [ (defaultKeys x)
                      , (M.fromList(keysToAdd x))
                      , (M.fromList(myWindowNavKeys x))
                      , (M.fromList(myScreenNavKeys x))
+                     , (M.fromList(myPerLayoutKeys x))
                      , (M.fromList(myBspKeys x))
                      , (M.fromList(promptKeys x))
                      , (M.fromList(scratchpadKeys x)) ]
@@ -476,14 +552,14 @@ myKeys x = foldr M.delete (newKeys x) (keysToDel x)
 
 
 myAdditionalKeys = [
-    ("<XF86AudioRaiseVolume>", spawn "~/.xmonad/scripts/volumeup")
-  , ("<XF86AudioLowerVolume>", spawn "~/.xmonad/scripts/volumedown")
-  , ("<XF86AudioMute>", spawn "~/.xmonad/scripts/volumemute")
+    ("<XF86AudioRaiseVolume>", spawn "pulsemixer --change-volume +5")
+  , ("<XF86AudioLowerVolume>", spawn "pulsemixer --change-volume -5")
+  , ("<XF86AudioMute>", spawn "pulsemixer --toggle-mute")
   , ("<XF86MonBrightnessUp>", spawn "~/.xmonad/scripts/brightness.sh up")
   , ("<XF86MonBrightnessDown>", spawn "~/.xmonad/scripts/brightness.sh down") ]
 
 myMouse x = [ ((lAltMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
-myMouseBindings x = M.union (mouseBindings defaultConfig x) (M.fromList (myMouse x))
+myMouseBindings x = M.union (mouseBindings def x) (M.fromList (myMouse x))
 
 myTerminal = "urxvt"
 
@@ -492,16 +568,19 @@ sBar = "xmobar"
 pp = case sBar of
   "xmobar" -> xmobarPP
 
-myXmobarMasterConfig = "~/.xmonad/xmobarmaster" ++ My.mySuffix
-myXmobarSlaveConfig = "~/.xmonad/xmobarslave" ++ My.mySuffix
+myXmobarMasterConfig = "~/.config/xmonad/xmobarmaster"
+myXmobarSlaveConfig = "~/.config/xmonad/xmobarslave"
 
-myStatusBar :: ScreenId -> IO Handle
-{-myStatusBar (S 0) = spawnPipe $ "xmobar -x 0 " ++ myXmobarSlaveConfig-}
-myStatusBar (S 3) = spawnPipe $ "xmobar -x 3 " ++ myXmobarMasterConfig
-myStatusBar (S s) = spawnPipe $ "xmobar -x " ++ show s ++ " " ++ myXmobarSlaveConfig
+myMasterScreen :: Int
+myMasterScreen = 0
 
-myStatusBarCleanup :: IO ()
-myStatusBarCleanup = return ()
+myXMobarCommand :: Int -> String
+myXMobarCommand s 
+  | s == myMasterScreen = "~/.cabal/bin/xmobar -x " ++ show s ++ " " ++ myXmobarMasterConfig
+  | otherwise           = "~/.cabal/bin/xmobar -x " ++ show s ++ " " ++ myXmobarSlaveConfig
+
+myStatusBar (S s) = statusBarPipe ("echo '" ++ myXMobarCommand s ++ "' >> ~/.xmobarlaunch && " ++ myXMobarCommand s ++ " &>> ~/.xmobarlaunch") $ (pure $ focusedScreenPP (S s))
+--myStatusBar (S s) = statusBarPipe ("~/read.sh") $ (pure $ focusedScreenPP (S s))
 
 myXPConfig = def {
     searchPredicate = fuzzyMatch
@@ -509,11 +588,10 @@ myXPConfig = def {
 
 myStartupHook = composeAll [
       setWMName "LG3D"
-    , dynStatusBarStartup myStatusBar myStatusBarCleanup
     , execScriptHook "start goobuntu-indicator"
     , execScriptHook "start notify-server"
     , execScriptHook "start screensaver"
-    , execScriptHook "start trayer"
+    , execScriptHook "restart trayer"
     , execScriptHook "start compton"
     , execScriptHook "start xmobarpipes"
     , execScriptHook "start run_google"
@@ -521,12 +599,13 @@ myStartupHook = composeAll [
     , execScriptHook "start drive"
     , execScriptHook "start feh"
     , execScriptHook "start synapse"
-    , execScriptHook "start blueman"
+    --, execScriptHook "start blueman"
     , execScriptHook "start speak"
     ]
 
-main = do
+main = 
     xmonad
+      $ dynamicSBs myStatusBar
       $ withUrgencyHook LibNotifyUrgencyHook
       $ ewmh
       $ docks
@@ -535,7 +614,7 @@ main = do
         , modMask = mod4Mask
         , normalBorderColor = "#000000"
         , focusedBorderColor = "#FF0000"
-        , borderWidth = 2
+        , borderWidth = 1
         , workspaces=myWorkspaces
         , mouseBindings = myMouseBindings
         , keys = myKeys

@@ -6,8 +6,10 @@
 ! Last Modified: 6 Sep 2014
 ! -----------------------------------------------------------------------------
 !
+!#define SOURCECODEPRO
 #define TERMINUS
 !#define UBUNTU
+!#define HIDPI
 
 #ifdef SRVR_goldfarb4
   #define MY_DPI 192
@@ -19,8 +21,8 @@
   #define MY_HINTSTYPE hintslight
   #define MY_LETTERSPACE 0
 #else
-  #ifdef TERMINUS
-    #define MY_DPI 96
+  #ifdef HIDPI
+    #define MY_DPI 192
     #define MY_FONT xft:Terminus:size=9,xft:Inconsolata\ for\ Powerline:size=9
     #define MY_BOLD_FONT xft:Terminus:size=9
     #define MY_ANTIALIAS true
@@ -28,6 +30,28 @@
     #define MY_HINTING true
     #define MY_HINTSTYPE hintslight
     #define MY_LETTERSPACE 0
+    #define MY_LINESPACE 0
+#else
+  #ifdef TERMINUS
+    #define MY_DPI 96
+    #define MY_FONT terminus-14
+    #define MY_BOLD_FONT terminus-bold-14
+    #define MY_ANTIALIAS true
+    #define MY_RGBA rgb
+    #define MY_HINTING true
+    #define MY_HINTSTYPE hintsfull
+    #define MY_LETTERSPACE 0
+    #define MY_LINESPACE 0
+#else
+  #ifdef SOURCECODEPRO
+    #define MY_DPI 96
+    #define MY_FONT xft:Source\ Code\ Pro\ Medium:size=10
+    #define MY_BOLD_FONT xft:Terminus:size=6
+    #define MY_ANTIALIAS true
+    #define MY_RGBA rgb
+    #define MY_HINTING true
+    #define MY_HINTSTYPE hintsfull
+    #define MY_LETTERSPACE -1
     #define MY_LINESPACE 0
   #else
     #ifdef UBUNTU
@@ -51,6 +75,8 @@
       #define MY_LINESPACE -5
     #endif
   #endif
+#endif
+#endif
 #endif
 
 ! hard contrast: *background: #1d2021
@@ -98,9 +124,9 @@ URxvt*scrollBar:  false
  Xft.hintstyle:  MYHINTSTYPE
 
 urxvt.font: MY_FONT
-urxvt.boldfont: MY_BOLD_FONT
+urxvt.boldFont: MY_BOLD_FONT
 URxvt*letterSpace: MY_LETTERSPACE
-URxvt*lineSpace: -50
+URxvt*lineSpace: MY_LINESPACE
 
 URxvt*modifier: mod1
 URxvt*meta8: false
@@ -133,7 +159,7 @@ URxvt*visualBell:   true
 
 
 urxvt*depth: 32
-urxvt*background: rgba:0000/0000/0200/3000
+urxvt*background: rgba:0000/0000/0200/aaaa
 
 
 

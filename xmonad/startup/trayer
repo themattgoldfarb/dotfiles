@@ -1,18 +1,22 @@
 #!/bin/bash
 
-echo 'trayer' >> $HOME/start.txt
+MASTER_SCREEN=$1
+[[ $MASTER_SCREEN = "" ]] && MASTER_SCREEN="primary"
 
-[[ $(pidof trayer) ]] || \
-  trayer \
-    --edge top \
-    --align right \
-    --SetDockType true \
-    --SetPartialStrut true \
-    --expand true \
-    --height 23 \
-    --widthtype pixel \
-    --width 256 \
-    --transparent true \
-    --alpha 0 \
-    --monitor 1 \
-    --tint 0x000000 &
+echo "starting on $MASTER_SCREEN" >> ~/trayerstart.txt
+[[ $(pidof trayer) ]] && kill -9 $(pidof trayer)
+echo "done"
+
+trayer \
+--edge top \
+--align right \
+--SetDockType true \
+--SetPartialStrut true \
+--expand true \
+--height 23 \
+--widthtype pixel \
+--width 256 \
+--transparent true \
+--alpha 0 \
+--monitor $MASTER_SCREEN \
+--tint 0x000000 &

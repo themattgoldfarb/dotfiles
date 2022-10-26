@@ -1,7 +1,8 @@
-Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
+Config { 
+      font = "xft:Terminus:size=10,dpi=192,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull"
     , bgColor = "black"
     , fgColor = "grey"
-    , position = Static { xpos = 0, ypos = 0, width=1720, height = 20}
+    , position = Top
     , lowerOnStart = False
     , allDesktops = True
     , commands = [
@@ -10,5 +11,5 @@ Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
     ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "%StdinReader% }{ %datetime%"
+    , template = "LS %StdinReader% }{ %datetime%"
 }

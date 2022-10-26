@@ -1,20 +1,17 @@
 #!/bin/bash
 
+
+
 SINK=`pactl list sinks | grep -B 1 "State: RUNNING" | grep "Sink" | awk '{print $2}'`
 
 [[ $SINK == "" ]] && SINK=0
 
-volume=`pactl list sinks | perl -000ne 'if(/'$SINK'/){/(Volume:.*)/; print "$1\n"}'`
-mute=`pactl list sinks | perl -000ne 'if(/'$SINK'/){/(Mute:.*)/; print "$1\n"}'`
+volume=`pulsemixer --get-volume | awk '{print $1}'`
+mute=`pulsemixer --get-mute`
 
-#echo "#####"
-#echo $volume
-#echo "#####"
-
-if [[ $mute = "Mute: yes" ]]
+if [[ $mute = 1 ]]
 then
   echo 'Muted'
 else
-  echo $volume | awk '{print $5}' | head -n 1
-  #pactl list sinks | grep "Volume: front" | awk '{print $5}' | head -n 1
+  echo "$volume%" 
 fi

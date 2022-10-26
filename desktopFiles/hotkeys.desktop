@@ -1,0 +1,9 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=hotkeys
+Exec=/usr/bin/google-chrome --class=hotkeyref --user-data-dir=/usr/local/google/home/goldfarb/.config/chromeprofile/hotkeyref --app="https://g3doc.corp.google.com/company/users/goldfarb/notes/hotkey_reference.md?cl=461000731"
+Icon=hotkey.png
+StartupWMClass=hotkeyref

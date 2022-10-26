@@ -30,5 +30,5 @@ Config {
     ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "%StdinReader% } { <fc=#777> Volume: %sound% | %cpu% | %memory% | %battery% | Brightness: %brightness% </fc>        %datetime%"
+    , template = "LM %StdinReader% } { <fc=#777> Volume: %sound% | %cpu% | %memory% | %battery% | Brightness: %brightness% </fc>        %datetime%"
 }

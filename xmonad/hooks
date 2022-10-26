@@ -1,14 +1,46 @@
 #!/bin/bash
-
-
+ 
 __run_hook() {
   hook=$1
+  params=${@:2}
+  echo "starting hook: $hook" >> ~/.startuplog
+  echo "     using params: $params" >> ~/.startuplog
 
-  [[ -e $hook ]] && [[ ! $(pgrep -f $hook) ]] && $hook &
+  if [[ -e $hook ]]; then
+    if [[ ! $(pgrep -f $hook) ]]; then
+      $hook $params &
+    else
+      echo "     hook is already running." >> ~/.startuplog
+
+    fi
+  else
+    echo "     hook does not exist!!!!!!" >> ~/.startuplog
+  fi
+}
+
+__run_restart() {
+  hook=$1
+  params=${@:2}
+  echo "restarting hook: $hook" >> ~/.startuplog
+  echo "     using params: $params" >> ~/.startuplog
+
+  if [[ -e $hook ]] ; then
+    if [[ $(pgrep -f $hook) ]]; then
+      echo "     killing hook." >> ~/.startuplog
+      kill -9 $(pgrep -f $hook)
+    fi
+   
+    $hook $params &
+  else
+    echo "     hook does not exist!!!!!!." >> ~/.startuplog
+  fi
 }
 
 case "$1" in
   start)
-    __run_hook ~/.xmonad/startup/$2
+    __run_hook ~/.config/xmonad/startup/$2 ${@:3}
+    ;;
+  restart)
+    __run_restart ~/.config/xmonad/startup/$2 ${@:3}
     ;;
 esac

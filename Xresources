@@ -6,8 +6,24 @@
 ! Last Modified: 6 Sep 2014
 ! -----------------------------------------------------------------------------
 !
-#define TERMINUS
+!#define SOURCECODEPRO
+!#define TERMINUS
+#define HIDPI
 !#define UBUNTU
+!#define goldbox
+!#define gruvbox
+#define gold2
+
+#ifdef goldbox
+  #include ".xres/goldbox"
+#endif 
+
+#ifdef gold2
+  #include ".xres/gold2"
+#endif
+#ifdef gruvbox
+  #include ".xres/gruvbox"
+#endif
 
 #ifdef SRVR_goldfarb4
   #define MY_DPI 192
@@ -19,15 +35,37 @@
   #define MY_HINTSTYPE hintslight
   #define MY_LETTERSPACE 0
 #else
-  #ifdef TERMINUS
-    #define MY_DPI 96
-    #define MY_FONT xft:Terminus:size=9,xft:Inconsolata\ for\ Powerline:size=9
-    #define MY_BOLD_FONT xft:Terminus:size=9
+  #ifdef HIDPI
+    #define MY_DPI 192
+    #define MY_FONT xft:Terminus:size=14,xft:Inconsolata\ for\ Powerline:size=9
+    #define MY_BOLD_FONT xft:Terminus:size=14
     #define MY_ANTIALIAS true
     #define MY_RGBA rgb
     #define MY_HINTING true
     #define MY_HINTSTYPE hintslight
     #define MY_LETTERSPACE 0
+    #define MY_LINESPACE 0
+#else
+  #ifdef TERMINUS
+    #define MY_DPI 96
+    #define MY_FONT terminus-14
+    #define MY_BOLD_FONT terminus-bold-14
+    #define MY_ANTIALIAS true
+    #define MY_RGBA rgb
+    #define MY_HINTING true
+    #define MY_HINTSTYPE hintsfull
+    #define MY_LETTERSPACE 0
+    #define MY_LINESPACE 0
+#else
+  #ifdef SOURCECODEPRO
+    #define MY_DPI 96
+    #define MY_FONT xft:Source\ Code\ Pro\ Medium:size=10
+    #define MY_BOLD_FONT xft:Terminus:size=6
+    #define MY_ANTIALIAS true
+    #define MY_RGBA rgb
+    #define MY_HINTING true
+    #define MY_HINTSTYPE hintsfull
+    #define MY_LETTERSPACE -1
     #define MY_LINESPACE 0
   #else
     #ifdef UBUNTU
@@ -52,35 +90,37 @@
     #endif
   #endif
 #endif
+#endif
+#endif
 
-! hard contrast: *background: #1d2021
-*background: #282828
-! soft contrast: *background: #32302f
-*foreground: #ebdbb2
-! Black + DarkGrey
-*color0:  #282828
-*color8:  #928374
-! DarkRed + Red
-*color1:  #cc241d
-*color9:  #fb4934
-! DarkGreen + Green
-*color2:  #98971a
-*color10: #b8bb26
-! DarkYellow + Yellow
-*color3:  #d79921
-*color11: #fabd2f
-! DarkBlue + Blue
-*color4:  #458588
-*color12: #83a598
-! DarkMagenta + Magenta
-*color5:  #b16286
-*color13: #d3869b
-! DarkCyan + Cyan
-*color6:  #689d6a
-*color14: #8ec07c
-! LightGrey + White
-*color7:  #a89984
-*color15: #ebdbb2
+!! hard contrast: *background: #1d2021
+!*background: #282828
+!! soft contrast: *background: #32302f
+!*foreground: #ebdbb2
+!! Black + DarkGrey
+!*color0:  #282828
+!*color8:  #1d2021
+!! DarkRed + Red
+!*color1:  #cc241d
+!*color9:  #fb4934
+!! DarkGreen + Green
+!*color2:  #98971a
+!*color10: #b8bb26
+!! DarkYellow + Yellow
+!*color3:  #d79921
+!*color11: #fabd2f
+!! DarkBlue + Blue
+!*color4:  #458588
+!*color12: #83a598
+!! DarkMagenta + Magenta
+!*color5:  #b16286
+!*color13: #d3869b
+!! DarkCyan + Cyan
+!*color6:  #689d6a
+!*color14: #8ec07c
+!! LightGrey + White
+!*color7:  #a89984
+!*color15: #ebdbb2
 
 URxvt*scrollBar:  false
 
@@ -98,9 +138,9 @@ URxvt*scrollBar:  false
  Xft.hintstyle:  MYHINTSTYPE
 
 urxvt.font: MY_FONT
-urxvt.boldfont: MY_BOLD_FONT
+urxvt.boldFont: MY_BOLD_FONT
 URxvt*letterSpace: MY_LETTERSPACE
-URxvt*lineSpace: -50
+URxvt*lineSpace: MY_LINESPACE
 
 URxvt*modifier: mod1
 URxvt*meta8: false
@@ -133,7 +173,7 @@ URxvt*visualBell:   true
 
 
 urxvt*depth: 32
-urxvt*background: rgba:0000/0000/0200/3000
+urxvt*background: rgba:0000/0000/0200/aaaa
 
 
 

@@ -1,17 +1,42 @@
 Config { 
-      font = "xft:Terminus:size=9,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull,FontAwesome:pixelsize=13"
+      font = "xft:Terminus:size=12,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull,FontAwesome:pixelsize=13"
     , bgColor = "black"
     , fgColor = "grey"
-    , position = TopW L 90
+    , position = TopW L 80
     , lowerOnStart = False
     , allDesktops = True
-    , commands = [
-	 Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
-   Run Volume "default" "Master" ["-t", " <volume>%<status>", "--", "--off", "muted", "--on", " "] 10,
-	 Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/getvolume" [ ] "sound"   5,
-	 Run StdinReader
-    ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "%StdinReader% }{<fc=#777>%sound%</fc> %datetime%"
+    , template = "%StdinReader%}{<fc=#777>V: %sound% | %cpu% | %memory% | %battery% </fc>  %datetime%"
+    , commands = [
+        Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
+
+        Run Cpu ["-t", "CPU: <total>%",    "-m", "2", "-L", "30"
+                 , "-l", "#aaa", "-n", "#eee", "-H", "90", "-h", "orange"
+        ] 10,
+        Run Com "/usr/local/google/home/goldfarb/.config/xmonad/scripts/getvolume" [ ] "sound"   5,
+        Run Memory ["-t", "Mem: <used> MiB", "-L", "32000", "-l", "#aaa", "-n", "orange",
+                    "-H", "48000", "-h", "red"
+        ] 10,
+        Run Battery [
+            "--template" , "Batt: <acstatus>"
+          , "--Low"      , "10"        -- units: %
+          , "--High"     , "80"        -- units: %
+          , "--low"      , "darkred"
+          , "--normal"   , "darkorange"
+          , "--high"     , "darkgreen"
+          , "--" -- battery specific options
+            -- discharging status
+            , "-o" , "<left>% (<timeleft>)"
+            -- AC "on" status
+            , "-O" , "<fc=#dAA520><left>% Chg</fc>"
+            -- charged status
+            , "-i" , "<fc=#006000>Charged</fc>"
+        ] 50,
+
+
+
+
+	Run StdinReader
+    ]
 }

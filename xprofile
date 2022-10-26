@@ -1,12 +1,14 @@
-xcompmgr &
+#!/bin/bash
 
-trayer --edge top --align right --SetDockType true --SetPartialStrut true  --expand true --widthtype pixel --width 200 --transparent true --tint 0x000000 --height 20 &
-parcellite &
-synapse &
-[[ -e $HOME/swap.sh ]] && $HOME/swap.sh
-
-[[ -e $HOME/wallpaper/spider-gwen.jpg ]] && \
-    feh --bg-scale ~/wallpaper/spider-gwen.jpg
-
-[[ -e /usr/share/goobuntu-indicator/goobuntu_indicator.py ]] && \
-    /usr/share/goobuntu-indicator/goobuntu_indicator.py &
+# xcompmgr &
+# 
+# trayer --edge top --align right --SetDockType true --SetPartialStrut true  --expand true --widthtype pixel --width 200 --transparent true --tint 0x000000 --height 20 &
+# parcellite &
+# synapse &
+#[[ -e $HOME/swap.sh ]] && $HOME/swap.sh
+## 
+#[[ -e $HOME/wallpaper/spidergwen.jpg ]] && \
+#    feh --bg-scale ~/wallpaper/spidergwen.jpg
+## 
+# [[ -e /usr/share/goobuntu-indicator/goobuntu_indicator.py ]] && \
+#     /usr/share/goobuntu-indicator/goobuntu_indicator.py &

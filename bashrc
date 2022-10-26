@@ -103,7 +103,11 @@ arrow_prompt=$'  \[\e[1m\]\u2192\[\e[0m\] '
 host="\h"
 if [ "$SSH_CLIENT" ] || [ "$SSH_TTY" ];
 then
-  host="\h"
+  if [[ $HOSTNAME = "goldfarb.c.googlers.com" ]] ; then
+    host="cloudtop"
+  else
+    host="\h"
+  fi
 else
   host="local"
 fi

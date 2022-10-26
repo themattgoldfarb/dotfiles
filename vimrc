@@ -124,9 +124,9 @@ Plug 'dense-analysis/ale'
 
 call AddPlugValues()
 
-if has('nvim')
-  Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
-endif
+"if has('nvim')
+  "Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
+"endif
 
 call plug#end()            " required
 filetype plugin indent on    " required

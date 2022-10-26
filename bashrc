@@ -100,7 +100,8 @@ fi
 
 arrow_prompt=$'  \[\e[1m\]\u2192\[\e[0m\] '
 
-if [ "$SSH_CLIENT"] || [ "$SSH_TTY" ];
+host="\h"
+if [ "$SSH_CLIENT" ] || [ "$SSH_TTY" ];
 then
   host="\h"
 else

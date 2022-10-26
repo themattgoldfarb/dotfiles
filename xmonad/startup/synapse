@@ -1,4 +1,5 @@
 #!/bin/bash
 
 [[ $(pidof synapse) ]] && killall synapse
+
 synapse -s

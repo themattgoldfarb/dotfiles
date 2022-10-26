@@ -4,6 +4,7 @@ import XMonad.Actions.Commands
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.TagWindows
 import XMonad.Config.Gnome
+import XMonad.Config.Mate
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicProperty
 import XMonad.Hooks.EwmhDesktops
@@ -56,7 +57,6 @@ import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.Scratchpad
-import XMonad.Util.NamedScratchpad
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.WindowProperties
 import XMonad.Util.WorkspaceCompare
@@ -200,7 +200,6 @@ myManageHook = manageHook def
   , stringProperty "WM_NAME" =? "modal" --> doFloat
   ]
   <+> manageDocks
-  <+> manageScratchPad
   <+> namedScratchpadManageHook scratchpads
   <+> xPropManageHook xPropMatches
 
@@ -345,6 +344,7 @@ logTitles2 ppFocus ppUnfocus =
   {-, ((rWinMask, xK_n), spawn "xdotool mousemove 1893 1125 click 1 mousemove restore")-}
 
 
+
 mySecondWorkspaceKeys x = [
     ((rWinMask,                 key  ), (windows $ W.greedyView ws))
     | (key,ws) <- mySecondWorkspaces
@@ -373,7 +373,7 @@ myGroupdWorkspaceKeys x = [
 
 myScreenNavKeys x = [
     ((m .|. lWinMask, key), screenWorkspace sc >>= flip whenJust (windows . f))
-        | (key, sc) <- zip [xK_w, xK_e, xK_r, xK_f] [3, 0, 2, 1]
+        | (key, sc) <- zip [xK_w, xK_e, xK_r, xK_f] [2, 0, 1, 3]
         , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]]
 
 
@@ -481,11 +481,11 @@ myBspKeys x = [
   , ((rWinMask .|. shiftMask,    xK_k ), onGroup W.focusUp' )
   , ((rWinMask .|. shiftMask,    xK_j ), onGroup W.focusDown' ) ]
 keysToAdd x = [
-    ((lWinMask .|. shiftMask, xK_s), spawn "$HOME/bin/snipit")
+    ((lWinMask .|. shiftMask, xK_s), spawn "snipit")
   , ((lAltMask .|. controlMask, xK_l), spawn "~/.xmonad/commands/lockscreen")
   , ((rWinMask, xK_f), spawn "~/.xmonad/commands/lock_mac")
   , ((lAltMask, xK_s), spawn "google-chrome http://sponge/lucky")
-  , ((lWinMask, xK_s), scratchpadSpawnActionTerminal "urxvt")
+  , ((lWinMask, xK_s), spawn "~/swap.sh swap")
   , ((lWinMask, xK_b), sendMessage ToggleStruts )
   , ((lWinMask, xK_z), spawn "rofi -show window")
   , ((lAltMask , xK_p), spawn "scrot window_%Y-%m-%d-%H-%M-%S.png -d 1 -u -e 'mv $f ~/Screenshots/'") ]
@@ -591,8 +591,8 @@ myStartupHook = composeAll [
     , execScriptHook "start goobuntu-indicator"
     , execScriptHook "start notify-server"
     , execScriptHook "start screensaver"
-    , execScriptHook "restart trayer"
-    , execScriptHook "start compton"
+    --, execScriptHook "restart trayer"
+    , execScriptHook "start picom"
     , execScriptHook "start xmobarpipes"
     , execScriptHook "start run_google"
     , execScriptHook "start keep_mac_awake"
@@ -604,12 +604,12 @@ myStartupHook = composeAll [
     ]
 
 main = 
-    xmonad
+    xmonad 
       $ dynamicSBs myStatusBar
       $ withUrgencyHook LibNotifyUrgencyHook
       $ ewmh
       $ docks
-      def {
+      $ mateConfig {
           layoutHook = myLayout
         , modMask = mod4Mask
         , normalBorderColor = "#000000"

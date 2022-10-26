@@ -4,8 +4,8 @@ SUFFIX="__desktop"
 [[ -e $HOME/.laptop ]] && SUFFIX="__laptop"
 
 DIR=~/dotfiles/xmonad # dotfiles directory
-OLD_DIR=~/xmonad_old # old dotfiles backup directory
-DEST_DIR=~/.xmonad
+OLD_DIR=~/.xmonad_old # old dotfiles backup directory
+DEST_DIR=~/.config/xmonad
 
 # list of files/folders to symlink in homedir
 files="xmonad.hs lib/ColorTheme.hs xmobarmaster_desktop xmobarslave_desktop \

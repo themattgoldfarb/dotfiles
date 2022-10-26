@@ -33,7 +33,7 @@
 /iconFiles/DEST=.icons
 
 
-/xmonad/DEST=.xmonad
+/xmonad/DEST=.config/xmonad
 !/xmonad/installlinks.sh
 
 $goldtop/xmonad/xmobarslave_laptop->xmobarslave

@@ -3,7 +3,7 @@
 Version=1.0
 Terminal=false
 Type=Application
-Name=Inbox
-Exec=/usr/bin/google-chrome --app="https://inbox.google.com/u/0/"
-Icon=inbox.png
-StartupWMClass=play.google.com__music_listen
+Name=Gmail - Direct to Me
+Exec=/usr/bin/google-chrome --profile-directory=Default --app="http://go/direct-to-me-goldfarb-google.com-google.com-mail" 
+Icon=chrome-fmgjjmmmlfnkbppncabfkddbjimcfncm-Default
+StartupWMClass=mail.google.com

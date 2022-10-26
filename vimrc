@@ -44,11 +44,13 @@ else
   source ~/.vimrc_home
 endif
 
+
 colorscheme elflord
 
 set nu  " show line numbers
 set so=5  " scroll offset
 set ignorecase  " make search case insensitive
+set tabstop=2
 filetype off                  " required
 
 au FocusGained,BufEnter,CursorHold * checktime

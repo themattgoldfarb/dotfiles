@@ -43,11 +43,13 @@ echo $level > $sysfs/brightness
 case "$1" in
   up)
     let "level+=100"
-    set_brightness $level 
+    brightnessctl s 5%+
+    # set_brightness $level 
     ;;
   down)
     let "level-=100"
-    set_brightness $level 
+    brightnessctl s 5%-
+    # set_brightness $level 
     ;;
   print)
     printf "%0.0f%%\n" `echo "$level * 100 / $max" | bc -l`

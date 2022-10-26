@@ -1,5 +1,5 @@
 Config { 
-      font = "xft:Terminus:size=9,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull,FontAwesome:pixelsize=13"
+      font = "xft:Terminus:size=12,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull,FontAwesome:pixelsize=13"
     , bgColor = "black"
     , fgColor = "grey"
     , position = Top
@@ -11,22 +11,21 @@ Config {
 	 Run Memory        ["-t", "\xf268 <usedratio>%-<used>MiB",             "-L", "32000", "-l", "#aaa", "-n", "orange", "-H", "48000", "-h", "red"   ] 10,
    Run PipeReader "/tmp/xmobar_pipe" "pipe",
    Run PipeReader "/tmp/xmobar_google" "googlepipe",
-   Run Volume "default" "Master" ["-t", " <volume>%<status>", "--", "--off", "muted", "--on", " "] 10,
 	 Run Date "%A %Y.%m.%d %H:%M:%S" "datetime"  10,
-	 Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/getvolume" [ ] "sound"   5,
-   Run Com "/usr/local/google/home/goldfarb/.xmonad/scripts/google" [ "certificates"     ] "g_crt" 2400,
-	 Run StdinReader
+	 Run Com "/usr/local/google/home/goldfarb/.config/xmonad/scripts/getvolume" [ ] "sound"   5,
+   Run Com "/usr/local/google/home/goldfarb/.config/xmonad/scripts/google" [ "certificates"     ] "g_crt" 2400,
+         Run StdinReader
     ]
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "<action=`/usr/local/google/home/goldfarb/.xmonad/scripts/google --report`>[G]</action>\
+    , template = "<action=`/usr/local/google/home/goldfarb/.config/xmonad/scripts/google --report`>[G]</action>\
         \%googlepipe%\
         \%StdinReader%\
         \}{\
         \<fc=#777>\
-        \<action=`/usr/local/google/home/goldfarb/.xmonad/scripts/volumedown`> </action>\
-        \<action=`/usr/local/google/home/goldfarb/.xmonad/scripts/volumemute`>%sound%</action>\
-        \<action=`/usr/local/google/home/goldfarb/.xmonad/scripts/volumeup`> </action>\
+        \<action=`/usr/local/google/home/goldfarb/.config/xmonad/scripts/volumedown`>[-]</action>\
+        \<action=`/usr/local/google/home/goldfarb/.config/xmonad/scripts/volumemute`>%sound%</action>\
+        \<action=`/usr/local/google/home/goldfarb/.config/xmonad/scripts/volumeup`>[+]</action>\
         \</fc>\
         \<fc=#777> | %multicpu% | %memory%</fc>\
         \    \

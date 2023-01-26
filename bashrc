@@ -27,7 +27,7 @@ BWHT="\[\033[47m\]" # background white
 # If not running interactively, don't do anything
 case $- in
     *i*) ;;
-      *) exit;;
+      *) return;;
 esac
 
 #PROMPT_COMMAND=prompt_command

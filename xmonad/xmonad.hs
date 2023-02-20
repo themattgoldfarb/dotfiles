@@ -34,7 +34,6 @@ import XMonad.Layout.MosaicAlt
 import XMonad.Layout.MouseResizableTile
 import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
-import XMonad.Layout.PerScreenLocation
 import XMonad.Layout.Reflect
 import XMonad.Layout.Renamed
 import XMonad.Layout.Spacing
@@ -66,7 +65,6 @@ import qualified Data.Map as M
 import qualified XMonad.Actions.FlexibleResize as Flex
 import qualified XMonad.StackSet as W
 import qualified ColorTheme as Sol
-import qualified MyConfig as My
 
 import Control.Monad (when, liftM, sequence)
 import Data.List (intercalate, isInfixOf)
@@ -105,7 +103,7 @@ defaultLayouts = ( windowNavigation (
   onWorkspaces ["main", "main2"] (tbsp) $
   onWorkspaces ["term", "pterm"] (tiled ||| tabbed) $
   onWorkspaces ["ide"] (tiled ||| tabbed) $
-  smarttiled ||| tiled ||| rtiled ||| mtiled ||| tabbed ||| tbsp ||| sgrid))
+  tiled ||| rtiled ||| mtiled ||| tabbed ||| tbsp ||| sgrid))
   where
     tabbed = renamed [Replace "tabbed"] $ simpleTabbed
     mos = MosaicAlt M.empty
@@ -113,7 +111,6 @@ defaultLayouts = ( windowNavigation (
     spaced = renamed [Replace "spaced"] $ spacingRaw True (Border 20 20 20 20) True (Border 20 20 20 20) True $ grid
     mtiled = renamed [Replace "mtiled"] $ Mirror tiled
     tiled  = renamed [Replace "tiled"] $ Tall 1 0.03 0.5
-    smarttiled = renamed [Replace "smart"] $ ifRightOf 1 tiled rtiled
     grid = renamed [Replace "grid"] $ GridRatio (0.5)
     hgrid = GridRatio (0.4)
     bsp = renamed [Replace "bsp"] $ BSP.emptyBSP
@@ -301,9 +298,7 @@ focusedScreenPP s = filterOutWsPP [scratchpadWorkspaceTag] $ xmobarPP {
     , ppHiddenNoWindows = const ""
 }
 
-mySpace =
-    if My.mySuffix == "__laptop" then 60
-    else 320
+mySpace = 320
 
 translateWindow :: String -> String
 translateWindow name =
@@ -576,8 +571,8 @@ myMasterScreen = 0
 
 myXMobarCommand :: Int -> String
 myXMobarCommand s 
-  | s == myMasterScreen = "~/.cabal/bin/xmobar -x " ++ show s ++ " " ++ myXmobarMasterConfig
-  | otherwise           = "~/.cabal/bin/xmobar -x " ++ show s ++ " " ++ myXmobarSlaveConfig
+  | s == myMasterScreen = "xmobar -x " ++ show s ++ " " ++ myXmobarMasterConfig
+  | otherwise           = "xmobar -x " ++ show s ++ " " ++ myXmobarSlaveConfig
 
 myStatusBar (S s) = statusBarPipe ("echo '" ++ myXMobarCommand s ++ "' >> ~/.xmobarlaunch && " ++ myXMobarCommand s ++ " &>> ~/.xmobarlaunch") $ (pure $ focusedScreenPP (S s))
 --myStatusBar (S s) = statusBarPipe ("~/read.sh") $ (pure $ focusedScreenPP (S s))
@@ -591,7 +586,6 @@ myStartupHook = composeAll [
     , execScriptHook "start goobuntu-indicator"
     , execScriptHook "start notify-server"
     , execScriptHook "start screensaver"
-    --, execScriptHook "restart trayer"
     , execScriptHook "start picom"
     , execScriptHook "start xmobarpipes"
     , execScriptHook "start run_google"

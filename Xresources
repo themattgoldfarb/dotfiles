@@ -7,12 +7,12 @@
 ! -----------------------------------------------------------------------------
 !
 !#define SOURCECODEPRO
-!#define TERMINUS
-#define HIDPI
+#define TERMINUS
+!#define HIDPI
 !#define UBUNTU
-!#define goldbox
+#define goldbox
 !#define gruvbox
-#define gold2
+!#define gold2
 
 #ifdef goldbox
   #include ".xres/goldbox"
@@ -27,8 +27,8 @@
 
 #ifdef SRVR_goldfarb4
   #define MY_DPI 192
-  #define MY_FONT xft:Terminus:size=8
-  #define MY_BOLD_FONT xft:Terminus-Bold:size=8
+  #define MY_FONT xft:Ubuntu\ Mono:size=8
+  #define MY_BOLD_FONT xft:Ubuntu\ Mono:style=Bold:size=8
   #define MY_ANTIALIAS true
   #define MY_RGBA rgb
   #define MY_HINTING true
@@ -37,8 +37,8 @@
 #else
   #ifdef HIDPI
     #define MY_DPI 192
-    #define MY_FONT xft:Terminus:size=14,xft:Inconsolata\ for\ Powerline:size=9
-    #define MY_BOLD_FONT xft:Terminus:size=14
+    #define MY_FONT xft:Ubuntu\ Mono:size=14
+    #define MY_BOLD_FONT xft:Ubuntu\ Mono:size=14
     #define MY_ANTIALIAS true
     #define MY_RGBA rgb
     #define MY_HINTING true
@@ -48,8 +48,8 @@
 #else
   #ifdef TERMINUS
     #define MY_DPI 96
-    #define MY_FONT terminus-14
-    #define MY_BOLD_FONT terminus-bold-14
+    #define MY_FONT xft:Ubuntu\ Mono:size=14,xft:Inconsolata\ for\ Powerline:size=9
+    #define MY_BOLD_FONT xft:Ubuntu\ Mono:size=14
     #define MY_ANTIALIAS true
     #define MY_RGBA rgb
     #define MY_HINTING true
@@ -60,7 +60,7 @@
   #ifdef SOURCECODEPRO
     #define MY_DPI 96
     #define MY_FONT xft:Source\ Code\ Pro\ Medium:size=10
-    #define MY_BOLD_FONT xft:Terminus:size=6
+    #define MY_BOLD_FONT xft:Ubuntu\ Mono:size=6
     #define MY_ANTIALIAS true
     #define MY_RGBA rgb
     #define MY_HINTING true
@@ -178,8 +178,8 @@ urxvt*background: rgba:0000/0000/0200/aaaa
 
 
 
-scratchpad.font: xft:Terminus:size=9
-scratchpad.boldfont: xft:Terminus-Bold:size=9
+scratchpad.font: xft:Ubuntu\ Mono:size=9
+scratchpad.boldfont: xft:Ubuntu\ Mono-Bold:size=9
 scratchpad*letterSpace: 0
 
 scratchpad.perl-lib: /usr/lib/urxvt/perl/

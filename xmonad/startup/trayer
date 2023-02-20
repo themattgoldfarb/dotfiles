@@ -13,7 +13,7 @@ trayer \
 --SetDockType true \
 --SetPartialStrut true \
 --expand true \
---height 23 \
+--height 26 \
 --widthtype pixel \
 --width 256 \
 --transparent true \

@@ -34,6 +34,8 @@ export ANDROID_SDK_HOME=/google/data/ro/teams/mobile_eng_prod/android_sdk_linux
 export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
 export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
 
+export ASPNETCORE_ENVIRONMENT=Development
+
 export _JAVA_AWT_WM_NONREPARENTING=1
 
 if [ -n "$DISPLAY" ] ; then export G4MULTIDIFF=1 ; fi

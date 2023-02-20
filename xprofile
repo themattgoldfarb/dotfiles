@@ -12,3 +12,5 @@
 ## 
 # [[ -e /usr/share/goobuntu-indicator/goobuntu_indicator.py ]] && \
 #     /usr/share/goobuntu-indicator/goobuntu_indicator.py &
+
+xrdb -merge ~/.Xresources

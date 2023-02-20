@@ -49,5 +49,7 @@ $goldfarb/xmonad/lib/MyConfig.hs__desktop->xmobarmaster->MyConfig.hs
 !/otherFiles/WindowPropertiesRE.hs
 /bash_files/DEST=.bash_files
 
+/xres/DEST=.xres
+
 
 

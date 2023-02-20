@@ -38,12 +38,13 @@ endfunction
 
 
 
-if filereadable(expand('~/.at_work'))
+if filereadable(expand('~/.vimrc_work'))
   source ~/.vimrc_work
-else
-  source ~/.vimrc_home
 endif
 
+if filereadable(expand('~/.vimrc_home'))
+  source ~/.vimrc_home
+endif
 
 colorscheme elflord
 
@@ -56,6 +57,8 @@ filetype off                  " required
 au FocusGained,BufEnter,CursorHold * checktime
 
 call plug#begin('~/vim.plugged')
+
+Plug 'maxmellon/vim-jsx-pretty'
 
 Plug 'gmarik/Vundle.vim'
 
@@ -123,6 +126,10 @@ Plug 'tmux-plugins/vim-tmux'
 Plug 'nanotech/jellybeans.vim'
 
 Plug 'dense-analysis/ale'
+
+Plug 'OmniSharp/omnisharp-vim'
+
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 call AddPlugValues()
 

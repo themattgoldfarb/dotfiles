@@ -6,7 +6,7 @@
 ## Install XMonad and XMobar using cabal
 ### Install Dependencies
 ```
-sudo apt install libx11-dev libxft-dev libxinerama-dev libxrandr-dev libxss-dev
+sudo apt install libx11-dev libxft-dev libxinerama-dev libxrandr-dev libxss-dev libxpm-dev
 ```
 
 ### Install cabal
@@ -17,7 +17,7 @@ sudo apt install cabal-install
 ### Install XMonad and XMobar
 ```
 cabal update
-cabal install --lib xmonad 
+cabal install xmonad 
 cabal install --lib xmonad-contrib
 cabal install xmobar --flags="all_extensions" --overwrite-policy=always
 ```

@@ -2,7 +2,7 @@ Config {
       font = "xft:Terminus:size=13,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull,FontAwesome:pixelsize=16"
     , bgColor = "black"
     , fgColor = "white"
-    , position = TopHM 32 0 0 0 0
+    , position = TopP 0 200
     , lowerOnStart = False
     , allDesktops = True
     , sepChar = "%"

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-MASTER_SCREEN=$1
-[[ $MASTER_SCREEN = "" ]] && MASTER_SCREEN="primary"
+PRIMARY_SCREEN=$1
+[[ $PRIMARY_SCREEN = "" ]] && PRIMARY_SCREEN="primary"
 
-echo "starting on $MASTER_SCREEN" >> ~/trayerstart.txt
+echo "starting on $PRIMARY_SCREEN" >> ~/trayerstart.txt
 [[ $(pidof trayer) ]] && kill -9 $(pidof trayer)
 echo "done"
 
@@ -13,10 +13,10 @@ trayer \
 --SetDockType true \
 --SetPartialStrut true \
 --expand true \
---height 26 \
+--height 30 \
 --widthtype pixel \
---width 256 \
+--width 200 \
 --transparent true \
 --alpha 0 \
---monitor $MASTER_SCREEN \
+--monitor $PRIMARY_SCREEN \
 --tint 0x000000 &

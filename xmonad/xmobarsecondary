@@ -1,0 +1,34 @@
+Config { 
+      font = "xft:Terminus:size=13,rgba=rgb,style=regular,hinting=true,antialias=true,hintstyle=hintfull,FontAwesome:pixelsize=16"
+    , bgColor = "black"
+    , fgColor = "white"
+    , position = Top
+    , lowerOnStart = False
+    , allDesktops = True
+    , sepChar = "%"
+    , alignSep = "}{"
+    , template = "%StdinReader%}<fc=#777> %alsa:default:Master% | %multicpu% | %memory%</fc>{%datetime%"
+    , commands = [
+        Run Alsa "default" "Master" [
+            "--template", " <volume>%"
+        ],
+        Run Date "%A %Y-%m-%d %H:%M:%S" "datetime"  10,
+        Run Memory [
+            "-t", "\xf268 <usedratio>%-<used>MiB",
+            "-L", "32000",
+            "-l", "#aaa",
+            "-n", "orange",
+            "-H", "48000",
+            "-h", "red"] 10,
+        Run MultiCpu [
+            "-t", " <total>%",
+            "-m", "2",
+            "-L", "30",
+            "-l", "#aaa",
+            "-n", "#eee",
+            "-H", "90",
+            "-h", "orange"] 10,
+        Run StdinReader
+    ]
+
+}

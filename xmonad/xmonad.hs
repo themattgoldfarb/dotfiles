@@ -3,6 +3,7 @@ import XMonad.Actions.WorkspaceNames
 import XMonad.Actions.Commands
 import XMonad.Actions.CopyWindow
 import XMonad.Actions.TagWindows
+import XMonad.Config
 import XMonad.Config.Gnome
 import XMonad.Config.Mate
 import XMonad.Hooks.DynamicLog
@@ -563,19 +564,18 @@ sBar = "xmobar"
 pp = case sBar of
   "xmobar" -> xmobarPP
 
-myXmobarMasterConfig = "~/.config/xmonad/xmobarmaster"
-myXmobarSlaveConfig = "~/.config/xmonad/xmobarslave"
+myXmobarPrimaryConfig = "~/.config/xmonad/xmobarprimary"
+myXmobarSecondaryConfig = "~/.config/xmonad/xmobarsecondary"
 
-myMasterScreen :: Int
-myMasterScreen = 0
+myPrimaryScreen :: Int
+myPrimaryScreen = 0
 
 myXMobarCommand :: Int -> String
 myXMobarCommand s 
-  | s == myMasterScreen = "xmobar -x " ++ show s ++ " " ++ myXmobarMasterConfig
-  | otherwise           = "xmobar -x " ++ show s ++ " " ++ myXmobarSlaveConfig
+  | s == myPrimaryScreen = "xmobar -x " ++ show s ++ " " ++ myXmobarPrimaryConfig
+  | otherwise           = "xmobar -x " ++ show s ++ " " ++ myXmobarSecondaryConfig
 
-myStatusBar (S s) = statusBarPipe ("echo '" ++ myXMobarCommand s ++ "' >> ~/.xmobarlaunch && " ++ myXMobarCommand s ++ " &>> ~/.xmobarlaunch") $ (pure $ focusedScreenPP (S s))
---myStatusBar (S s) = statusBarPipe ("~/read.sh") $ (pure $ focusedScreenPP (S s))
+myStatusBar (S s) = statusBarPipe (myXMobarCommand s) $ (pure $ focusedScreenPP (S s))
 
 myXPConfig = def {
     searchPredicate = fuzzyMatch
@@ -583,18 +583,16 @@ myXPConfig = def {
 
 myStartupHook = composeAll [
       setWMName "LG3D"
-    , execScriptHook "start goobuntu-indicator"
-    , execScriptHook "start notify-server"
-    , execScriptHook "start screensaver"
-    , execScriptHook "start picom"
-    , execScriptHook "start xmobarpipes"
-    , execScriptHook "start run_google"
-    , execScriptHook "start keep_mac_awake"
-    , execScriptHook "start drive"
+    --, execScriptHook "start screensaver"
+    --, execScriptHook "start picom"
+    --, execScriptHook "start xmobarpipes"
+    --, execScriptHook "start drive"
     , execScriptHook "start feh"
+    , execScriptHook "start notify-server"
     , execScriptHook "start synapse"
+    , execScriptHook "start trayer"
     --, execScriptHook "start blueman"
-    , execScriptHook "start speak"
+    --, execScriptHook "start speak"
     ]
 
 main = 
@@ -603,7 +601,7 @@ main =
       $ withUrgencyHook LibNotifyUrgencyHook
       $ ewmh
       $ docks
-      $ mateConfig {
+      $ def {
           layoutHook = myLayout
         , modMask = mod4Mask
         , normalBorderColor = "#000000"

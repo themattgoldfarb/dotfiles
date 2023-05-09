@@ -13,7 +13,6 @@ __laptop() {
   xmodmap -e "keycode 66 = Escape NoSymbol Escape"   
   [[ -e $DESKTOP_FILE ]] && rm $DESKTOP_FILE
 
-  xrdb -merge "$HOME/.xres/hidpi.xres"
 }
 
 __desktop() {
@@ -27,7 +26,6 @@ __desktop() {
   xmodmap -e "keycode 9 = Escape NoSymbol Escape"   
   [[ ! -e $DESKTOP_FILE ]] && touch $DESKTOP_FILE
 
-  xrdb -merge "$HOME/.xres/lowdpi.xres"
 }
 
 

@@ -1,7 +1,8 @@
 ## Stuff to install
 * Font Awesome - Used for icons in my XMobar config
-  * sudo apt install fonts-font-awesome
-* 
+```
+  sudo apt install fonts-font-awesome
+```
 
 ## Install XMonad and XMobar using cabal
 ### Install Dependencies

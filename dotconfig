@@ -10,7 +10,6 @@
 !installlinks.sh
 !installstuff.sh
 
-
 /home/DEST=
 /home/.ideavimrc
 /home/.Xresources
@@ -28,7 +27,6 @@
 
 /desktopFiles/DEST=.local/share/applications
 
-
 /bash_files/DEST=installCfg
 /bash_files/tmp5
 /bash_files/tmp
@@ -40,20 +38,13 @@
 /bash_files/tmp3
 /bash_files/dotconfig
 
-
-
 /iconFiles/DEST=.icons
-
 
 /xmonad/DEST=.config/xmonad
 !/xmonad/installlinks.sh
-
-
-
 
 /bash_files/DEST=.bash_files
 
 /xres/DEST=.xres
 
-
-
+/nvimlua/DEST=.config/nvim/luascripts

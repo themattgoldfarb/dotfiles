@@ -418,8 +418,8 @@ myWindowNavKeys x = [
   , ((rAltMask .|. lWinMask,    xK_k ), onGroup W.focusUp' )
   , ((rAltMask,                 xK_s ), sendMessage $ SwapWindow)
   , ((rAltMask .|. lWinMask,    xK_j ), onGroup W.focusDown' )
-  , ((lWinMask,                 xK_d ), spawn "~/.xmonad/scripts/focusMouse.sh")
-  , ((rWinMask,                 xK_d ), spawn "~/.xmonad/scripts/focusMouse.sh")
+  , ((lWinMask,                 xK_d ), spawn "~/.config/xmonad/scripts/focusMouse.sh")
+  , ((rWinMask,                 xK_d ), spawn "~/.config/xmonad/scripts/focusMouse.sh")
   , ((rWinMask .|. rAltMask,    xK_s ), layoutSplitScreen 2 (TwoPane 0.8 0.2))
   , ((rWinMask .|. rAltMask .|. shiftMask,    xK_s ), rescreen) ]
 
@@ -478,8 +478,7 @@ myBspKeys x = [
   , ((rWinMask .|. shiftMask,    xK_j ), onGroup W.focusDown' ) ]
 keysToAdd x = [
     ((lWinMask .|. shiftMask, xK_s), spawn "snipit")
-  , ((lAltMask .|. controlMask, xK_l), spawn "~/.xmonad/commands/lockscreen")
-  , ((rWinMask, xK_f), spawn "~/.xmonad/commands/lock_mac")
+  , ((lAltMask .|. controlMask, xK_l), spawn "~/.config/xmonad/commands/lockscreen")
   , ((lAltMask, xK_s), spawn "google-chrome http://sponge/lucky")
   , ((lWinMask, xK_s), spawn "~/swap.sh swap")
   , ((lWinMask, xK_b), sendMessage ToggleStruts )
@@ -498,8 +497,8 @@ scratchpadKeys x = [
   , ((lWinMask .|. controlMask, xK_d), namedScratchpadAction scratchpads "chat")
   , ((lWinMask .|. controlMask, xK_c), namedScratchpadAction scratchpads "calendar") ]
 promptKeys x = [
-   ((lWinMask,                 xK_g),  spawn "$HOME/.xmonad/scripts/gmail.sh --xmonad" )
-  ,((lWinMask,                 xK_u),  spawn "$HOME/.xmonad/scripts/gmail.sh --xmonad unread" ) ]
+   ((lWinMask,                 xK_g),  spawn "$HOME/.config/xmonad/scripts/gmail.sh --xmonad" )
+  ,((lWinMask,                 xK_u),  spawn "$HOME/.config/xmonad/scripts/gmail.sh --xmonad unread" ) ]
   {-, ((lWinMask,                 xK_g), spawn (runProcessWithInput "~/.xmonad/scripts/gmail.sh" ["--list"] ""))-}
   {-, ((lWinMask,                 xK_g),  gmailPrompt [("asdf", spawn "ls")] myXPConfig ) ]-}
 
@@ -551,8 +550,8 @@ myAdditionalKeys = [
     ("<XF86AudioRaiseVolume>", spawn "pulsemixer --change-volume +5")
   , ("<XF86AudioLowerVolume>", spawn "pulsemixer --change-volume -5")
   , ("<XF86AudioMute>", spawn "pulsemixer --toggle-mute")
-  , ("<XF86MonBrightnessUp>", spawn "~/.xmonad/scripts/brightness.sh up")
-  , ("<XF86MonBrightnessDown>", spawn "~/.xmonad/scripts/brightness.sh down") ]
+  , ("<XF86MonBrightnessUp>", spawn "~/.config/xmonad/scripts/brightness.sh up")
+  , ("<XF86MonBrightnessDown>", spawn "~/.config/xmonad/scripts/brightness.sh down") ]
 
 myMouse x = [ ((lAltMask, button3), (\w -> focus w >> Flex.mouseResizeWindow w)) ]
 myMouseBindings x = M.union (mouseBindings def x) (M.fromList (myMouse x))

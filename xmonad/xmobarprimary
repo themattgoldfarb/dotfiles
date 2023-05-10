@@ -7,11 +7,16 @@ Config {
     , allDesktops = True
     , sepChar = "%"
     , alignSep = "}{"
-    , template = "%StdinReader%}{<fc=#777> %alsa:default:Master% | %multicpu% | %memory% | %battery% </fc>  %datetime%"
+    , template = "%StdinReader%}{<fc=#777> \
+    \ %bright% |  %alsa:default:Master% | %multicpu% | %memory% | %battery% </fc> \
+    \%datetime%"
     , commands = [
         Run Alsa "default" "Master" [
-            "--template", " <volume>%"
+            "--template", "<volume>%"
         ],
+        Run Brightness [
+          "-t", "<percent>%", "--", "-D", "intel_backlight"
+        ] 20,
         Run Date "%A %Y-%m-%d %H:%M:%S" "datetime"  10,
         Run Memory [
            "-t", "\xf268 <usedratio>%-<used>MiB",

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-echo drive-sync >> $HOME/start.txt
-
-[[ $(pidof drive-sync) ]] || \
-  opt/google/drive/drive-launcher.sh &
-

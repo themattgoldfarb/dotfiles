@@ -1,3 +1,0 @@
-#!/bin/bash
-
-[[ $(pidof compton) ]] || compton --daemon --backend glx --paint-on-overlay --mark-ovredir-focused

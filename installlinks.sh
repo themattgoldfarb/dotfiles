@@ -5,10 +5,10 @@ OLD_DIR=~/dotfiles_old/             # old dotfiles backup directory
 DEST_DIR=~/
 BASE_DIR=~/
 
+DEBUG=1
+NOMOVE=0
+
 ROOT="$DIR"
-
-FILES=$(find * | grep -v "installlinks.sh")
-
 
 ## list of files/folders to symlink in homedir
 #files="calendar.desktop cool-retro-term.desktop \
@@ -18,7 +18,14 @@ FILES=$(find * | grep -v "installlinks.sh")
 
 FILES=()
 
-sleep 1
+
+__log() {
+  [[ DEBUG -eq 1 ]] && echo $@
+}
+
+__logn() {
+  [[ DEBUG -eq 1 ]] && echo -n $@
+}
 
 __move_file() {
   file=$1
@@ -33,17 +40,17 @@ __move_file() {
   [[ $bkp_dir =~ /$ ]] && bkp_dir=${bkp_dir%/}
   [[ $base_dir =~ /$ ]] && dir=${dir%/}
 
-  echo -n "  $dir/$file -> $dest_dir/$target..."
-  mkdir -p $dest_dir
-  mkdir -p $bkp_dir
+  __logn "  $dir/$file -> $dest_dir/$target..."
+  [[ $NOMOVE -eq 0 ]] && mkdir -p $dest_dir
+  [[ $NOMOVE -eq 0 ]] && mkdir -p $bkp_dir
   if [[ -e "$dest_dir/$target" || -L "$dest_dir/$target" ]] ; then
-    printf " moving..." \
-      "$target" "$dest_dir" "$bkp_dir"
-    mv $dest_dir/$target $bkp_dir/$target
-    echo -n "moved..."
+    __logn "moving..." 
+ 
+  [[ $NOMOVE -eq 0 ]] && mv $dest_dir/$target $bkp_dir/$target
+    __logn "moved..."
   fi
-  ln -s $dir/$file $dest_dir/$target
-  echo " done."
+  [[ $NOMOVE -eq 0 ]] && ln -s $dir/$file $dest_dir/$target
+  __log " done."
 }
 
 
@@ -63,9 +70,9 @@ base_dir=${5:-$BASE_DIR}
 diff=${dir:${#root}}
 
 # change to the dotfiles directory
-echo -n "Changing to the $dir directory ..."
+__logn "Changing to the $dir directory ..."
 cd $dir
-echo "done"
+__log "done"
 
 
 excludes=("dotconfig")
@@ -75,6 +82,7 @@ host=$(hostname | sed 's,\..*,,')
 
 [[ -e "$root/dotconfig" ]] && \
 while IFS='' read -r line || [[ -n "$line" ]]; do
+  [[ "$line" =~ ^# ]] && continue
 
   if [[ "$line" =~ ^[$] ]] ; then
     line_host=$(echo $line | sed 's,[!/].*,,')
@@ -140,9 +148,7 @@ done
 directories=$(find . -maxdepth 1 -type d -not -path '*/\.*' -printf "%f\n")
 for directory in $directories ; do
   if [[ $directory != "." ]] ; then
-    #echo "-->running...."
     $root/installlinks.sh "$dir/$directory" "$bkp_dir/$directory" "$dest_dir/$directory" "$root" "$dest_dir"
-    #echo "-->done running "
 
   fi
 done

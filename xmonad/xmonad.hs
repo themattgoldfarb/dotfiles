@@ -584,15 +584,13 @@ myXPConfig = def {
 myStartupHook = composeAll [
       setWMName "LG3D"
     --, execScriptHook "start screensaver"
-    --, execScriptHook "start picom"
     --, execScriptHook "start xmobarpipes"
     --, execScriptHook "start drive"
     , execScriptHook "start feh"
     , execScriptHook "start notify-server"
     , execScriptHook "start synapse"
     , execScriptHook "start trayer"
-    --, execScriptHook "start blueman"
-    --, execScriptHook "start speak"
+    , execScriptHook "start blueman"
     ]
 
 main = 

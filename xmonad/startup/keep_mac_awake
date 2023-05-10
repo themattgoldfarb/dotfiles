@@ -1,8 +1,0 @@
-#!/bin/bash
-
-while true; do
-  xdotool key super+alt+shift+End
-  echo 'tab'
-  sleep 480
-done
-

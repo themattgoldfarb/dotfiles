@@ -3,14 +3,19 @@
 DESKTOP_FILE="$HOME/.localenv/keydesktop"
 
 __laptop() {
+
   xmodmap -e "keycode 66 = Caps_Lock NoSymbol Caps_Lock" 
   xmodmap -e "keycode 9 = Escape NoSymbol Escape"   
   
   xmodmap -e "remove Lock = Caps_Lock"
+  xmodmap -e "keysym Escape = Caps_Lock"
   xmodmap -e "keysym Caps_Lock = Escape"
+  xmodmap -e "add Lock = Caps_Lock"
   
   xmodmap -e "keycode 9 = Caps_Lock NoSymbol Caps_Lock" 
   xmodmap -e "keycode 66 = Escape NoSymbol Escape"   
+
+
   [[ -e $DESKTOP_FILE ]] && rm $DESKTOP_FILE
 
 }

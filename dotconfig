@@ -9,6 +9,7 @@
 
 !installlinks.sh
 !installstuff.sh
+!sessions
 
 /home/DEST=
 /home/.ideavimrc

@@ -146,9 +146,19 @@ done
 
 
 directories=$(find . -maxdepth 1 -type d -not -path '*/\.*' -printf "%f\n")
-for directory in $directories ; do
-  if [[ $directory != "." ]] ; then
-    $root/installlinks.sh "$dir/$directory" "$bkp_dir/$directory" "$dest_dir/$directory" "$root" "$dest_dir"
 
+for directory in $directories ; do
+  include=true
+  for exclude in "${excludes[@]}" ; do
+    [[ $directory == $exclude ]] && include=false
+  done
+
+  if [[ $directory != "." ]] && [[  $include == true ]] ; then
+    $root/installlinks.sh \
+      "$dir/$directory" \
+      "$bkp_dir/$directory" \
+      "$dest_dir/$directory" \
+      "$root" \
+      "$dest_dir"
   fi
 done

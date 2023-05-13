@@ -590,6 +590,7 @@ myStartupHook = composeAll [
     , execScriptHook "start synapse"
     , execScriptHook "start trayer"
     , execScriptHook "start blueman"
+    , execScriptHook "start swapcaps"
     ]
 
 main = 

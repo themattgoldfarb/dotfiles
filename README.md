@@ -29,3 +29,10 @@ cabal install xmobar --flags="all_extensions" --overwrite-policy=always
 * [Install XMonad](https://xmonad.org/INSTALL.html)
   * I like using the cabal install method.
 
+## Other Stuff
+### Make Ctrl+Alt+Backspace kill X Server
+```
+sudo dpkg-reconfigure keyboard-configuration
+```
+
+Press enter a couple times until you get to the screen about Control+Alt+Backspace and change that to `<Yes>`

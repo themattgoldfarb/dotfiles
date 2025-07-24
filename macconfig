@@ -1,0 +1,51 @@
+# This is a config file to specify where files should be linked.
+#
+# This file works by using prefixes.
+#   #: is a comment
+#   .: says the file without a dot should be a dot file
+#         e.g. .vimrc says to move vimrc to .vimrc
+#   DEST=: specifies where the contents of the folder should go
+#   !: says to ignore the file or folder.
+
+!installlinks.sh
+!installstuff.sh
+!sessions
+
+/home/DEST=
+/home/.ideavimrc
+/home/.Xresources
+/home/.xmodmaprc
+/home/.zshrc
+/home/.xprofile
+/home/.xmobarrc2
+/home/.arrowkeyremap
+/home/.xmobarrc
+/home/.Xmodmap
+/home/.tmux.conf
+/home/.xmobarrc_single
+/home/.vimrc
+/home/.bashrc
+
+/desktopFiles/DEST=.local/share/applications
+
+/bash_files/DEST=installCfg
+/bash_files/tmp5
+/bash_files/tmp
+/bash_files/installlinks.sh
+/bash_files/subdir/stmp2
+/bash_files/subdir/stmp1
+/bash_files/tmp2
+/bash_files/tmp4
+/bash_files/tmp3
+/bash_files/dotconfig
+
+/iconFiles/DEST=.icons
+
+/xmonad/DEST=.config/xmonad
+!/xmonad/installlinks.sh
+
+/bash_files/DEST=.bash_files
+
+/xres/DEST=.xres
+
+/nvimlua/DEST=.config/nvim/luascripts
